@@ -1,0 +1,126 @@
+{
+    "response_code": 1,
+    "response_data": {
+        "Emp_Allocation_For_WorkStation": [
+     {
+      "workstations": [{
+       "pws_name": "Capping",
+       "pws_id": 1
+      }],
+      "process_id": 1,
+      "process_name": "Capping"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Tumbling ",
+       "pws_id": 2
+      }],
+      "process_id": 2,
+      "process_name": "Tumbling "
+     },
+     {
+      "workstations": [{
+       "pws_name": "Cleaning",
+       "pws_id": 3
+      }],
+      "process_id": 3,
+      "process_name": "Cleaning"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Coating ",
+       "pws_id": 4
+      }],
+      "process_id": 4,
+      "process_name": "Coating "
+     },
+     {
+      "workstations": [
+       {
+        "pws_name": "Moulding ",
+        "pws_id": 5
+       },
+       {
+        "pws_name": "moulding1",
+        "pws_id": 15
+       }
+      ],
+      "process_id": 5,
+      "process_name": "Moulding "
+     },
+     {
+      "workstations": [{
+       "pws_name": "Deflashing",
+       "pws_id": 6
+      }],
+      "process_id": 6,
+      "process_name": "Deflashing"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Punching ",
+       "pws_id": 7
+      }],
+      "process_id": 7,
+      "process_name": "Punching "
+     },
+     {
+      "workstations": [{
+       "pws_name": "Inspection",
+       "pws_id": 8
+      }],
+      "process_id": 8,
+      "process_name": "Inspection"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Polishing",
+       "pws_id": 9
+      }],
+      "process_id": 9,
+      "process_name": "Polishing"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Online Quality",
+       "pws_id": 10
+      }],
+      "process_id": 10,
+      "process_name": "Online Quality"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Oven",
+       "pws_id": 11
+      }],
+      "process_id": 11,
+      "process_name": "Oven"
+     },
+     {
+      "workstations": [{
+       "pws_name": "Packing",
+       "pws_id": 12
+      }],
+      "process_id": 12,
+      "process_name": "Packing"
+     },
+     {
+      "workstations": [{
+       "pws_name": "I/C",
+       "pws_id": 13
+      }],
+      "process_id": 13,
+      "process_name": "I/C"
+     },
+     {
+      "workstations": [{
+       "pws_name": "NPD",
+       "pws_id": 14
+      }],
+      "process_id": 14,
+      "process_name": "NPD"
+     }
+    ]},
+    "ws_req_id": 89690,
+    "response_msg": "Success"
+   }
