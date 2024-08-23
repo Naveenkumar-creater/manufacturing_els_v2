@@ -1,7 +1,7 @@
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/data/model/recent_activity_model.dart';
 
-import '../../../../constant/request_model.dart';
+import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class ActivityDatasource {

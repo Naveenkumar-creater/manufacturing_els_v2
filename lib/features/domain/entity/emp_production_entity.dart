@@ -34,7 +34,7 @@ class ListOfEmpProductionEntity extends Equatable {
   final int? ipdscrapqty;
   final int? pwsid;
   final int? ipdreworkableqty;
-    final int?pwseempid;
+  final int?pwseempid;
 
   const ListOfEmpProductionEntity( 
       {required this.ipdcardno,

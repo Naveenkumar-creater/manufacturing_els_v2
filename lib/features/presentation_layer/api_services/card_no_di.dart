@@ -8,7 +8,7 @@ import 'package:prominous/features/domain/repository/card_no_repo.dart';
 import 'package:prominous/features/domain/usecase/card_no_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/card_no_provider.dart';
 
-import '../../../constant/show_pop_error.dart';
+import '../../../constant/utilities/exception_handle/show_pop_error.dart';
 
 
 class CardNoApiService {

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:prominous/constant/network_exception.dart';
-import 'package:prominous/constant/request_model.dart';
+import 'package:prominous/constant/utilities/exception_handle/network_exception.dart';
+import 'package:prominous/constant/request_data_model/api_request_model.dart';
 import 'package:prominous/features/data/core/api_constant.dart';
 
 class LoginApiClient {

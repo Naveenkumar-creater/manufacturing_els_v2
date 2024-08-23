@@ -3,14 +3,13 @@ import 'dart:convert';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 
-import '../../../constant/request_model.dart';
+import '../../../constant/request_data_model/api_request_model.dart';
 import 'api_constant.dart';
 
 class EmployeeClient {
   dynamic getEmployeeList(int processid, int deptid,int psid,String token) async {
     ApiRequestDataModel requestData = ApiRequestDataModel(
         clientAuthToken: token, apiFor: "list_of_emp_process_v1", processId: processid,deptId: deptid,psId:psid );
-
 
 
     const timeoutDuration = Duration(seconds: 10);
@@ -26,7 +25,7 @@ class EmployeeClient {
           .timeout(timeoutDuration);
 
       // ignore: avoid_print
-      print(response. body);
+      print(response.body);
 
       if (response.statusCode == 200) {
         final responseJson = jsonDecode(response.body);

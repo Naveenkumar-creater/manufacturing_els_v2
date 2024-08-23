@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prominous/constant/show_pop_error.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
 import 'package:prominous/features/data/repository/allocation_repo_impl.dart';
 import 'package:prominous/features/domain/usecase/allocation_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/allocation_provider.dart';

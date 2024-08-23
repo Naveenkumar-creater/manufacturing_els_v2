@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 class CustomTextFormfield extends StatelessWidget {
   final TextEditingController controller;
   final TextInputType? keyboardType;
+  final int ? maxline;
   final bool? isObscureText;
   final String? obscuringCharacter;
   final Widget? prefixIcon;
@@ -33,7 +34,8 @@ class CustomTextFormfield extends StatelessWidget {
       this.focusNode, 
       this.onEditingComplete, 
       this.onFieldSubmitted,
-      this.hintStyle, this.labelStyle, this.textStyle, this.constrainBox});
+      this.hintStyle, this.labelStyle, this.textStyle, this.constrainBox,
+       this.maxline = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class CustomTextFormfield extends StatelessWidget {
       focusNode: focusNode,
       onEditingComplete: onEditingComplete,
       onFieldSubmitted: onFieldSubmitted,
+      maxLines: maxline,
       controller: controller,
       keyboardType: keyboardType,
       obscureText: isObscureText!,

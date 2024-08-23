@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prominous/constant/show_pop_error.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
 import 'package:prominous/features/data/datasource/remote/activity_datasource.dart';
 import 'package:prominous/features/data/repository/activity_repo_impl.dart';
 

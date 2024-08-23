@@ -1,6 +1,6 @@
 import 'package:prominous/features/data/model/shift_status_model.dart';
 
-import '../../../../constant/request_model.dart';
+import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class ShiftStatusDatasource {

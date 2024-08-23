@@ -1,4 +1,4 @@
-import 'package:prominous/constant/request_model.dart';
+import 'package:prominous/constant/request_data_model/api_request_model.dart';
 import 'package:prominous/features/data/core/api_constant.dart';
 import 'package:prominous/features/data/model/edit_entry_model.dart';
 

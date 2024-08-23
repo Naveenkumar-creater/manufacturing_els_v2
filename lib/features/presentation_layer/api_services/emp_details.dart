@@ -7,7 +7,7 @@ import 'package:prominous/features/domain/entity/process_entity.dart';
 import 'package:prominous/features/domain/repository/emp_details_repository.dart';
 import 'package:prominous/features/presentation_layer/provider/emp_details_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/process_provider.dart';
-import '../../../constant/show_pop_error.dart';
+import '../../../constant/utilities/exception_handle/show_pop_error.dart';
 
 import '../../data/core/emp_details_client.dart';
 import '../../data/datasource/remote/emp_details_datasource.dart';

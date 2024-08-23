@@ -1,7 +1,7 @@
 import 'dart:ffi';
 
 import 'package:flutter/material.dart';
-import 'package:prominous/constant/show_pop_error.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
 import 'package:prominous/features/data/datasource/remote/edit_entry_datasource.dart';
 import 'package:prominous/features/data/repository/edit_entry_repo_impl.dart';
 import 'package:prominous/features/domain/entity/edit_entry_entity.dart';

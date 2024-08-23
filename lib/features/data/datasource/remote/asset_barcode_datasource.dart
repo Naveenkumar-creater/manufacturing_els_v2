@@ -1,7 +1,7 @@
 import 'package:prominous/features/data/model/actual_qty_model.dart';
 import 'package:prominous/features/data/model/asset_barcode_model.dart';
 
-import '../../../../constant/request_model.dart';
+import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class AssetBarcodeDatasource {

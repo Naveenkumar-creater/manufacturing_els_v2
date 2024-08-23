@@ -13,11 +13,10 @@ import 'package:prominous/features/domain/entity/AllocationEntity.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
 import 'package:prominous/features/presentation_layer/provider/allocation_provider.dart';
 import 'package:http/http.dart' as http;
-import '../../../../constant/request_model.dart';
-import '../../../../constant/show_pop_error.dart';
+import '../../../../constant/request_data_model/api_request_model.dart';
+import '../../../../constant/utilities/exception_handle/show_pop_error.dart';
 import '../../../data/core/api_constant.dart';
 import '../../api_services/process_di.dart';
-import 'employee_details_list.dart';
 
 class EmployeeAllocationPopup extends StatefulWidget {
   final int? empId;
@@ -163,8 +162,8 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
             
                Text(
                   'Process Area',style: TextStyle(fontSize: MediaQuery.of(context)
-                    .size
-                    .width>572 ?24.sp:18.sp,
+                    .size .width>572 ?24.sp:18.sp,
+                    
                                     color: Color.fromARGB(255, 80, 96, 203),
                                     fontFamily: "Lexend",
                                     fontWeight: FontWeight.w500),
@@ -240,8 +239,7 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
             context: context,
             id: widget.processid ?? 0,
             deptid: widget.deptid ?? 0,
-            psid: widget.psid ?? 0);
-                            
+            psid: widget.psid ?? 0);   
                           Navigator.of(context).pop();
                         }
                       },),

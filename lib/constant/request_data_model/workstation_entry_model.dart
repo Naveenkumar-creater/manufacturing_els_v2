@@ -1,32 +1,35 @@
 class WorkStationEntryReqModel {
-  WorkStationEntryReqModel({
-    required this.apiFor,
-    required this.clientAuthToken,
-    required this.ipdMpmId,
-    required this.ipdToTime,
-    required this.ipdReworkFlag,
-    required this.ipdAssetId,
-    required this.ipdCardNo,
-    required this.ipdRejQty,
-    required this.ipdDeptId,
-    required this.ipdDate,
-    required this.ipdGoodQty,
-    required this.ipdItemId,
-    required this.ipdId,
-    required this.ipdFromTime,
-    required this.ipdPcId,
-    // required this.mpmBatchProcess,
-    // required this.emppersonId,
-    required this.ipdpaid,
-    required this.targetqty,
-    // required this.batchno,
-    required this.ipdpsid,
-    required this.ppid,
-    required this.shiftid,
-    required this.ipdreworkableqty,
-    required this.listOfEmployeesForWorkStation,
-    required this.pwsid
-  });
+  WorkStationEntryReqModel( 
+      {required this.apiFor,
+      required this.clientAuthToken,
+      required this.ipdMpmId,
+      required this.ipdToTime,
+      required this.ipdReworkFlag,
+      required this.ipdAssetId,
+      required this.ipdCardNo,
+      required this.ipdRejQty,
+      required this.ipdDeptId,
+      required this.ipdDate,
+      required this.ipdGoodQty,
+      required this.ipdItemId,
+      required this.ipdId,
+      required this.ipdFromTime,
+      required this.ipdPcId,
+      // required this.mpmBatchProcess,
+      // required this.emppersonId,
+      required this.ipdpaid,
+      required this.targetqty,
+      // required this.batchno,
+      required this.ipdpsid,
+      required this.ppid,
+      required this.shiftid,
+      required this.ipdreworkableqty,
+      required this.listOfEmployeesForWorkStation,
+      required this.pwsid,
+      required this.listOfWorkstationIncident,
+      
+      
+      });
   final String? apiFor;
   final String? clientAuthToken;
   final int? ipdMpmId;
@@ -48,9 +51,10 @@ class WorkStationEntryReqModel {
   final int? ppid;
   final int? shiftid;
   final double? ipdreworkableqty;
-  final int?pwsid;
+  final int? pwsid;
 
   final List<ListOfEmployeesForWorkStation> listOfEmployeesForWorkStation;
+  final List<ListOfWorkStationIncidents> listOfWorkstationIncident;
 
   Map<String, dynamic> toJson() => {
         'client_aut_token': clientAuthToken,
@@ -73,12 +77,17 @@ class WorkStationEntryReqModel {
         "pp_plan_qty": targetqty,
         "pp_id": ppid,
         "pp_shift_id": shiftid,
-        "ipd_pws_id":pwsid,
+        "ipd_pws_id": pwsid,
         "ipd_reworkable_qty": ipdreworkableqty,
         "List_Of_Employees_For_WorkStation": listOfEmployeesForWorkStation
             .map((listOfEmployeesForWorkStation) =>
                 listOfEmployeesForWorkStation?.toJson())
             .toList(),
+            
+        "List_Of_WorkStation_incident": listOfWorkstationIncident
+            .map((listOfWorkstationIncident) =>
+                listOfWorkstationIncident.toJson())
+            .toList()
       };
 }
 
@@ -94,5 +103,62 @@ class ListOfEmployeesForWorkStation {
       };
 }
 
+class ListOfWorkStationIncidents {
+  ListOfWorkStationIncidents(
+      {required this.incidenid,
+      required this.subincidentid,
+      required this.rootcauseid,
+      required this.notes});
+
+  final int? incidenid;
+  final int? subincidentid;
+  final int? rootcauseid;
+  final String? notes;
+
+  Map<String, dynamic> toJson() => {
+        "incident_id": incidenid,
+        "subincidentid": subincidentid,
+        "rootcauseid": rootcauseid,
+        "notes": notes
+      };
+}
 
 
+//server workstation entry json formate
+// {
+//         'client_aut_token': clientAuthToken,
+//         'api_for': apiFor,
+//         "ipd_mpm_id": ipdMpmId,
+//         "ipd_to_time": ipdToTime,
+//         "ipd_rework_flag": ipdReworkFlag,
+//         "ipd_asset_id": ipdAssetId,
+//         "ipd_card_no": ipdCardNo,
+//         "ipd_pc_id": ipdPcId,
+//         "ipd_rej_qty": ipdRejQty,
+//         "ipd_dept_id": ipdDeptId,
+//         "ipd_date": ipdDate,
+//         "ipd_good_qty": ipdGoodQty,
+//         "ipd_item_id": ipdItemId,
+//         "ipd_id": ipdId,
+//         "ipd_from_time": ipdFromTime,
+//         'ipd_pa_id': ipdpaid,
+//         "ipd_ps_id": ipdpsid,
+//         "pp_plan_qty": targetqty,
+//         "pp_id": ppid,
+//         "pp_shift_id": shiftid,
+//         "ipd_reworkable_qty": ipdreworkableqty,
+//         "List_Of_Employees_For_WorkStation":[
+//           {
+//                   "emp_id": empId,
+//         },
+//          "List_Of_WorkStation_incident":[
+//           {
+//         "incident_id": incidenid,
+//         "subincident_id": subincidentid,
+//         "rootcause_id": rootcauseid,
+//         "notes": notes
+//           }
+//          ]
+       
+//         ]
+//       }

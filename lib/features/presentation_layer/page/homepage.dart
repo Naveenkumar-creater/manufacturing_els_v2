@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:prominous/constant/responsive/tablet_body.dart';
+import 'package:prominous/features/presentation_layer/responsive_screen/tablet_body.dart';
 
-import '../../../constant/responsive/desktop_body.dart';
-import '../../../constant/responsive/mobile_body.dart';
-import '../../../constant/responsive/responsive_layout.dart';
+import '../responsive_screen/desktop_body.dart';
+import '../responsive_screen/mobile_body.dart';
+import '../../../constant/utilities/responsive_layout.dart';
 
 
 class HomePage extends StatelessWidget {

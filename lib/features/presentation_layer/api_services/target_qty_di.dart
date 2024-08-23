@@ -10,7 +10,7 @@ import 'package:prominous/features/domain/entity/target_qty_entity.dart';
 import 'package:prominous/features/domain/usecase/target_qty_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/process_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/target_qty_provider.dart';
-import '../../../constant/show_pop_error.dart';
+import '../../../constant/utilities/exception_handle/show_pop_error.dart';
 
 import '../../data/repository/process_repository_impl.dart';
 import '../../domain/repository/process_repository.dart';
