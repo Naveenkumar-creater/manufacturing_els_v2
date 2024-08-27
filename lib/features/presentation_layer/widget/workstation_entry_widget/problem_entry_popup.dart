@@ -83,7 +83,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
     if (widget.SelectProblemId != null) {
       listofproblemCatagoryservice.getListofProblemCatagory(
         context: context,
-        deptid: deptid ?? 1,  
+        deptid: deptid ?? 1,
         incidentid: widget.SelectProblemId ?? 0,
       );
 
@@ -140,7 +140,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
     final deptid =
         Provider.of<LoginProvider>(context).user?.userLoginEntity?.deptId;
 
-        Size screenSize = MediaQuery.of(context).size;
+    Size screenSize = MediaQuery.of(context).size;
 
     return Drawer(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -155,7 +155,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
               Text(
                 'Problem Description',
                 style: TextStyle(
-                    fontSize:screenSize.width<572? 18.sp:24.sp,
+                    fontSize: screenSize.width < 572 ? 18.sp : 24.sp,
                     color: Color.fromARGB(255, 80, 96, 203),
                     fontFamily: "Lexend",
                     fontWeight: FontWeight.w500),
@@ -176,7 +176,8 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                           Text('Problem',
                               style: TextStyle(
                                   fontFamily: "lexend",
-                                  fontSize: screenSize.width<572 ? 14.sp:16.sp,
+                                  fontSize:
+                                      screenSize.width < 572 ? 14.sp : 16.sp,
                                   color: Colors.black54)),
                           SizedBox(
                             width: 8,
@@ -192,7 +193,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                         ],
                       ),
                       Container(
-                        width: screenSize.width<572 ? 200.w:300.w,
+                        width: screenSize.width < 572 ? 200.w : 300.w,
                         height: 50.h,
                         decoration: BoxDecoration(
                           border: Border.all(width: 1, color: Colors.grey),
@@ -211,6 +212,10 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                             if (newvalue != null) {
                               setState(() {
                                 problemDropdown = newvalue;
+
+                                // Reset problemCatagoryDropdown and related state
+                                problemCatagoryDropdown = null;
+                                problemcatagory = [];
                                 Provider.of<ListofRootcauseProvider>(context,
                                         listen: false)
                                     .reset();
@@ -251,7 +256,8 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                             } else {
                               setState(() {
                                 problemDropdown = null;
-                                // Clear problemcatagory when no problem selected
+                                problemCatagoryDropdown = null;
+                                problemcatagory = [];
                               });
                             }
                           },
@@ -262,8 +268,10 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                         setState(() {
                                           selectproblemname =
                                               problemName.incmName;
-
-                                          selectrootcausename = null;
+                                          selectproblemcatagoryname =
+                                              null; // Reset the problem category name
+                                          selectrootcausename =
+                                              null; // Reset the root cause name
                                         });
                                       },
                                       value: problemName.incmName,
@@ -272,7 +280,9 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontFamily: "lexend",
-                                          fontSize: screenSize.width<572 ? 14.sp:16.sp,
+                                          fontSize: screenSize.width < 572
+                                              ? 14.sp
+                                              : 16.sp,
                                         ),
                                       ),
                                     );
@@ -292,7 +302,8 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                           Text('Problem Catagory',
                               style: TextStyle(
                                   fontFamily: "lexend",
-                                  fontSize: screenSize.width<572 ? 14.sp:16.sp,
+                                  fontSize:
+                                      screenSize.width < 572 ? 14.sp : 16.sp,
                                   color: Colors.black54)),
                           SizedBox(
                             width: 8,
@@ -308,7 +319,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                         ],
                       ),
                       Container(
-                        width:screenSize.width<572 ? 200.w:300.w,
+                        width: screenSize.width < 572 ? 200.w : 300.w,
                         height: 50.h,
                         decoration: BoxDecoration(
                           border: Border.all(width: 1, color: Colors.grey),
@@ -327,19 +338,23 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                             if (newvalue != null) {
                               setState(() {
                                 problemCatagoryDropdown = newvalue;
+                                rootCauseDropdown=null;
+                                listofrootcause=[];
+
                               });
 
                               final selectproblemCatagory =
                                   problemcatagory?.firstWhere(
-                                      (problemcatagory) =>
-                                          problemcatagory.incmName == newvalue,
-                                      orElse: () => ListOfIncidentCatagory(
-                                            incmDesc: '',
-                                            incmId: 0,
-                                            incmMpmId: 0,
-                                            incmName: "",
-                                            incmParentId: 0,
-                                          ));
+                                (problemcatagory) =>
+                                    problemcatagory.incmName == newvalue,
+                                orElse: () => ListOfIncidentCatagory(
+                                  incmDesc: '',
+                                  incmId: 0,
+                                  incmMpmId: 0,
+                                  incmName: "",
+                                  incmParentId: 0,
+                                ),
+                              );
 
                               if (selectproblemCatagory?.incmName != null &&
                                   selectproblemCatagory?.incmId != null) {
@@ -347,16 +362,17 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                     selectproblemCatagory?.incmId;
 
                                 await listofRootCauseService.getListofRootcause(
-                                    context: context,
-                                    deptid: deptid ?? 1057,
-                                    incidentid: problemcatagoryid ?? 0);
+                                  context: context,
+                                  deptid: deptid ?? 1057,
+                                  incidentid: problemcatagoryid ?? 0,
+                                );
 
                                 final listofroot =
                                     Provider.of<ListofRootcauseProvider>(
-                                            context,
-                                            listen: false)
-                                        .user
-                                        ?.listrootcauseEntity;
+                                  context,
+                                  listen: false,
+                                ).user?.listrootcauseEntity;
+
                                 setState(() {
                                   listofrootcause = listofroot;
                                 });
@@ -365,6 +381,8 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                               setState(() {
                                 problemCatagoryDropdown = null;
                                 problemcatagoryid = 0;
+                               rootCauseDropdown=null;
+                               listofrootcause=[];
                               });
                             }
                           },
@@ -375,6 +393,9 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                         setState(() {
                                           selectproblemcatagoryname =
                                               problemcatagory.incmName;
+                                                
+                                          selectrootcausename =
+                                              null;
                                         });
                                       },
                                       value: problemcatagory.incmName,
@@ -383,7 +404,9 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                         style: TextStyle(
                                           color: Colors.black87,
                                           fontFamily: "lexend",
-                                          fontSize: screenSize.width<572 ? 14.sp:16.sp,
+                                          fontSize: screenSize.width < 572
+                                              ? 14.sp
+                                              : 16.sp,
                                         ),
                                       ),
                                     );
@@ -403,7 +426,8 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                           Text('Root Cause',
                               style: TextStyle(
                                   fontFamily: "lexend",
-                                  fontSize: screenSize.width<572 ? 14.sp:16.sp,
+                                  fontSize:
+                                      screenSize.width < 572 ? 14.sp : 16.sp,
                                   color: Colors.black54)),
                           SizedBox(
                             width: 8,
@@ -419,7 +443,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                         ],
                       ),
                       Container(
-                        width:screenSize.width<572 ? 200.w :300.w,
+                        width: screenSize.width < 572 ? 200.w : 300.w,
                         height: 50.h,
                         decoration: BoxDecoration(
                           border: Border.all(width: 1, color: Colors.grey),
@@ -483,7 +507,9 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                       style: TextStyle(
                                         color: Colors.black87,
                                         fontFamily: "lexend",
-                                        fontSize: screenSize.width<572 ? 14.sp:16.sp,
+                                        fontSize: screenSize.width < 572
+                                            ? 14.sp
+                                            : 16.sp,
                                       ),
                                     ),
                                   );
@@ -495,7 +521,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                         height: 10,
                       ),
                       SizedBox(
-                        width: screenSize.width<572 ? 200.w : 300.w,
+                        width: screenSize.width < 572 ? 200.w : 300.w,
                         height: 100.h,
                         child: CustomTextFormfield(
                           maxline: 5,
@@ -510,7 +536,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                       SizedBox(
                         height: 40.h,
                         child: CustomButton(
-                          width: screenSize.width<572 ? 100.w: 130.w,
+                          width: screenSize.width < 572 ? 100.w : 130.w,
                           height: 50.h,
                           onPressed: selectproblemname != null &&
                                   selectproblemcatagoryname != null &&
@@ -558,7 +584,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                             'Add',
                             style: TextStyle(
                                 fontFamily: "lexend",
-                                fontSize: screenSize.width<572 ? 14.w:16.w,
+                                fontSize: screenSize.width < 572 ? 14.w : 16.w,
                                 color: Colors.white),
                           ),
                           backgroundColor: Colors.green,
