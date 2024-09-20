@@ -1,7 +1,5 @@
-import 'package:http/http.dart';
 import 'package:prominous/constant/request_data_model/api_request_model.dart';
 import 'package:prominous/features/data/core/api_constant.dart';
-import 'package:prominous/features/data/model/listof_problem_model.dart';
 import 'package:prominous/features/data/model/listof_rootcaue_model.dart';
 
 abstract class ListofRootCauseDatasource{

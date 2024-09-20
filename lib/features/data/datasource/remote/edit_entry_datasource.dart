@@ -13,6 +13,7 @@ class EditEntryDatasourceImpl implements EditEntryDatasource {
   Future<EditEntryModel> getEditEntry(int ipdId, int pwsId,int psid, int deptid,String token) async{
  ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "edit_entry_v1",ipdid: ipdId, pwsid:pwsId, psId:psid, deptId:deptid,clientAuthToken: token );
    final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
+   print(response);
   EditEntryModel result=  EditEntryModel.fromJson(response);
   print(result);
   return result;

@@ -8,17 +8,21 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
 import 'package:prominous/constant/request_data_model/delete_production_entry.dart';
+import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/Editincidentlist_di.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/edit_nonproduction_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/responsive_screen/tablet_body.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_entry_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_entry_provider.dart';
+import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/change_dateformate.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prominous/constant/request_data_model/productuion_entry_model.dart';
+import 'package:prominous/constant/request_data_model/edit_workstation_entry_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/activity_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/emp_production_entry_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
@@ -171,19 +175,21 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
       final fromtime = empproduction?.ipdFromTime;
       final totime = empproduction?.ipdToTime;
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-      ProductionEntryReqModel requestBody = ProductionEntryReqModel(
+       WorkStationEntryReqModel editworkStationEntryReq = WorkStationEntryReqModel(
         apiFor: "edit_entry_server_v1",
         clientAuthToken: token,
         // emppersonid: empid,
         // goodQuantities: empproduction.first.goodqty,
         // rejectedQuantities: empproduction.first.rejqty,
         // reworkQuantities: empproduction.first.ipdflagid,
-        ipdRejQty: int.tryParse(rejectedQController.text) ?? 0,
-        ipdReworkFlag: reworkValue ?? empproduction.ipdReworkFlag,
-        ipdGoodQty: int.tryParse(goodQController.text) ?? 0,
-        // batchno: int.tryParse(batchNOController.text),
-        targetqty: int.tryParse(targetQtyController.text),
-        ipdreworkableqty: int.tryParse(reworkQtyController.text),
+
+ipdGoodQty:double.tryParse(goodQController.text) ?? 0, 
+ipdRejQty:double.tryParse(rejectedQController.text) ?? 0 ,
+ipdReworkFlag: reworkValue ?? empproduction.ipdReworkFlag ,
+ipdreworkableqty: double.tryParse(reworkQtyController.text),
+targetqty: double.tryParse(targetQtyController.text),
+
+
 
         ipdCardNo: int.tryParse(cardNoController.text.toString()),
 
@@ -209,9 +215,13 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
         ipdpsid: widget.psid,
         ppid: ppId ?? 0,
         shiftid: Shiftid,
+        listOfEmployeesForWorkStation: [],
+        listOfWorkstationIncident: [],
+        nonProductionList: [],
+        pwsid: widget.pwsId
       );
 
-      final requestBodyjson = jsonEncode(requestBody.toJson());
+      final requestBodyjson = jsonEncode(editworkStationEntryReq.toJson());
 
       print(requestBodyjson);
 
@@ -575,6 +585,11 @@ await editIncidentListService.getIncidentList(
         Provider.of<EditIncidentListProvider>(context, listen: false)
             .user
             ?.editIncidentList;
+
+              final nonProductionList =
+        Provider.of<EditNonproductionProvider>(context, listen: false)
+            .listOfNonproduction
+            ?.listOfNonProductionEntity;
 
     // final activityName =
     //     activity?.map((process) => process.paActivityName)?.toSet()?.toList() ??
@@ -1692,7 +1707,7 @@ await editIncidentListService.getIncidentList(
                                     Padding(
                                       padding:  EdgeInsets.only(left: 8.w,right: 8.w),
                                       child: Container(
-                                        height: 40.h,
+                                        height: 30.h,
                                         child:   Row(
                                           mainAxisAlignment: MainAxisAlignment.start,
                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1716,10 +1731,21 @@ await editIncidentListService.getIncidentList(
                                     elevation: 3,
                                     child: Container(
                                       height: 200,
+                                      width: 500,
                                       decoration: BoxDecoration(
                                           color: Color.fromARGB(150, 235, 236, 255),
                                           borderRadius: BorderRadius.circular(5)),
-                                      child: ListView.builder(
+                                      child: (editIncidentList!.isEmpty) ? Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Text("No Records found",style: TextStyle(fontSize: 14.sp),),
+                                              ],
+                                            ):
+                                      
+                                      
+                                      
+                                       ListView.builder(
                                           itemCount: editIncidentList?.length,
                                           itemBuilder: (context, index) {
                                             final item = editIncidentList?[index];
@@ -1761,6 +1787,114 @@ await editIncidentListService.getIncidentList(
                                                       width: 150,
                                                       child: Text(
                                                         item?.subincidentName ?? "",
+                                                        style: TextStyle(
+                                                            fontFamily: "lexend",
+                                                            fontSize: 12.sp,
+                                                            color: Colors.black54),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          }),
+                                    ),
+                                  ),
+                                ),
+
+                                 Padding(
+                                      padding:  EdgeInsets.only(left: 8.w,right: 8.w),
+                                      child: Container(
+                                        height: 30.h,
+                                        child:   Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Non Production List",
+                                              style: TextStyle(
+                                                  fontSize: 16.sp,
+                                                  fontFamily: "Lexend",
+                                                  color:
+                                                      Color.fromARGB(255, 80, 96, 203)),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w, vertical: 2.h),
+                                  child: Material(
+                                    elevation: 3,
+                                    child: Container(
+                                      height: 200,
+                                      width: 500,
+                                      decoration: BoxDecoration(
+                                          color: Color.fromARGB(150, 235, 236, 255),
+                                          borderRadius: BorderRadius.circular(5)),
+                                      child: (nonProductionList == null || nonProductionList.isEmpty) ? Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Text("No Records found",style: TextStyle(fontSize: 14.sp),),
+                                              ],
+                                            ):
+                                      
+                                      
+                                      
+                                       ListView.builder(
+                                          itemCount: nonProductionList?.length,
+                                          itemBuilder: (context, index) {
+                                            final item = nonProductionList ?[index];
+                                                                  String formatFromDate = ChaneDateformate.formatDate('${item?.inpaFromTime}');
+                         String formateToDate=ChaneDateformate.formatDate('${item?.inpaToTime}');
+
+                        DateTime fromtime=DateTime.parse(formatFromDate);
+                         DateTime totime=DateTime.parse(formateToDate);
+
+                         Duration difference=totime.difference(fromtime);
+
+                         int minutesdifference=difference.inMinutes;
+                        
+                                            return Container(
+                                              height: 80.h,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                  color:  index % 2 == 0
+                                                        ? Color.fromARGB(
+                                                            250, 235, 236, 255)
+                                                        : Color.fromARGB(
+                                                            10, 235, 236, 255),),
+                                              child:  Padding(
+                                                  padding: EdgeInsets.only(
+                                                      left: 8.w, right: 8.w),
+                                                child: Row(
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 20,
+                                                      child: Text(
+                                                        '${index + 1}',
+                                                        style: TextStyle(
+                                                            fontFamily: "lexend",
+                                                            fontSize: 14.sp,
+                                                            color: Colors.black54),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 150,
+                                                      child: Text(
+                                                        item?.npamName ?? "",
+                                                        style: TextStyle(
+                                                            fontFamily: "lexend",
+                                                            fontSize: 12.sp,
+                                                            color: Colors.black54),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 150,
+                                                      child: Text(
+                                                       '${minutesdifference} m',
                                                         style: TextStyle(
                                                             fontFamily: "lexend",
                                                             fontSize: 12.sp,

@@ -5,18 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prominous/features/presentation_layer/page/loginpage_layout.dart';
+import 'package:prominous/features/presentation_layer/provider/edit_emp_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_entry_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/edit_nonproduction_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofproblem_catagory_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofproblem_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofrootcause_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/non_production_activity_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/problem_status_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/rootcause_solution_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/scanforworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:prominous/features/presentation_layer/page/loginpage.dart';
-import 'package:prominous/features/presentation_layer/page/prominous_login_page.dart';
 import 'package:prominous/features/presentation_layer/provider/activity_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/actual_qty_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/asset_barcode_provier.dart';
@@ -107,7 +112,7 @@ class MyApp extends StatelessWidget {
 
            ChangeNotifierProvider<TargetQtyProvider>(
           create: (_) => TargetQtyProvider(),),
- ChangeNotifierProvider<ShiftStatusProvider>(
+           ChangeNotifierProvider<ShiftStatusProvider>(
           create: (_) => ShiftStatusProvider(),),
 
           ChangeNotifierProvider<EditEntryProvider>(
@@ -126,7 +131,21 @@ class MyApp extends StatelessWidget {
           create: (_) => ListofRootcauseProvider(),),
       ChangeNotifierProvider<EditIncidentListProvider>(
           create: (_) => EditIncidentListProvider(),),
-      ChangeNotifierProvider<ListProblemStoringProvider>(create: (_)=>ListProblemStoringProvider())
+      ChangeNotifierProvider<ListProblemStoringProvider>(create: (_)=>ListProblemStoringProvider()),
+ChangeNotifierProvider<NonProductionActivityProvider>(create: (_)=>NonProductionActivityProvider()),
+ChangeNotifierProvider<NonProductionStoredListProvider>(create: (_)=>NonProductionStoredListProvider()),
+ChangeNotifierProvider<EditNonproductionProvider>(create: (_)=>EditNonproductionProvider()),
+ChangeNotifierProvider<EditEmpListProvider>(create: (_)=>EditEmpListProvider()),
+ChangeNotifierProvider<RootcauseSolutionProvider>(create: (_)=>RootcauseSolutionProvider()),
+ChangeNotifierProvider<ProblemStatusProvider>(create: (_)=>ProblemStatusProvider()),
+ChangeNotifierProvider<WorkstationProblemProvider>(create: (_)=>WorkstationProblemProvider()),
+
+
+
+
+
+
+      
       ],
       child: ScreenUtilInit(
         builder:(_,child)=> MaterialApp(

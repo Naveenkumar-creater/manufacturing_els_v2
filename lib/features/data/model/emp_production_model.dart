@@ -141,17 +141,13 @@ class ListProductionEntry extends ListOfEmpProductionEntity {
       ipdtotime: json['ipd_to_time'],
       itemid: json['ipd_item_id'],
       ipddeptid: json["ipd_dept_id"],
-
       ipdbatchno: json["ipd_batch_no"],
       totalGoodqty: json["totalgoodqty"],
       ipdpwsempcount: json["ipd_pws_emp_count"],
-
       ipdreworkableqty: json["ipd_reworkable_qty"],
       ipdscrapqty: json["ipd_scrap_qty"],
-       pwsid: json["pws_id"],
-
-        pwseempid  :json["pwse_emp_id"],
-
+      pwsid: json["pws_id"],
+      pwseempid  :json["pwse_emp_id"],
       totalRejqty:json["totalrejqty"],
 
       //  personid:json["person_id"],

@@ -52,6 +52,10 @@ class ApiRequestDataModel {
  int?ipdpwsid;
  int?	pwsspwsid;
  int ? incidentid;
+ int? problemAssetId;
+ int? rootcauseId;
+ int?problemStatus;
+
     
 
 
@@ -109,7 +113,10 @@ class ApiRequestDataModel {
        this.pwsBarcode,
        this.ipdpwsid,
        this.pwsspwsid,
-       this.incidentid
+       this.incidentid,
+       this.problemAssetId,
+       this.rootcauseId,
+       this.problemStatus
       });
 
   Map<String, dynamic> toJson() {
@@ -120,6 +127,7 @@ class ApiRequestDataModel {
       'card_no':cardNo,
       'client_aut_token': clientAuthToken,
       'api_for': apiFor,
+      "asset_id":problemAssetId,
       "pwsa_asset_id": assetid,
       'login_id': loginId,
       'login_password': loginPassword,
@@ -170,7 +178,9 @@ class ApiRequestDataModel {
       "pws_barcode":pwsBarcode,
       "ipd_pws_id":ipdpwsid,
       "pwss_pws_id":pwsspwsid,
-      "incident_id":incidentid
+      "incident_id":incidentid,
+      "rootcause_id":rootcauseId,
+      "problem_status":problemStatus
 
     };
   }

@@ -5,9 +5,9 @@ class ListofproblemUsecase  {
   final ListofproblemRepository listofproblemRepository;
   ListofproblemUsecase( this.listofproblemRepository);
 
-  Future<ListOfProblemEntity> execute (String token, int deptid, int processid) {
+  Future<ListOfProblemEntity> execute (String token, int deptid, int processid,int assetId) {
 
-   return  listofproblemRepository.getListofProblem(token, deptid, processid);
+   return  listofproblemRepository.getListofProblem(token, deptid, processid,assetId);
   }
   
 } 

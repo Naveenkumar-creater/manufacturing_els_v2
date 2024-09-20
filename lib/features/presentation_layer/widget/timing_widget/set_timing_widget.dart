@@ -32,7 +32,7 @@ class _UpdateTimeState extends State<UpdateTime> {
     currentMinute = now.minute;
     currentSecond = now.second;
     currentTime =
-        '$currentYear-$currentMonth-$currentDay ${currentHour}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}'; // Initial time display
+        '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay ${currentHour}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}'; // Initial time display
   }
 
   @override
@@ -185,8 +185,14 @@ class _UpdateTimeState extends State<UpdateTime> {
         currentSecond = shiftToTime.second;
       }
 
-      currentTime =
-          '$currentYear-$currentMonth-$currentDay  ${currentHour.toString().padLeft(2, '0')}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}'; // Update currentTime
+    currentTime =
+   '${currentYear.toString().padLeft(4, '0')}-'
+          '${currentMonth.toString().padLeft(2, '0')}-'
+          '${currentDay.toString().padLeft(2, '0')} '
+          '${currentHour.toString().padLeft(2, '0')}:'
+          '${currentMinute.toString().padLeft(2, '0')}:'
+          '${currentSecond.toString().padLeft(2, '0')}';
+
     });
 
     widget.onTimeChanged(currentTime); // Call the callback with the updated time

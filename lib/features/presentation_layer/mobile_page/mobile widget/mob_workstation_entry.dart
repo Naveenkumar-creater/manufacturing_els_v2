@@ -9,12 +9,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:prominous/constant/request_data_model/delete_production_entry.dart';
+import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_close_shift_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
+import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
@@ -22,14 +24,18 @@ import 'package:prominous/features/presentation_layer/api_services/listofproblem
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/non_production_activity_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
 import 'package:prominous/features/presentation_layer/mobile_page/mobile_emp_production_timing.dart';
 import 'package:prominous/features/presentation_layer/mobile_page/mobile_recentHistoryBottomSheet.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/scanforworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/barcode_widget/workstation_barcode_Scanner.dart';
+import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/problem_entry_popup.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -93,6 +99,7 @@ class _EmpProductionEntryPageState
     extends State<MobileEmpWorkstationProductionEntryPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
       late ListProblemStoringProvider storedListOfProblem;
+        late NonProductionStoredListProvider nonProductionList;
   final TextEditingController goodQController = TextEditingController();
   final TextEditingController rejectedQController = TextEditingController();
   final TextEditingController reworkQtyController = TextEditingController();
@@ -104,6 +111,8 @@ class _EmpProductionEntryPageState
   final ProductApiService productApiService = ProductApiService();
   final RecentActivityService recentActivityService = RecentActivityService();
   final ActivityService activityService = ActivityService();
+          final WorkstationProblemService workstationProblemService =
+      WorkstationProblemService();
   final TargetQtyApiService targetQtyApiService = TargetQtyApiService();
   final EmpProductionEntryService empProductionEntryService =
       EmpProductionEntryService();
@@ -112,15 +121,14 @@ class _EmpProductionEntryPageState
   ListofworkstationService listofworkstationService =
       ListofworkstationService();
   AttendanceCountService attendanceCountService = AttendanceCountService();
-  final TextEditingController incidentReasonController =
-      TextEditingController();
-
-  final Listofproblemservice listofproblemservice = Listofproblemservice();
-  final ListofRootCauseService listofRootCauseService =
-      ListofRootCauseService();
+  final TextEditingController incidentReasonController = TextEditingController();
+ EmployeeApiService employeeApiService = EmployeeApiService();
+final Listofproblemservice listofproblemservice = Listofproblemservice();
+final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
   final ListofproblemCatagoryservice listofproblemCatagoryservice =
       ListofproblemCatagoryservice();
-
+  final NonProductionActivityService nonProductionActivityService =
+      NonProductionActivityService();
   List<Map<String, dynamic>> incidentList = [];
 
   ActualQtyService actualQtyService = ActualQtyService();
@@ -148,6 +156,8 @@ class _EmpProductionEntryPageState
   String? workstationBarcode;
   List<ListOfIncidentCatagoryEntity>? problemcatagory;
   List<ListrootcauseEntity>? listofrootcause;
+      List<TextEditingController> empTimingTextEditingControllers = [];
+  final List<String?> errorMessages = [];
 
   TimeOfDay timeofDay = TimeOfDay.now();
   late DateTime currentDateTime;
@@ -163,7 +173,7 @@ class _EmpProductionEntryPageState
   int? problemcatagoryid;
   String? rootCauseDropdown;
   int? rootCauseid;
-
+  String?fromtime;
   String? lastUpdatedTime;
   String? currentDate;
   int? reworkValue;
@@ -174,8 +184,14 @@ class _EmpProductionEntryPageState
   String? productName;
   String? assetID;
   String? achivedTargetQty;
+    int? fromMinutes;
 
-  EmployeeApiService employeeApiService = EmployeeApiService();
+
+
+
+
+
+
 
   Future<void> updateproduction(int? processid) async {
     final responsedata =
@@ -204,6 +220,10 @@ class _EmpProductionEntryPageState
         Provider.of<ListProblemStoringProvider>(context, listen: false)
             .getIncidentList;
 
+
+   final ListofNonProduction =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false)
+            .getNonProductionList;
     // DateTime parsedLastUpdatedTime =
     //     DateFormat('yyyy-MM-dd HH:mm').parse(lastUpdatedTime!);
     final empproduction = responsedata;
@@ -269,25 +289,38 @@ class _EmpProductionEntryPageState
         listOfEmployeesForWorkStation: [],
         pwsid: widget.pwsid,
         listOfWorkstationIncident: [],
+        nonProductionList:[]
       );
 
       for (int index = 0; index < EmpWorkstation!.length; index++) {
         final empid = EmpWorkstation[index];
 
         final listofempworkstation =
-            ListOfEmployeesForWorkStation(empId: empid.empPersonid ?? 0);
+            ListOfEmployeesForWorkStation(empId: empid.empPersonid ?? 0, timing: 0,ipdeId: 0 );
         workStationEntryReq.listOfEmployeesForWorkStation
             .add(listofempworkstation);
       }
 
-      for (int index = 0; index < StoredListOfProblem.length; index++) {
+         for (int index = 0; index < StoredListOfProblem.length; index++) {
         final incident = StoredListOfProblem[index];
         final lisofincident = ListOfWorkStationIncidents(
             incidenid: incident.problemId,
             notes: incident.reasons,
             rootcauseid: incident.rootCauseId,
-            subincidentid: incident.problemcatagoryId);
+            subincidentid: incident.problemcatagoryId,
+        incfromtime: incident.fromtime,incendtime:incident.endtime,problemStatusId:incident.problemstatusId ,productionstopageId:incident.productionStoppageId ,solutionId:incident.solutionId );
         workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
+      }
+
+  for (int index = 0; index < ListofNonProduction.length; index++) {
+        final nonProduction = ListofNonProduction[index];
+        final nonProductionList = NonProductionList(
+          fromTime: nonProduction.npamFromTime,
+          notes:nonProduction.notes ,
+          npamId: nonProduction.npamId,
+          toTime: nonProduction.npamToTime,
+            );
+        workStationEntryReq.nonProductionList.add(nonProductionList);
       }
 
       final requestBodyjson = jsonEncode(workStationEntryReq.toJson());
@@ -815,16 +848,25 @@ class _EmpProductionEntryPageState
     }
 // Assuming currentYear, currentMonth, and currentDay are defined earlier in your code
 
-    lastUpdatedTime = '$currentYear-$currentMonth-$currentDay $shiftTime';
-    currentDate =
-        '$currentYear-$currentMonth-$currentDay $currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
+
+      lastUpdatedTime =
+      '${currentYear.toString().padLeft(4, '0')}-'
+      '${currentMonth.toString().padLeft(2, '0')}-'
+      '${currentDay.toString().padLeft(2, '0')} $shiftTime';
+
+    // currentDate =
+    //     '$currentYear-$currentMonth-$currentDay $currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Store the reference to the provider
-    storedListOfProblem = Provider.of<ListProblemStoringProvider>(context, listen: false);
+  storedListOfProblem =
+      Provider.of<ListProblemStoringProvider>(context, listen: false);
+
+  nonProductionList =
+      Provider.of<NonProductionStoredListProvider>(context, listen: false);
   }
 
   @override
@@ -835,6 +877,13 @@ class _EmpProductionEntryPageState
     rejectedQController.dispose();
     _scrollController.dispose();
 
+   for (var controller in empTimingTextEditingControllers) {
+      controller.dispose();
+    }
+    // Use the stored reference
+    storedListOfProblem.reset(notify: false);
+    nonProductionList.reset(notify: false);
+
     // Use the stored reference
   storedListOfProblem.reset(notify: false);
 
@@ -843,14 +892,14 @@ class _EmpProductionEntryPageState
 
 
 
-  String _formatDateTime(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
-  }
+  // String _formatDateTime(DateTime dateTime) {
+  //   return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+  // }
 
   Future<void> _fetchARecentActivity() async {
     try {
       // Fetch data
-      await empProductionEntryService.productionentry(
+         await empProductionEntryService.productionentry(
           context: context,
           pwsId: widget.pwsid ?? 0,
           deptid: widget.deptid ?? 0,
@@ -862,7 +911,10 @@ class _EmpProductionEntryPageState
           psid: widget.psid ?? 0,
           processid: widget.processid ?? 1,
           pwsId: widget.pwsid ?? 0);
-      await productApiService.productList(
+
+await workstationProblemService.getListofSolution(context: context, pwsid: widget.pwsid ?? 0);
+
+await productApiService.productList(
           context: context,
           id: widget.processid ?? 1,
           deptId: widget.deptid ?? 0);
@@ -878,6 +930,27 @@ class _EmpProductionEntryPageState
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsid ?? 0);
+
+        empTimingUpdation(fromtime!, lastUpdatedTime!);
+     _storedWorkstationProblemList();
+
+           DateTime StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+  DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+
+   fromMinutes = toTime.difference(StartfromTime).inMinutes;
+   
+    // Initialize controllers and error messages based on list length
+      final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+      .user
+      ?.empWorkstationEntity;
+
+      if(listofempworkstation !=null){
+      for (int i = 0; i < listofempworkstation.length; i++) {
+      empTimingTextEditingControllers.add(TextEditingController());
+      errorMessages.add(null); // Initially no error
+    }
+      }
+
 
       final productionEntry =
           Provider.of<EmpProductionEntryProvider>(context, listen: false)
@@ -1026,7 +1099,7 @@ class _EmpProductionEntryPageState
     );
   }
 
-  void deletePop(BuildContext context, ipdid, ipdpsid) {
+ void deletePop(BuildContext context, ipdid, ipdpsid) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1061,7 +1134,8 @@ class _EmpProductionEntryPageState
                                 await delete(
                                     ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0);
                                 await _fetchARecentActivity();
-                                Navigator.of(context).pop();
+                                Navigator.pop(context);
+                                Navigator.pop(context);
                               } catch (error) {
                                 // Handle and show the error message here
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1079,7 +1153,7 @@ class _EmpProductionEntryPageState
                           ),
                           ElevatedButton(
                               onPressed: () {
-                                Navigator.of(context).pop();
+                                Navigator.pop(context);
                               },
                               child: const Text("Go back")),
                         ],
@@ -1092,6 +1166,110 @@ class _EmpProductionEntryPageState
           );
         });
   }
+
+
+ Future<void> _nonProductionActivityPopup(
+      String? shiftfromtime, String? shiftTotime) async {
+    showGeneralDialog(
+      barrierDismissible: true,
+      barrierLabel: '',
+      transitionDuration: const Duration(milliseconds: 800),
+      context: context,
+      pageBuilder: (context, animation1, animation2) {
+        return Container();
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+              .animate(animation),
+          child: FadeTransition(
+            opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+            child: Align(
+              alignment: Alignment.centerRight, // Align the drawer to the right
+              child: Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width *
+                      0.9, // Set the width to half of the screen
+                  height: MediaQuery.of(context)
+                      .size
+                      .height,  // Set the height to full screen height
+                  child: NonProductionActivityPopup(
+                      shiftFromTime: shiftfromtime, shiftToTime: shiftTotime)),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+    void _storedWorkstationProblemList() {
+   final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+        .user
+        ?.resolvedProblemInWs;
+           
+    if (workstationProblem != null) {
+      for (int i = 0; i < workstationProblem.length; i++) {
+         ListOfWorkStationIncident data =
+                                          ListOfWorkStationIncident(
+                                              fromtime: workstationProblem[i].fromTime,
+                                              endtime: workstationProblem[i].endTime,
+                                              productionStoppageId:
+                                                  workstationProblem[i].productionStopageId,
+                                              problemstatusId: workstationProblem[i].problemStatusId,
+                                              problemsolvedName:
+                                                  workstationProblem[i].problemStatus,
+                                              solutionId: workstationProblem[i].solId,
+                                              solutionName: workstationProblem[i].solDesc,
+                                              problemCatagoryname:
+                                                 workstationProblem[i].subincidentName,
+                                              problemId: workstationProblem[i].incidentId,
+                                              problemName: workstationProblem[i].incidentName,
+                                              problemcatagoryId:
+                                                  workstationProblem[i].subincidentId,
+                                              reasons:
+                                                  workstationProblem[i].ipdincNotes,
+                                              rootCauseId: workstationProblem[i].ipdincIncrcmId,
+                                              rootCausename:
+                                                  workstationProblem[i].incrcmRootcauseBrief,
+                                                  ipdId:workstationProblem[i].ipdincipdid,
+                                                  ipdIncId: workstationProblem[i].ipdincid );
+       Provider.of<ListProblemStoringProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .addIncidentList(data);
+      }
+    }
+  }
+
+
+
+void empTimingUpdation(String startTime, String endTime) {
+  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+
+  Duration timeoutDuration = toDate.difference(fromDate);
+  int minutes = timeoutDuration.inMinutes;
+
+  final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+      .user
+      ?.empWorkstationEntity;
+
+  if (listofempworkstation != null) {
+    setState(() {
+      // Ensure empTimingTextEditingControllers has the correct number of controllers
+      empTimingTextEditingControllers.clear();  // Clear previous controllers
+
+      for (int i = 0; i <=listofempworkstation.length; i++) {
+        TextEditingController controller = TextEditingController();
+        controller.text = minutes.toString();
+        empTimingTextEditingControllers.add(controller);
+      }
+    });
+  } else {
+    print("listofempworkstation is null");
+  }
+}
+
 
   void _scrollDown() {
     _scrollController.animateTo(
@@ -1126,11 +1304,11 @@ class _EmpProductionEntryPageState
             .user
             ?.empProductionEntity;
 
-    final totalGoodQty = productionEntry?.totalGoodqty;
-    final totalRejQty = productionEntry?.totalRejqty;
-    final productname = Provider.of<ProductProvider>(context, listen: false)
-        .user
-        ?.listofProductEntity;
+    // final totalGoodQty = productionEntry?.totalGoodqty;
+    // final totalRejQty = productionEntry?.totalRejqty;
+    // final productname = Provider.of<ProductProvider>(context, listen: false)
+    //     .user
+    //     ?.listofProductEntity;
 
     final recentActivity =
         Provider.of<RecentActivityProvider>(context, listen: false)
@@ -1139,10 +1317,16 @@ class _EmpProductionEntryPageState
 
     print(productionEntry);
 
-    final shiftStartDateTiming =
-        '$currentYear-$currentMonth-$currentDay $shiftFromtime';
+  final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
+      '${currentMonth.toString().padLeft(2, '0')}-'
+      '${currentDay.toString().padLeft(2, '0')}  $shiftFromtime';
 
-    final fromtime = productionEntry?.ipdfromtime == ""
+
+    final shiftEndingTime= '${currentYear.toString().padLeft(4, '0')}-'
+      '${currentMonth.toString().padLeft(2, '0')}-'
+      '${currentDay.toString().padLeft(2, '0')}  $shiftTotime';
+
+ fromtime = productionEntry?.ipdfromtime == ""
         ? shiftStartDateTiming
         : productionEntry?.ipdtotime;
 
@@ -1345,7 +1529,7 @@ class _EmpProductionEntryPageState
                                                 MainAxisAlignment.center,
                                             children: [
                                               Text(
-                                                  '${fromtime?.substring(0, fromtime.length - 3)}',
+                                                  '${fromtime?.substring(0, fromtime!.length - 3)}',
                                                   style: TextStyle(
                                                       fontFamily: "lexend",
                                                       fontSize: 16.sp,
@@ -1423,7 +1607,7 @@ class _EmpProductionEntryPageState
                                       elevation: 3,
                                       borderRadius: BorderRadius.circular(5.r),
                                       child: Container(
-                                        height: 500.h,
+                                        height: 525.h,
                                         decoration: BoxDecoration(
                                             color: Color.fromARGB(
                                                 150, 235, 236, 255),
@@ -2372,7 +2556,60 @@ class _EmpProductionEntryPageState
                                                   SizedBox(
                                                       width: 150.w,
                                                       height: 40.h,
-                                                      child: Text(""))
+                                                      child: 
+                                                
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            "Non Production",
+                                                            style: TextStyle(
+                                                                fontSize: 14.sp,
+                                                                fontFamily:
+                                                                    "Lexend",
+                                                                color: Colors
+                                                                    .black54),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10.w,
+                                                          ),
+                                                          SizedBox(
+                                                            width: 20.w,
+                                                            height: 20.h,
+                                                            child:
+                                                                FloatingActionButton(
+                                                                  
+                                                                    backgroundColor:
+                                                                        Colors
+                                                                            .white,
+                                                                   
+                                                                    mini: true,
+                                                                    shape: RoundedRectangleBorder(
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(5
+                                                                                .r)),
+                                                                    onPressed:
+                                                                        () async {
+                                                                      setState(
+                                                                          () {
+                                                                        nonProductionActivityService
+                                                                            .getNonProductionList(
+                                                                          context:
+                                                                              context,
+                                                                        );
+                                                                        _nonProductionActivityPopup(  
+                                                                            fromtime,
+                                                                            lastUpdatedTime);
+                                                                      });
+                          
+                                                                      // Update time after each change
+                                                                    },
+                                                                    child: Icon(Icons.add,size: 16.sp,),)
+                                                          ),
+                                                        ],
+                                                      ),
+                                            
+                                                
+                                                )
                                                 ],
                                               ),
                                               SizedBox(
@@ -2498,7 +2735,7 @@ class _EmpProductionEntryPageState
                                                     width: 100.w,
                                                     height: 35.h,
                                                     child: CustomButton(
-                                                      width: 100.w,
+                                                      width: 80.w,
                                                       height: 50.h,
                                                       onPressed: () {
                                                         _closeShiftPop(
@@ -2578,8 +2815,8 @@ class _EmpProductionEntryPageState
                                           width: 10.w,
                                         ),
                                         SizedBox(
-                                          width: 20,
-                                          height: 20,
+                                          width: 20.w,
+                                          height: 20.h,
                                           child: FloatingActionButton(
                                             heroTag: 'Add Issue',
                                             backgroundColor: Colors.white,
@@ -2596,7 +2833,10 @@ class _EmpProductionEntryPageState
                                                         processid:
                                                             widget.processid ?? 0,
                                                         deptid:
-                                                            widget.deptid ?? 1057);
+                                                            widget.deptid ?? 1057,
+                                                            
+                                                            
+                                                                        assetid: int.parse(assetCotroller.text));
                                                 _problemEntrywidget();
                                               });
                                   
@@ -2637,14 +2877,10 @@ class _EmpProductionEntryPageState
                                         itemBuilder: (context, index) {
                                           final item = listofProblem?[index];
                                           return GestureDetector(
-                                            onTap: () {
-                                              _problemEntrywidget(
-                                                  item?.problemId,
-                                                  item?.problemcatagoryId,
-                                                  item?.rootCauseId,
-                                                  item?.reasons);
+                                            onTap: (){
+                                              
                                             },
-                                            child:Container(
+                                            child: Container(
                                               height: 80.h,
                                               decoration: BoxDecoration(
                                                   color: index % 2 == 0
@@ -2669,7 +2905,7 @@ class _EmpProductionEntryPageState
                                                                 Colors.black54),
                                                       )),
                                                   SizedBox(
-                                                      width: 125.w,
+                                                      width: 135.w,
                                                       child: Text(
                                                           item?.problemName ?? "",
                                                           style: TextStyle(
@@ -2679,7 +2915,7 @@ class _EmpProductionEntryPageState
                                                               color: Colors
                                                                   .black54))),
                                                   SizedBox(
-                                                      width: 125.w,
+                                                      width: 120.w,
                                                       child: Text(
                                                           item?.problemCatagoryname ??
                                                               "",
@@ -2753,6 +2989,7 @@ class _EmpProductionEntryPageState
                                                     BorderRadius.circular(50),
                                                 backgroundColor: Colors.green,
                                                 onPressed: () {
+             
                                                   _openBottomSheet();
                                                 },
                                                 child: Text(

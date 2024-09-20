@@ -161,18 +161,9 @@ class _RecentHistoryBottomSheetState extends State<RecentHistoryBottomSheet> {
                               try {
                                 await delete(
                                     ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0);
-                                await recentActivityService.getRecentActivity(
-                                    context: context,
-                                    id: widget.empid ?? 0,
-                                    deptid: widget.deptid ?? 0,
-                                    psid: widget.psid ?? 0);
-                                await empProductionEntryService.productionentry(
-                                    context: context,
-                                    pwsId: widget.empid ?? 0,
-                                    deptid: widget.deptid ?? 0,
-                                    psid: widget.psid ?? 0);
-
-                                Navigator.of(context).pop();
+                   
+                                Navigator.pop(context);
+                                Navigator.pop(context);
                               } catch (error) {
                                 // Handle and show the error message here
                                 ScaffoldMessenger.of(context).showSnackBar(

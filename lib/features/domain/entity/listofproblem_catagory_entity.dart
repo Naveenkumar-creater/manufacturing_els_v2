@@ -19,6 +19,7 @@ class ListOfIncidentCatagoryEntity extends Equatable  {
       this.incmId,
       this.incmDesc,
       this.incmParentId,
+       this.incmassettype,this.incmassetid, this.incmparentid, 
     });
 
     final int? incmMpmId;
@@ -26,6 +27,9 @@ class ListOfIncidentCatagoryEntity extends Equatable  {
     final int? incmId;
     final String? incmDesc;
     final int? incmParentId;
+     final int? incmassettype;
+    final int? incmassetid;
+    final int?incmparentid;
     
       @override
       List<Object?> get props => [

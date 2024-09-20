@@ -15,7 +15,7 @@ class ProcessModel extends ProcessEntity {
 
     if (processListJson == null) {
       throw Exception(
-          'Asset list is null.'); // Throw an exception if asset list is null
+          'Process is null.'); // Throw an exception if asset list is null
     }
 
     final processData = (processListJson as List)

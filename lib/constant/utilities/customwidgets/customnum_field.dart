@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 class CustomNumField extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
@@ -12,6 +15,7 @@ class CustomNumField extends StatelessWidget {
   final OutlineInputBorder? enabledBorder;
   final OutlineInputBorder? focusedBorder;
   final OutlineInputBorder? border;
+  final bool readOnly; // Add this parameter for read-only functionality
 
   const CustomNumField({
     required this.controller,
@@ -24,6 +28,7 @@ class CustomNumField extends StatelessWidget {
     this.enabledBorder,
     this.focusedBorder,
     this.border,
+    this.readOnly = false, // Default to false
   });
 
   @override
@@ -44,8 +49,8 @@ class CustomNumField extends StatelessWidget {
         filled: true,
         fillColor: Colors.white,
         errorStyle: TextStyle(
-          fontSize: 10.0, // Adjust the font size as needed
-          height: 0.10, // Adjust the height to control spacing
+          fontSize: 10.0,
+          height: 0.10,
         ),
         enabledBorder: enabledBorder ??
             OutlineInputBorder(
@@ -65,6 +70,7 @@ class CustomNumField extends StatelessWidget {
       ),
       onEditingComplete: onEditingComplete,
       validator: validation,
+      readOnly: readOnly, // Pass the readOnly parameter to TextFormField
     );
   }
 }

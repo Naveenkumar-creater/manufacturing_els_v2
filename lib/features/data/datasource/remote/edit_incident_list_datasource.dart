@@ -10,14 +10,14 @@ Future<EditIncidentListModel> getListofIncident(String token,int deptid,int ipdi
  
 }
 
-
 class EditIncidentListDatasourceImpl implements EditIncidentListDatasource{
 
   @override
   Future<EditIncidentListModel> getListofIncident(String token, int deptid, int ipdid) async{
-   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "edit_incident_list_v1",clientAuthToken:token,deptId:deptid,ipdid: ipdid);
-   final response = await ApiConstant.makeApiRequest(requestBody:requestbody );
-  final result= EditIncidentListModel.fromJson(response);
+   ApiRequestDataModel request =ApiRequestDataModel(apiFor: "edit_incident_list_v1",clientAuthToken:token,deptId:deptid,ipdid: ipdid);
+   final response = await ApiConstant.makeApiRequest(requestBody:request);
+
+final result= EditIncidentListModel.fromJson(response);
  return result;
 
   }

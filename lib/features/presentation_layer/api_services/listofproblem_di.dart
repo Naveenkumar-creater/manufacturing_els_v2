@@ -14,6 +14,7 @@ class Listofproblemservice {
     required BuildContext context,
     required int deptid,
     required int processid,
+    required int assetid
  
   }) async {
     try {
@@ -26,7 +27,7 @@ class Listofproblemservice {
         ),
       );
 
-      ListOfProblemEntity user = await listofusecase.execute(token,deptid,processid
+      ListOfProblemEntity user = await listofusecase.execute(token,deptid,processid,assetid
        
       );
 

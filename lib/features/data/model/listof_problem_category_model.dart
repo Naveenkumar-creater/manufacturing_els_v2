@@ -19,18 +19,23 @@ class ListOfProbleCatagorymModel extends ListOfProblemCatagoryEntity {
 
 class ListOfIncidentCatagory extends ListOfIncidentCatagoryEntity {
     ListOfIncidentCatagory({
+     required this.incmassettype,required this.incmassetid,required this.incmparentid, 
         required this.incmMpmId,
         required this.incmName,
         required this.incmId,
         required this.incmDesc,
         required this.incmParentId,
-    }):super(incmDesc: incmDesc,incmId: incmId,incmMpmId: incmMpmId,incmName: incmName,incmParentId: incmParentId);
+    }):super(incmDesc: incmDesc,incmId: incmId,incmMpmId: incmMpmId,incmName: incmName,incmParentId: incmParentId,incmassetid: incmassetid,incmassettype: incmassettype,incmparentid:incmparentid);
 
     final int? incmMpmId;
     final String? incmName;
     final int? incmId;
     final String? incmDesc;
     final int? incmParentId;
+    final int? incmassettype;
+    final int? incmassetid;
+    final int?incmparentid;
+
 
     factory ListOfIncidentCatagory.fromJson(Map<String, dynamic> json){ 
         return ListOfIncidentCatagory(
@@ -39,6 +44,9 @@ class ListOfIncidentCatagory extends ListOfIncidentCatagoryEntity {
             incmId: json["incm_id"],
             incmDesc: json["incm_desc"],
             incmParentId: json["incm_parent_id"],
+            incmassettype: json["incm_asset_type"],
+            incmassetid: json["incm_asset_id"],
+            incmparentid: json ["incm_parent_id"]
         );
     }
 

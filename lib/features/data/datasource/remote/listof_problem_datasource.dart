@@ -5,7 +5,7 @@ import 'package:prominous/features/data/model/listof_problem_model.dart';
 
 abstract class ListofProblemDatasource{
 
-Future<ListOfProblemModel> getListofProblem(String token,int deptid,int processid);
+Future<ListOfProblemModel> getListofProblem(String token,int deptid,int processid,int assetId);
  
 }
 
@@ -13,8 +13,8 @@ Future<ListOfProblemModel> getListofProblem(String token,int deptid,int processi
 class ListofProblemDatasourceImpl implements ListofProblemDatasource{
 
   @override
-  Future<ListOfProblemModel> getListofProblem(String token, int deptid, int processid) async{
-   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_v1",clientAuthToken:token,deptId:deptid,processId: processid);
+  Future<ListOfProblemModel> getListofProblem(String token, int deptid, int processid,int assetId) async{
+   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_v1",clientAuthToken:token,deptId:deptid,processId: processid,problemAssetId:assetId );
    print(requestbody);
    final response = await ApiConstant.makeApiRequest(requestBody:requestbody );
 

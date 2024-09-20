@@ -1,16 +1,13 @@
 import 'package:equatable/equatable.dart';
 
-class ListOfRootCauseEntity extends Equatable{
-    ListOfRootCauseEntity({
-      this.listrootcauseEntity,
-    });
-    final List<ListrootcauseEntity>? listrootcauseEntity;
-    
-      @override
-      List<Object?> get props => [listrootcauseEntity];
+class ListOfRootCauseEntity extends Equatable {
+  final List<ListrootcauseEntity>? listrootcauseEntity;
 
+  const ListOfRootCauseEntity ({this.listrootcauseEntity});
+
+  @override
+  List<Object?> get props => [listrootcauseEntity];
 }
-
 
 class ListrootcauseEntity extends Equatable  {
     ListrootcauseEntity({

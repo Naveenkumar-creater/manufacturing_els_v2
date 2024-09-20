@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,16 +14,13 @@ import 'package:prominous/constant/request_data_model/delete_production_entry.da
 import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_close_shift_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
+import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/edit_entry_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/non_production_activity_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/problem_status_di.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
-import 'package:prominous/features/presentation_layer/responsive_screen/tablet_body.dart';
-import 'package:prominous/constant/utilities/customwidgets/custom_textform_field.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
-import 'package:prominous/features/data/model/listof_problem_category_model.dart';
-import 'package:prominous/features/data/model/listof_problem_model.dart';
-import 'package:prominous/features/data/model/listof_rootcaue_model.dart';
-import 'package:prominous/features/data/repository/listofproblem_repo_impl.dart';
-import 'package:prominous/features/domain/entity/listof_problem_entity.dart';
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
@@ -34,18 +32,16 @@ import 'package:prominous/features/presentation_layer/api_services/listofrootcau
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/listofproblem_catagory_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofproblem_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/listofrootcause_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/listofworkstation_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/scanforworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/edit_workstation_entry.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/barcode_widget/workstation_barcode_Scanner.dart';
+import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/problem_entry_popup.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:prominous/features/presentation_layer/api_services/activity_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/emp_production_entry_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
@@ -106,7 +102,8 @@ class EmpWorkstationProductionEntryPage extends StatefulWidget {
 class _EmpProductionEntryPageState
     extends State<EmpWorkstationProductionEntryPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
-    late ListProblemStoringProvider storedListOfProblem;
+  late ListProblemStoringProvider storedListOfProblem;
+  late NonProductionStoredListProvider nonProductionList;
   final TextEditingController goodQController = TextEditingController();
   final TextEditingController rejectedQController = TextEditingController();
   final TextEditingController reworkQtyController = TextEditingController();
@@ -121,6 +118,7 @@ class _EmpProductionEntryPageState
   final RecentActivityService recentActivityService = RecentActivityService();
   final ActivityService activityService = ActivityService();
   final Listofproblemservice listofproblemservice = Listofproblemservice();
+  final ProblemStatusService problemStatusService = ProblemStatusService();
   final ListofRootCauseService listofRootCauseService =
       ListofRootCauseService();
   final ListofproblemCatagoryservice listofproblemCatagoryservice =
@@ -130,14 +128,16 @@ class _EmpProductionEntryPageState
       EmpProductionEntryService();
   final ListofEmpworkstationService listofEmpworkstationService =
       ListofEmpworkstationService();
+        final WorkstationProblemService workstationProblemService =
+      WorkstationProblemService();
+  final NonProductionActivityService nonProductionActivityService =
+      NonProductionActivityService();
   ListofworkstationService listofworkstationService =
       ListofworkstationService();
   AttendanceCountService attendanceCountService = AttendanceCountService();
   List<Map<String, dynamic>> incidentList = [];
-
   ActualQtyService actualQtyService = ActualQtyService();
-  
-
+  EditEntryApiservice editEntryApiservice = EditEntryApiservice();
   PlanQtyService planQtyService = PlanQtyService();
 
   bool isChecked = false;
@@ -154,7 +154,6 @@ class _EmpProductionEntryPageState
   bool visible = true;
   int? product_Id;
   String? workstationBarcode;
-
 
   TimeOfDay timeofDay = TimeOfDay.now();
   late DateTime currentDateTime;
@@ -177,6 +176,7 @@ class _EmpProductionEntryPageState
   List<ListrootcauseEntity>? listofrootcause;
 
   String? lastUpdatedTime;
+  String?fromtime;
   String? currentDate;
   int? reworkValue;
   int? productid;
@@ -186,9 +186,14 @@ class _EmpProductionEntryPageState
   String? productName;
   String? assetID;
   String? achivedTargetQty;
+  final _formKey = GlobalKey<FormState>();
+    List<TextEditingController> empTimingTextEditingControllers = [];
+  final List<String?> errorMessages = [];
 
   EmployeeApiService employeeApiService = EmployeeApiService();
+  int? fromMinutes; // Total minutes// Variable to track the error message
 
+ 
   Future<void> updateproduction(int? processid) async {
     final responsedata =
         Provider.of<EmpProductionEntryProvider>(context, listen: false)
@@ -212,9 +217,13 @@ class _EmpProductionEntryPageState
         Provider.of<ListofEmpworkstationProvider>(context, listen: false)
             .user
             ?.empWorkstationEntity;
-  final StoredListOfProblem= Provider.of<ListProblemStoringProvider>(context,listen: false).getIncidentList;
+    final StoredListOfProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: false)
+            .getIncidentList;
 
-
+    final ListofNonProduction =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false)
+            .getNonProductionList;
     // DateTime parsedLastUpdatedTime =
     //     DateFormat('yyyy-MM-dd HH:mm').parse(lastUpdatedTime!);
     final empproduction = responsedata;
@@ -226,81 +235,98 @@ class _EmpProductionEntryPageState
 
       now = DateTime.now();
       currentYear = now.year;
+
       currentMonth = now.month;
       currentDay = now.day;
       currentHour = now.hour;
       currentMinute = now.minute;
       currentSecond = now.second;
+
       final currentDateTime =
-          '$currentYear-$currentMonth-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
+          '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
 
-      final shiftFromtime =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
-              .user
-              ?.shiftStatusdetailEntity
-              ?.shiftFromTime;
 
-      final shiftStartDateTiming =
-          '$currentYear-$currentMonth-$currentDay $shiftFromtime';
-
-      final fromtime = empproduction?.ipdfromtime == ""
-          ? shiftStartDateTiming
-          : empproduction?.ipdtotime;
 
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       WorkStationEntryReqModel workStationEntryReq = WorkStationEntryReqModel(
-        apiFor: "update_production_v1",
-        clientAuthToken: token,
-        ipdRejQty: double.tryParse(rejectedQController.text) ?? 0,
-        ipdReworkFlag: reworkValue ?? empproduction.ipdflagid,
-        ipdGoodQty: double.tryParse(goodQController.text) ?? 0,
-        // batchno: int.tryParse(batchNOController.text),
-        targetqty: double.tryParse(targetQtyController.text),
-        ipdreworkableqty: double.tryParse(reworkQtyController.text),
+          apiFor: "update_production_v1",
+          clientAuthToken: token,
+          ipdRejQty: double.tryParse(rejectedQController.text) ?? 0,
+          ipdReworkFlag: reworkValue ?? empproduction.ipdflagid,
+          ipdGoodQty: double.tryParse(goodQController.text) ?? 0,
+          // batchno: int.tryParse(batchNOController.text),
+          targetqty: double.tryParse(targetQtyController.text),
+          ipdreworkableqty: double.tryParse(reworkQtyController.text),
+          ipdCardNo: int.tryParse(cardNoController.text.toString()),
+          ipdpaid: activityid ?? 0,
+          ipdFromTime: fromtime,
+          ipdToTime: lastUpdatedTime ?? currentDateTime,
+          ipdDate: currentDateTime.toString(),
+          ipdId: 0,
+          // activityid == empproduction.ipdpaid ? empproduction.ipdid : 0,
+          ipdPcId: pcid ?? empproduction.ipdpcid,
+          ipdDeptId: widget.deptid ?? 1,
+          ipdAssetId: int.tryParse(assetCotroller.text.toString()) ?? 0,
+          //ipdcardno: empproduction.first.ipdcardno,
+          ipdItemId: product_Id,
+          ipdMpmId: processid,
+          // emppersonId: widget.empid ?? 0,
+          ipdpsid: widget.psid,
+          ppid: ppId ?? 0,
+          shiftid: Shiftid,
+          listOfEmployeesForWorkStation: [],
+          pwsid: widget.pwsid,
+          listOfWorkstationIncident: [],
+          nonProductionList: []);
 
-        ipdCardNo: int.tryParse(cardNoController.text.toString()),
+// // Clear the list to avoid duplicates
+// workStationEntryReq.listOfEmployeesForWorkStation.clear();
 
-        ipdpaid: activityid ?? 0,
-        ipdFromTime: fromtime,
+// Loop through each EmpWorkstation entry
+for (int index = 0; index < EmpWorkstation!.length; index++) {
+  final empid = EmpWorkstation[index];
+  final emptimingController = empTimingTextEditingControllers[index];
 
-        ipdToTime: lastUpdatedTime ?? currentDateTime,
-        ipdDate: currentDateTime.toString(),
-        ipdId: 0,
-        // activityid == empproduction.ipdpaid ? empproduction.ipdid : 0,
-        ipdPcId: pcid ?? empproduction.ipdpcid,
-        ipdDeptId: widget.deptid ?? 1,
-        ipdAssetId: int.tryParse(assetCotroller.text.toString()) ?? 0,
-        //ipdcardno: empproduction.first.ipdcardno,
-        ipdItemId: product_Id,
-        ipdMpmId: processid,
-        // emppersonId: widget.empid ?? 0,
-        ipdpsid: widget.psid,
-        ppid: ppId ?? 0,
-        shiftid: Shiftid,
-        listOfEmployeesForWorkStation: [],
-        pwsid: widget.pwsid,
-        listOfWorkstationIncident: [],
-      );
+  // Parse the timing from the TextEditingController's text
+  final emptiming = int.tryParse(emptimingController.text) ?? 0;
 
-      for (int index = 0; index < EmpWorkstation!.length; index++) {
-        final empid = EmpWorkstation[index];
+  print(emptiming);
 
-        final listofempworkstation =
-            ListOfEmployeesForWorkStation(empId: empid.empPersonid ?? 0);
-        workStationEntryReq.listOfEmployeesForWorkStation
-            .add(listofempworkstation);
-      }
+  // Create a ListOfEmployeesForWorkStation object with the timing
+  final listofempworkstation = ListOfEmployeesForWorkStation(
+    empId: empid.empPersonid ?? 0,
+    timing:emptiming, ipdeId: 0 ,  // Assign the parsed timing value
+  );
+
+  // Add the object to workStationEntryReq.listOfEmployeesForWorkStation
+  workStationEntryReq.listOfEmployeesForWorkStation.add(listofempworkstation);
+}
+
 
       for (int index = 0; index < StoredListOfProblem.length; index++) {
         final incident = StoredListOfProblem[index];
-        final lisofincident = 
-        
-        ListOfWorkStationIncidents(
+        final lisofincident = ListOfWorkStationIncidents(
             incidenid: incident.problemId,
             notes: incident.reasons,
             rootcauseid: incident.rootCauseId,
-            subincidentid: incident.problemcatagoryId);
-           workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
+            subincidentid: incident.problemcatagoryId,
+        incfromtime: incident.fromtime,
+        incendtime:incident.endtime,
+        problemStatusId:incident.problemstatusId ,
+        productionstopageId:incident.productionStoppageId ?? 0 ,
+        solutionId:incident.solutionId );
+        workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
+      }
+
+      for (int index = 0; index < ListofNonProduction.length; index++) {
+        final nonProduction = ListofNonProduction[index];
+        final nonProductionList = NonProductionList(
+          fromTime: nonProduction.npamFromTime,
+          notes: nonProduction.notes,
+          npamId: nonProduction.npamId,
+          toTime: nonProduction.npamToTime,
+        );
+        workStationEntryReq.nonProductionList.add(nonProductionList);
       }
 
       final requestBodyjson = jsonEncode(workStationEntryReq.toJson());
@@ -342,87 +368,11 @@ class _EmpProductionEntryPageState
       // Handle response if needed
     } else {
       // Handle case when empproduction is empty
-      print("empproduction is empty");
+      print("workstation entry is empty");
     }
   }
 
-  void _closeShiftPop(BuildContext context, String attid, String attstatus) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Colors.white,
-            child: WillPopScope(
-              onWillPop: () async {
-                return false;
-              },
-              child: Container(
-                width: 200,
-                height: 150,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8)),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 32,
-                  ),
-                  child: Column(children: [
-                    const Text("Confirm you submission"),
-                    const SizedBox(
-                      height: 32,
-                    ),
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              try {
-                                await EmpClosesShift.empCloseShift(
-                                    'emp_close_shift',
-                                    widget.psid ?? 0,
-                                    2,
-                                    attid,
-                                    int.tryParse(attstatus) ?? 0);
-
-                                await _fetchARecentActivity();
-                                await employeeApiService.employeeList(
-                                    context: context,
-                                    deptid: widget.deptid ?? 1,
-                                    processid: widget.processid ?? 0,
-                                    psid: widget.psid ?? 0);
-
-                                Navigator.pop(context);
-                              } catch (error) {
-                                // Handle and show the error message here
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(error.toString()),
-                                    backgroundColor: Colors.amber,
-                                  ),
-                                );
-                              }
-                            },
-                            child: const Text("Submit"),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text("Go back")),
-                        ],
-                      ),
-                    )
-                  ]),
-                ),
-              ),
-            ),
-          );
-        });
-  }
+  
 
   void _recentActivityList() {
     final productname = Provider.of<ProductProvider>(context, listen: false)
@@ -434,10 +384,13 @@ class _EmpProductionEntryPageState
             .user
             ?.recentActivitesEntityList;
 
+  final nonProductionlist =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false)
+            ;
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
-      transitionDuration: const Duration(milliseconds:400),
+      transitionDuration: const Duration(milliseconds: 400),
       context: context,
       pageBuilder: (context, animation1, animation2) {
         return Container();
@@ -561,6 +514,17 @@ class _EmpProductionEntryPageState
                                                   ),
                                                   IconButton(
                                                       onPressed: () {
+
+                                                   nonProductionList.reset(notify: false);
+                                                    storedListOfProblem.reset(notify: false);
+                                                 editEntryApiservice.getEntryValues(
+        context: context,
+        psId:  data ?.ipdpsid?? 0,
+        ipdid:  data?.ipdid ?? 0,
+        pwsId:  widget.pwsid?? 0,
+        deptid: widget.deptid ?? 0,
+      );
+                            
                                                         Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
@@ -592,6 +556,7 @@ class _EmpProductionEntryPageState
                                                                         .workstationName,
                                                               ),
                                                             ));
+
                                                       },
                                                       icon: Icon(
                                                           Icons.edit_sharp,
@@ -673,7 +638,22 @@ class _EmpProductionEntryPageState
     );
   }
 
-  Future<void> _problemEntrywidget([ int ? selectproblemid,int? problemcatagoryId,int ? rootcauseid,String ? reason]) async {
+  Future<void> _problemEntrywidget(
+     String ? shiftFromTime,
+      String ? shiftToTime,
+      [
+      int? selectproblemid,
+      int? problemcatagoryId,
+      int? rootcauseid,
+      String? reason,
+      int?solutionid,
+      int? problemStatusId,
+      int? productionStopageid,
+      int?ipdId,
+      int?ipdincId,
+      bool? showButton,
+      String? closeStartTime
+     ]) async {
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -691,14 +671,28 @@ class _EmpProductionEntryPageState
             child: Align(
               alignment: Alignment.centerRight, // Align the drawer to the right
               child: Container(
-                color: Colors.white,
-                width: MediaQuery.of(context).size.width *
-                    0.3, // Set the width to half of the screen
-                height: MediaQuery.of(context)
-                    .size
-                    .height, // Set the height to full screen height
-                child: ProblemEntryPopup(SelectProblemId:selectproblemid,problemcatagoryId: problemcatagoryId,reason:reason ,rootcauseid:rootcauseid ,)
-              ),
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width *
+                      0.32, // Set the width to half of the screen
+                  height: MediaQuery.of(context)
+                      .size
+                      .height, // Set the height to full screen height
+                  child: ProblemEntryPopup(
+                    SelectProblemId: selectproblemid,
+                    problemcatagoryId: problemcatagoryId,
+                    reason: reason,
+                    rootcauseid: rootcauseid,
+                    showButton: showButton,
+                    shiftFromTime: shiftFromTime,
+                    shiftToTime: shiftToTime,
+                    problemStatusId:problemStatusId ,
+                    solutionId: solutionid,
+                    productionStopageId:productionStopageid,
+                    ipdid: ipdId,
+                    ipdincid:ipdincId ,
+                  closestartTime: closeStartTime,
+
+                  )),
             ),
           ),
         );
@@ -706,7 +700,41 @@ class _EmpProductionEntryPageState
     );
   }
 
-  void _EmpOpenShiftPop(BuildContext context, String attid, String attstatus) {
+  Future<void> _nonProductionActivityPopup(
+      String? shiftfromtime, String? shiftTotime) async {
+    showGeneralDialog(
+      barrierDismissible: true,
+      barrierLabel: '',
+      transitionDuration: const Duration(milliseconds: 800),
+      context: context,
+      pageBuilder: (context, animation1, animation2) {
+        return Container();
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+              .animate(animation),
+          child: FadeTransition(
+            opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+            child: Align(
+              alignment: Alignment.centerRight, // Align the drawer to the right
+              child: Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width *
+                      0.32, // Set the width to half of the screen
+                  height: MediaQuery.of(context)
+                      .size
+                      .height, // Set the height to full screen height
+                  child: NonProductionActivityPopup(
+                      shiftFromTime: shiftfromtime, shiftToTime: shiftTotime)),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _EmpOpenandCloseShiftPop(BuildContext context, String attid, String attstatus,int shiftstatus) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -741,7 +769,7 @@ class _EmpProductionEntryPageState
                                 await EmpClosesShift.empCloseShift(
                                     'emp_close_shift',
                                     widget.psid ?? 0,
-                                    1,
+                                    shiftstatus,
                                     attid,
                                     int.tryParse(attstatus) ?? 0);
                                 _fetchARecentActivity();
@@ -977,6 +1005,9 @@ class _EmpProductionEntryPageState
     }
   }
 
+
+ 
+
   void updateinitial() {
     if (widget.isload == true) {
       final productionEntry =
@@ -1004,102 +1035,130 @@ class _EmpProductionEntryPageState
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
+    @override
+    void initState() {
+      super.initState();
 
-    _fetchARecentActivity().then((_) {
-      updateinitial();
-    });
+      _fetchARecentActivity().then((_) {
+        updateinitial();
+      });
 
-    currentDateTime = DateTime.now();
-    now = DateTime.now();
-    currentYear = now.year;
-    currentMonth = now.month;
-    currentDay = now.day;
-    currentHour = now.hour;
-    currentMinute = now.minute;
-    currentSecond = now.second;
-    final shiftid = Provider.of<ShiftStatusProvider>(context, listen: false)
-        .user
-        ?.shiftStatusdetailEntity
-        ?.psShiftId;
-    String? shiftTime;
+      currentDateTime = DateTime.now();
+      now = DateTime.now();
+      currentYear = now.year;
 
-    final shiftToTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftToTime;
+      currentMonth = now.month;
+      currentDay = now.day;
+      currentHour = now.hour;
+      currentMinute = now.minute;
+      currentSecond = now.second;
 
-    if (shiftToTimeString != null) {
-      DateTime? shiftToTime;
-      // Parse the shiftToTime
-      final shiftToTimeParts = shiftToTimeString.split(':');
-      final now = DateTime.now();
-      shiftToTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftToTimeParts[0]),
-        int.parse(shiftToTimeParts[1]),
-        int.parse(shiftToTimeParts[2]),
-      );
+      String? shiftTime;
 
-      // Get the current time
-      final currentTime = DateTime.now();
-
-      final shiftFromTimeString =
+      final shiftToTimeString =
           Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
               ?.shiftStatusdetailEntity
-              ?.shiftFromTime;
+              ?.shiftToTime;
 
-      if (shiftFromTimeString != null) {
-        // Parse the shiftFromTime
-        final shiftFromTimeParts = shiftFromTimeString.split(':');
-        final shiftFromTime = DateTime(
+      if (shiftToTimeString != null) {
+        DateTime? shiftToTime;
+        // Parse the shiftToTime
+        final shiftToTimeParts = shiftToTimeString.split(':');
+        final now = DateTime.now();
+        shiftToTime = DateTime(
           now.year,
           now.month,
           now.day,
-          int.parse(shiftFromTimeParts[0]),
-          int.parse(shiftFromTimeParts[1]),
-          int.parse(shiftFromTimeParts[2]),
+          int.parse(shiftToTimeParts[0]),
+          int.parse(shiftToTimeParts[1]),
+          int.parse(shiftToTimeParts[2]),
         );
-// Check if shiftToTime is on the next day
-        if (shiftToTime.isBefore(shiftFromTime)) {
-          shiftToTime = shiftToTime.add(Duration(days: 1));
-        }
 
-        if (currentTime.isAfter(shiftFromTime) &&
-            currentTime.isBefore(shiftToTime)) {
-          // Current time is within the shift time
-          final timeString =
-              '$currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
-          shiftTime = timeString;
+        // Get the current time
+        final currentTime = DateTime.now();
+
+        final shiftFromTimeString =
+            Provider.of<ShiftStatusProvider>(context, listen: false)
+                .user
+                ?.shiftStatusdetailEntity
+                ?.shiftFromTime;
+
+        if (shiftFromTimeString != null) {
+          // Parse the shiftFromTime
+          final shiftFromTimeParts = shiftFromTimeString.split(':');
+          final shiftFromTime = DateTime(
+            now.year,
+            now.month,
+            now.day,
+            int.parse(shiftFromTimeParts[0]),
+            int.parse(shiftFromTimeParts[1]),
+            int.parse(shiftFromTimeParts[2]),
+          );
+  // Check if shiftToTime is on the next day
+          if (shiftToTime.isBefore(shiftFromTime)) {
+            shiftToTime = shiftToTime.add(Duration(days: 1));
+          }
+
+          if (currentTime.isAfter(shiftFromTime) &&
+              currentTime.isBefore(shiftToTime)) {
+            // Current time is within the shift time
+            final timeString =
+                '${currentHour.toString().padLeft(2, '0')}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
+            shiftTime = timeString;
+          } else {
+            // Current time exceeds the shift time
+            print("Current time exceeds the shift time.");
+            shiftTime = shiftToTimeString;
+          }
         } else {
-          // Current time exceeds the shift time
-          print("Current time exceeds the shift time.");
-          shiftTime = shiftToTimeString;
+          print("shiftToTime is not available.");
+          // Handle the case where shiftToTime is not available
         }
-      } else {
-        print("shiftToTime is not available.");
-        // Handle the case where shiftToTime is not available
       }
+  lastUpdatedTime =
+      '${currentYear.toString().padLeft(4, '0')}-'
+      '${currentMonth.toString().padLeft(2, '0')}-'
+      '${currentDay.toString().padLeft(2, '0')} $shiftTime';
+
+  final productionEntry =
+      Provider.of<EmpProductionEntryProvider>(context, listen: false)
+          .user
+          ?.empProductionEntity;
+
+  final shiftFromtime =
+      Provider.of<ShiftStatusProvider>(context, listen: false)
+          .user
+          ?.shiftStatusdetailEntity
+          ?.shiftFromTime;
+
+  final shiftStartDateTiming =
+      '${currentYear.toString().padLeft(4, '0')}-'
+      '${currentMonth.toString().padLeft(2, '0')}-'
+      '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+
+  fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+      ? shiftStartDateTiming
+      : productionEntry?.ipdtotime;
+
+
+
+   
     }
-// Assuming currentYear, currentMonth, and currentDay are defined earlier in your code
 
-    lastUpdatedTime = '$currentYear-$currentMonth-$currentDay $shiftTime';
-    currentDate =
-        '$currentYear-$currentMonth-$currentDay $currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
-  }
+@override
+void didChangeDependencies() {
+  super.didChangeDependencies();
+  
+    storedListOfProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: false);
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Store the reference to the provider
-    storedListOfProblem = Provider.of<ListProblemStoringProvider>(context, listen: false);
-  }
+    nonProductionList =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false);
+
+  // Safely trigger the state update after the widget build phase
+
+}
 
   @override
   void dispose() {
@@ -1108,15 +1167,18 @@ class _EmpProductionEntryPageState
     goodQController.dispose();
     rejectedQController.dispose();
 
+   for (var controller in empTimingTextEditingControllers) {
+      controller.dispose();
+    }
     // Use the stored reference
-  storedListOfProblem.reset(notify: false);
-
+    storedListOfProblem.reset(notify: false);
+    nonProductionList.reset(notify: false);
     super.dispose();
   }
 
-  String _formatDateTime(DateTime dateTime) {
-    return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
-  }
+  // String _formatDateTime(DateTime dateTime) {
+  //   return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+  // }
 
   Future<void> _fetchARecentActivity() async {
     try {
@@ -1133,7 +1195,10 @@ class _EmpProductionEntryPageState
           psid: widget.psid ?? 0,
           processid: widget.processid ?? 1,
           pwsId: widget.pwsid ?? 0);
-      await productApiService.productList(
+
+await workstationProblemService.getListofSolution(context: context, pwsid: widget.pwsid ?? 0);
+
+await productApiService.productList(
           context: context,
           id: widget.processid ?? 1,
           deptId: widget.deptid ?? 0);
@@ -1149,6 +1214,26 @@ class _EmpProductionEntryPageState
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsid ?? 0);
+
+            empTimingUpdation(fromtime!, lastUpdatedTime!);
+     _storedWorkstationProblemList();
+   
+      DateTime StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+  DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+
+   fromMinutes = toTime.difference(StartfromTime).inMinutes;
+   
+    // Initialize controllers and error messages based on list length
+      final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+      .user
+      ?.empWorkstationEntity;
+
+      if(listofempworkstation !=null){
+      for (int i = 0; i < listofempworkstation.length; i++) {
+      empTimingTextEditingControllers.add(TextEditingController());
+      errorMessages.add(null); // Initially no error
+    }
+      }
 
       final productionEntry =
           Provider.of<EmpProductionEntryProvider>(context, listen: false)
@@ -1252,6 +1337,46 @@ class _EmpProductionEntryPageState
         });
   }
 
+
+     void _storedWorkstationProblemList() {
+   final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+        .user
+        ?.resolvedProblemInWs;
+           
+    if (workstationProblem != null) {
+      for (int i = 0; i < workstationProblem.length; i++) {
+         ListOfWorkStationIncident data =
+                                          ListOfWorkStationIncident(
+                                              fromtime: workstationProblem[i].fromTime,
+                                              endtime: workstationProblem[i].endTime,
+                                              productionStoppageId:
+                                                  workstationProblem[i].productionStopageId,
+                                              problemstatusId: workstationProblem[i].problemStatusId,
+                                              problemsolvedName:
+                                                  workstationProblem[i].problemStatus,
+                                              solutionId: workstationProblem[i].solId,
+                                              solutionName: workstationProblem[i].solDesc,
+                                              problemCatagoryname:
+                                                 workstationProblem[i].subincidentName,
+                                              problemId: workstationProblem[i].incidentId,
+                                              problemName: workstationProblem[i].incidentName,
+                                              problemcatagoryId:
+                                                  workstationProblem[i].subincidentId,
+                                              reasons:
+                                                  workstationProblem[i].ipdincNotes,
+                                              rootCauseId: workstationProblem[i].ipdincIncrcmId,
+                                              rootCausename:
+                                                  workstationProblem[i].incrcmRootcauseBrief,
+                                                  ipdId:workstationProblem[i].ipdincipdid,
+                                                  ipdIncId: workstationProblem[i].ipdincid );
+       Provider.of<ListProblemStoringProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .addIncidentList(data);
+      }
+    }
+  }
+
   void deletePop(BuildContext context, ipdid, ipdpsid) {
     showDialog(
         context: context,
@@ -1320,6 +1445,34 @@ class _EmpProductionEntryPageState
         });
   }
 
+
+void empTimingUpdation(String startTime, String endTime) {
+  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+
+  Duration timeoutDuration = toDate.difference(fromDate);
+  int minutes = timeoutDuration.inMinutes;
+
+  final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+      .user
+      ?.empWorkstationEntity;
+
+  if (listofempworkstation != null) {
+    setState(() {
+      // Ensure empTimingTextEditingControllers has the correct number of controllers
+      empTimingTextEditingControllers.clear();  // Clear previous controllers
+
+      for (int i = 0; i <=listofempworkstation.length; i++) {
+        TextEditingController controller = TextEditingController();
+        controller.text = minutes.toString();
+        empTimingTextEditingControllers.add(controller);
+      }
+    });
+  } else {
+    print("listofempworkstation is null");
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -1341,23 +1494,18 @@ class _EmpProductionEntryPageState
 
     final totalGoodQty = productionEntry?.totalGoodqty;
     final totalRejQty = productionEntry?.totalRejqty;
- 
 
     final listofempworkstation =
         Provider.of<ListofEmpworkstationProvider>(context, listen: false)
             .user
             ?.empWorkstationEntity;
 
+    final StoredListOfProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: true)
+            .getIncidentList;
 
-    final StoredListOfProblem= Provider.of<ListProblemStoringProvider>(context,listen: true).getIncidentList;
     print(productionEntry);
 
-    final shiftStartDateTiming =
-        '$currentYear-$currentMonth-$currentDay $shiftFromtime';
-
-    final fromtime = productionEntry?.ipdfromtime == ""
-        ? shiftStartDateTiming
-        : productionEntry?.ipdtotime;
 
     // final productname = Provider.of<ProductProvider>(context, listen: false)
     //     .user
@@ -1367,19 +1515,10 @@ class _EmpProductionEntryPageState
         .user
         ?.activityEntity;
 
-    // final activityName = activity?.map((process) => process.paActivityName)?.toSet()?.toList() ??
-    //         [];
+    DateTime shiftStartTime=DateTime.parse(fromtime!);
+    DateTime shiftEndtTime=DateTime.parse(lastUpdatedTime!);
 
-    // final ProductNames =
-    //     productname?.map((process) => process.productName)?.toSet()?.toList() ??
-    //         [];
-    // final asset = Provider.of<AssetBarcodeProvider>(context, listen: false)
-    //     .user
-    //     ?.scanAseetBarcode;
-
-    // final cardNumber = Provider.of<CardNoProvider>(context, listen: false)
-    //     .user
-    //     ?.scanCardForItem;
+   final startTime = DateFormat('HH:mm:ss').format(shiftStartTime);
 
     final processName = Provider.of<EmployeeProvider>(context, listen: false)
             .user
@@ -1388,10 +1527,6 @@ class _EmpProductionEntryPageState
             .processName ??
         "";
 
-    final listofproblem =
-        Provider.of<ListofproblemProvider>(context, listen: false)
-            .user
-            ?.listOfIncident;
     return isLoading
         ? Scaffold(
             body: Center(
@@ -1445,7 +1580,6 @@ class _EmpProductionEntryPageState
 
                 // automaticallyImplyLeading:true,
                 // leading:,
-
                 // leading: IconButton(
                 //     icon: Icon(Icons.arrow_back, color: Colors.white),
                 //     onPressed: () {
@@ -1460,6 +1594,7 @@ class _EmpProductionEntryPageState
                 //       //   builder: (context) => ResponsiveTabletHomepage(),
                 //       // ));
                 //     }),
+
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -1486,17 +1621,16 @@ class _EmpProductionEntryPageState
               ),
               body: SafeArea(
                 child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Form(
-                        key: _formkey,
-                        child: Container(
-                          height: 850.h,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5.r),
-                            color: Colors.white,
-                          ),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5.r),
+                      color: Colors.white,
+                    ),
+                    child: Column(
+                      children: [
+                        Form(
+                          key: _formkey,
                           child: Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 8.w, vertical: 8.h),
@@ -1530,7 +1664,7 @@ class _EmpProductionEntryPageState
                                                   width: 20,
                                                 ),
                                                 Text(
-                                                    '${fromtime?.substring(0, fromtime.length - 3)}',
+                                                    '${fromtime?.substring(0, fromtime!.length - 3)}',
                                                     style: TextStyle(
                                                         fontFamily: "lexend",
                                                         fontSize: 18.sp,
@@ -1555,18 +1689,21 @@ class _EmpProductionEntryPageState
                                                 SizedBox(
                                                   width: 30.w,
                                                 ),
-                                                UpdateTime(
-                                                  onTimeChanged: (time) {
-                                                    setState(() {
-                                                      lastUpdatedTime = time
-                                                          .toString(); // Update the manually set time
-                                                    });
-                                                  },
-                                                  shiftFromTime:
-                                                      shiftFromtime ?? "",
-                                                  shiftToTime:
-                                                      shiftTotime ?? "",
-                                                ),
+                                               UpdateTime(
+  onTimeChanged: (time) {
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        lastUpdatedTime = time.toString();
+
+        if (fromtime != null && lastUpdatedTime != null) {
+          empTimingUpdation(fromtime!, lastUpdatedTime!);
+        }
+      });
+    });
+  },
+  shiftFromTime: startTime ?? "",
+  shiftToTime: shiftTotime ?? "",
+),
                                               ],
                                             ),
                                           ),
@@ -1667,7 +1804,7 @@ class _EmpProductionEntryPageState
                                         child: Container(
                                           padding: EdgeInsets.only(left: 8.w),
                                           width: 506.w,
-                                          height: 258.h,
+                                          height: 270.h,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(8),
@@ -2090,7 +2227,7 @@ class _EmpProductionEntryPageState
                                                             )),
                                                       ],
                                                     ),
-                                                    SizedBox(width: 50.w),
+                                                    SizedBox(width: 40.w),
                                                     Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
@@ -2199,10 +2336,14 @@ class _EmpProductionEntryPageState
                                                     ),
                                                   ],
                                                 ),
+                                                SizedBox(
+                                                  height: 20.h,
+                                                ),
                                                 Row(
                                                   children: [
-                                                    SizedBox(
-                                                      width: 40.w,
+                                                    Container(
+                                               
+                                                    
                                                     ),
                                                   ],
                                                 ),
@@ -2222,7 +2363,7 @@ class _EmpProductionEntryPageState
                                             BorderRadius.circular(5.r),
                                         child: Container(
                                           width: 506.w,
-                                          height: 258.h,
+                                          height: 270.h,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(5.r),
@@ -2517,30 +2658,44 @@ class _EmpProductionEntryPageState
                                                     ),
                                                   ],
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    // Text('Scrap Qty',
-                                                    //                                                       style: TextStyle(
-                                                    //                                                           fontSize: 17,
-                                                    //                                                           color:
-                                                    //                                                               Colors.black54)),
-                                                    //                                                   SizedBox(
-                                                    //                                                     width: 40,
-                                                    //                                                   ),
-                                                    //                                                   SizedBox(
-                                                    //                                                     width: 150,
-                                                    //                                                     height: 40,
-                                                    //                                                     child: CustomNumField(
-                                                    //                                                       controller:
-                                                    //                                                           batchNOController,
-                                                    //                                                       hintText: 'Scrap Qty  ',
-                                                    //                                                     ),
-                                                    //                                                   ),
-                                                    SizedBox(
-                                                      width: 30.w,
-                                                    ),
-                                                  ],
+                                                 SizedBox(
+                                                  height: 10.h,
                                                 ),
+                                               Row(
+                                                        children: [
+                                                        
+                                                          SizedBox(
+                                                                height: 50.h,
+                                                      width: 170.w,
+                                                              child:
+                                                                  FloatingActionButton(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                mini: true,
+                                                                shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                            5.r)),
+                                                                onPressed:
+                                                                    () async {
+                                                                  setState(() {
+                                                                    nonProductionActivityService
+                                                                        .getNonProductionList(
+                                                                      context:
+                                                                          context,
+                                                                    );
+                                                                    _nonProductionActivityPopup(
+                                                                        fromtime,
+                                                                        lastUpdatedTime);
+                                                                  });
+
+                                                                  // Update time after each change
+                                                                },
+                                                                child: Text("Non Productive Time")
+                                                              )),
+                                                        ],
+                                                      ),
                                               ],
                                             ),
                                           ),
@@ -2562,7 +2717,7 @@ class _EmpProductionEntryPageState
                                             MainAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Employee List",
+                                            "Employees",
                                             style: TextStyle(
                                                 fontSize: 20.sp,
                                                 fontFamily: "Lexend",
@@ -2589,7 +2744,7 @@ class _EmpProductionEntryPageState
                                               children: [
                                                 Container(
                                                   alignment: Alignment.center,
-                                                  width: 100.w,
+                                                  width: 50.w,
                                                   child: Text('S.No',
                                                       style: TextStyle(
                                                           color: Colors.white,
@@ -2598,8 +2753,17 @@ class _EmpProductionEntryPageState
                                                 ),
                                                 Container(
                                                   alignment: Alignment.center,
-                                                  width: 190.w,
+                                                  width: 160.w,
                                                   child: Text('Employee',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontFamily: "lexend",
+                                                          fontSize: 16.sp)),
+                                                ),
+                                                  Container(
+                                                  alignment: Alignment.center,
+                                                  width: 150.w,
+                                                  child: Text('Working Minutes',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontFamily: "lexend",
@@ -2607,7 +2771,7 @@ class _EmpProductionEntryPageState
                                                 ),
                                                 Container(
                                                   alignment: Alignment.center,
-                                                  width: 150.w,
+                                                  width: 120.w,
                                                   child: Text('Attendence',
                                                       style: TextStyle(
                                                           color: Colors.white,
@@ -2616,7 +2780,7 @@ class _EmpProductionEntryPageState
                                                 ),
                                                 Container(
                                                   alignment: Alignment.center,
-                                                  width: 180.w,
+                                                  width: 130.w,
                                                   child: Text('Shift',
                                                       style: TextStyle(
                                                           color: Colors.white,
@@ -2642,7 +2806,7 @@ class _EmpProductionEntryPageState
                                                                       .circular(
                                                                           5))),
                                                   width: double.infinity,
-                                                  height: 262.h,
+                                                  height: 240.h,
                                                   child: ListView.builder(
                                                     shrinkWrap: true,
                                                     itemCount:
@@ -2653,6 +2817,9 @@ class _EmpProductionEntryPageState
                                                       final data =
                                                           listofempworkstation?[
                                                               index];
+                                                       
+                                                        
+                                                      
                                                       return Container(
                                                         decoration:
                                                             BoxDecoration(
@@ -2680,7 +2847,7 @@ class _EmpProductionEntryPageState
                                                               alignment:
                                                                   Alignment
                                                                       .center,
-                                                              width: 100.w,
+                                                              width: 50.w,
                                                               child: Text(
                                                                 ' ${index + 1}  ',
                                                                 style: TextStyle(
@@ -2695,7 +2862,7 @@ class _EmpProductionEntryPageState
                                                             Container(
                                                               alignment: Alignment
                                                                   .centerLeft,
-                                                              width: 180.w,
+                                                              width: 150.w,
                                                               child: Text(
                                                                 data!.personFname![0]!
                                                                             .toUpperCase() +
@@ -2721,11 +2888,91 @@ class _EmpProductionEntryPageState
                                                                         .black54),
                                                               ),
                                                             ),
+  Container(
+  alignment: Alignment.center,
+  width: 150,
+  height: 50, // Container height remains fixed
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SizedBox(
+        width: 130,
+        height: 35, // Keep the size fixed for the TextFormField
+        child: TextFormField(
+          keyboardType: TextInputType.number,
+          controller: empTimingTextEditingControllers[index],
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.all(5),
+            hintText: "minutes",
+            hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
+            labelStyle: const TextStyle(fontSize: 12),
+            constraints: BoxConstraints(maxHeight: 40, maxWidth: 100),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(color: Colors.red.shade300),
+            ),
+          ),
+          onChanged: (value) {
+  // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+  // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+ fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
+
+            final enteredMinutes = int.tryParse(value) ?? -1;
+      
+            setState(() {
+              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
+              } else {
+                errorMessages[index] = null; // Clear error message if valid
+              }
+            });
+          },
+          onEditingComplete: () {
+            final value = empTimingTextEditingControllers[index].text;
+            final enteredMinutes = int.tryParse(value) ?? -1;
+      
+            setState(() {
+              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+              } else {
+                errorMessages[index] = null; // Clear error message if valid
+              }
+            });
+          },
+        ),
+      ),
+      // This space will display the error message but won't change the TextFormField size
+      if (errorMessages[index] != null) 
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+          child: Text(
+            errorMessages[index]!,
+            style: TextStyle(
+              fontSize: 9.0, // Adjust the font size as needed
+              color: Colors.red,
+              height: 1.0, // Adjust the height to control spacing
+            ),
+          ),
+        ),
+    ],
+  ),
+),
+
+
+
+
                                                             Container(
                                                               alignment:
                                                                   Alignment
                                                                       .center,
-                                                              width: 150.w,
+                                                              width: 100.w,
                                                               child: Text(
                                                                 ' ${data?.flattstatus == 1 ? "Present" : "Absent"}  ',
                                                                 style: TextStyle(
@@ -2744,17 +2991,18 @@ class _EmpProductionEntryPageState
                                                                     Alignment
                                                                         .center,
 
-                                                                width: 180.w,
+                                                                width: 130.w,
                                                                 child:
                                                                     CustomButton(
                                                                   width: 120.w,
                                                                   height: 40.h,
                                                                   onPressed:
                                                                       () {
-                                                                    _closeShiftPop(
+                                                                    _EmpOpenandCloseShiftPop(
                                                                         context,
                                                                         ' ${data?.attendanceid ?? ''}  ',
-                                                                        "${data?.flattstatus ?? ""}");
+                                                                        "${data?.flattstatus ?? ""}",
+                                                                        2);
                                                                   },
                                                                   child: Text(
                                                                       'Close Shift',
@@ -2790,10 +3038,10 @@ class _EmpProductionEntryPageState
                                                                   height: 40.h,
                                                                   onPressed:
                                                                       () {
-                                                                    _EmpOpenShiftPop(
+                                                                    _EmpOpenandCloseShiftPop(
                                                                         context,
                                                                         ' ${data?.attendanceid ?? ''}  ',
-                                                                        "${data?.flattstatus ?? ""}");
+                                                                        "${data?.flattstatus ?? ""}",1);
                                                                   },
                                                                   child: Text(
                                                                       'Reopen',
@@ -2834,7 +3082,6 @@ class _EmpProductionEntryPageState
                                                           ],
                                                         ),
                                                       );
-
                                                     },
                                                   ),
                                                 )
@@ -2851,7 +3098,7 @@ class _EmpProductionEntryPageState
                                                                       .circular(
                                                                           8))),
                                                   width: double.infinity,
-                                                  height: 258.h,
+                                                   height: 240.h,
                                                   child: Center(
                                                     child: Text(
                                                         "No data available"),
@@ -2869,7 +3116,7 @@ class _EmpProductionEntryPageState
                                             child: Row(
                                               children: [
                                                 Text(
-                                                  "Problem List",
+                                                  "Problems",
                                                   style: TextStyle(
                                                       fontSize: 20.sp,
                                                       fontFamily: "Lexend",
@@ -2905,13 +3152,15 @@ class _EmpProductionEntryPageState
                                                                     0,
                                                                 deptid: widget
                                                                         .deptid ??
-                                                                    1057);
-                                                                    _problemEntrywidget();
+                                                                    1057,
+                                                                    
+                                                                        assetid: int.parse(assetCotroller.text)  );
+                                            
+
+                                                        _problemEntrywidget(fromtime,lastUpdatedTime);
                                                       });
 
-     
-
-                                                   // Update time after each change
+                                                      // Update time after each change
                                                     },
                                                     child: const Icon(Icons.add,
                                                         color: Colors.black,
@@ -2921,7 +3170,6 @@ class _EmpProductionEntryPageState
                                               ],
                                             ),
                                           ),
-
                                           SizedBox(
                                             height: 2,
                                           ),
@@ -2941,7 +3189,8 @@ class _EmpProductionEntryPageState
                                                   MainAxisAlignment.center,
                                               children: [
                                                 Container(
-                                                  alignment: Alignment.center,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   width: 50.w,
                                                   child: Text('S.No',
                                                       style: TextStyle(
@@ -2952,8 +3201,7 @@ class _EmpProductionEntryPageState
                                                 Container(
                                                   alignment: Alignment.center,
                                                   width: 250.w,
-                                                  child: Text(
-                                                      'Problem Catagory',
+                                                  child: Text('Problem',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontFamily: "lexend",
@@ -2961,8 +3209,9 @@ class _EmpProductionEntryPageState
                                                 ),
                                                 Container(
                                                   alignment: Alignment.center,
-                                                  width: 200.w,
-                                                  child: Text('Problem',
+                                                  width: 210.w,
+                                                  child: Text(
+                                                      'Problem Catagory',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontFamily: "lexend",
@@ -2994,21 +3243,46 @@ class _EmpProductionEntryPageState
                                                                       .circular(
                                                                           8))),
                                                   width: double.infinity,
-                                                  height: 262.h,
+                                               height: 240.h,
                                                   child: ListView.builder(
                                                     shrinkWrap: true,
                                                     itemCount:
-                                                        StoredListOfProblem.length,
+                                                        StoredListOfProblem
+                                                            .length,
                                                     itemBuilder:
                                                         (context, index) {
                                                       final item =
-                                                          StoredListOfProblem?[index];
+                                                          StoredListOfProblem[
+                                                              index];
                                                       return GestureDetector(
-                                                        onTap: (){
-                                                          _problemEntrywidget(item?.problemId,item?.problemcatagoryId,item?.rootCauseId,
-                                                          item?.reasons
-                                                          );
-
+                                                        onTap: () {
+                                                           listofproblemservice
+                                                            .getListofProblem(
+                                                                context:
+                                                                    context,
+                                                                processid: widget
+                                                                        .processid ??
+                                                                    0,
+                                                                deptid: widget
+                                                                        .deptid ??
+                                                                    1057,
+                                                                    
+                                                                        assetid: int.parse(assetCotroller.text)  );
+                                                          _problemEntrywidget(
+                                                             item.fromtime,
+                                                             lastUpdatedTime,
+                                                              item.problemId,
+                                                              item.problemcatagoryId,
+                                                              item.rootCauseId,
+                                                              item.reasons,
+                                                              item.solutionId,
+                                                              item.problemstatusId,
+                                                              item.productionStoppageId,
+                                                              item.ipdId ?? 0,
+                                                              item.ipdIncId ?? 0,
+                                                              true,
+                                                              fromtime
+                                                              );
                                                         },
                                                         child: Container(
                                                           decoration:
@@ -3020,14 +3294,16 @@ class _EmpProductionEntryPageState
                                                                       .grey
                                                                       .shade300),
                                                             ),
-                                                            color: index % 2 == 0
-                                                                ? Colors
-                                                                    .grey.shade50
+                                                            color: index % 2 ==
+                                                                    0
+                                                                ? Colors.grey
+                                                                    .shade50
                                                                 : Colors.grey
                                                                     .shade100,
                                                           ),
                                                           height: 84.w,
-                                                          width: double.infinity,
+                                                          width:
+                                                              double.infinity,
                                                           child: Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
@@ -3050,16 +3326,16 @@ class _EmpProductionEntryPageState
                                                                 ),
                                                               ),
                                                               Container(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                width: 250.w,
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                width: 280.w,
                                                                 child: Text(
-                                                                  item!.problemName
-                                                                              ![0]
+                                                                  item!.problemName![
+                                                                              0]
                                                                           .toUpperCase() +
-                                                                      item!.problemName
-                                                                          !.substring(
+                                                                      item!
+                                                                          .problemName!
+                                                                          .substring(
                                                                               1,
                                                                               item!.problemName?.length)
                                                                           .toLowerCase(),
@@ -3073,16 +3349,16 @@ class _EmpProductionEntryPageState
                                                                 ),
                                                               ),
                                                               Container(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .center,
-                                                                width: 200.w,
+                                                                alignment: Alignment
+                                                                    .centerLeft,
+                                                                width: 170.w,
                                                                 child: Text(
-                                                                  item.problemCatagoryname!
-                                                                              [0]
+                                                                  item.problemCatagoryname![
+                                                                              0]
                                                                           .toUpperCase() +
-                                                                   item!.problemCatagoryname
-                                                                          !.substring(
+                                                                      item!
+                                                                          .problemCatagoryname!
+                                                                          .substring(
                                                                               1,
                                                                               item.problemCatagoryname!.length)
                                                                           .toLowerCase(),
@@ -3104,15 +3380,13 @@ class _EmpProductionEntryPageState
                                                                       IconButton(
                                                                           onPressed:
                                                                               () {
-                                                                            setState(
-                                                                                () {
+                                                                            setState(() {
                                                                               StoredListOfProblem.removeAt(index);
                                                                             });
                                                                           },
                                                                           icon:
                                                                               Icon(
-                                                                            Icons
-                                                                                .delete,
+                                                                            Icons.delete,
                                                                             color:
                                                                                 Colors.red,
                                                                           ))),
@@ -3121,39 +3395,6 @@ class _EmpProductionEntryPageState
                                                         ),
                                                       );
 
-                                                      // Container(
-                                                      //   alignment:
-                                                      //       Alignment.center,
-                                                      //   width: 150,
-                                                      //   child: Text(
-                                                      //     '  ${data?.ipdgoodqty ?? ''} ',
-                                                      //     style: TextStyle(
-                                                      //         color: Colors
-                                                      //             .grey.shade900),
-                                                      //   ),
-                                                      // ),
-                                                      // Container(
-                                                      //   alignment:
-                                                      //       Alignment.center,
-                                                      //   width: 150,
-                                                      //   child: Text(
-                                                      //     '  ${data?.ipdrejqty ?? ''}',
-                                                      //     style: TextStyle(
-                                                      //         color: Colors
-                                                      //             .grey.shade900),
-                                                      //   ),
-                                                      // ),
-                                                      // Container(
-                                                      //   alignment:
-                                                      //       Alignment.center,
-                                                      //   width: 150,
-                                                      //   child: Text(
-                                                      //     '  ${data?.ipdreworkflag == 0 ? 'NO' : "Yes"} ',
-                                                      //     style: TextStyle(
-                                                      //         color: Colors
-                                                      //             .grey.shade900),
-                                                      //   ),
-                                                      // ),
                                                     },
                                                   ),
                                                 )
@@ -3170,7 +3411,7 @@ class _EmpProductionEntryPageState
                                                                       .circular(
                                                                           8))),
                                                   width: double.infinity,
-                                                  height: 262.h,
+                                                   height: 240.h,
                                                   child: Center(
                                                     child: Text(
                                                         "No data available"),
@@ -3184,9 +3425,9 @@ class _EmpProductionEntryPageState
                               ],
                             ),
                           ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),

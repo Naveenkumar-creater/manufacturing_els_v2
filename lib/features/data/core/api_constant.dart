@@ -7,16 +7,16 @@ import 'package:http/http.dart' as http;
 import '../../../constant/utilities/exception_handle/network_exception.dart';
 
 class ApiConstant {
-   static String baseUrl ="http://192.168.29.85:8080/AtmaIntegrationAPI/wsservice";
+   static String baseUrl ="http://192.168.29.125:8080/AtmaIntegrationAPI/wsservice";
 
-  //  static String baseUrl ="http://162.55.165.140:8080/AtmaInterfaceAPI/wsservice";
+  //  static String baseUrl ="http://159.69.188.148:8080/AtmaInterfaceAPI/wsservice";
 
   static const String fromDate = "2023-08-01 10:00:00";
   static const String clientId = "vijay";
 
  static Future<dynamic> makeApiRequest({
     required dynamic requestBody,
-    Duration timeoutDuration = const Duration(seconds: 5),
+    Duration timeoutDuration = const Duration(seconds: 10),
   }) async {
     try {
       final response = await http
@@ -61,7 +61,7 @@ class ApiConstant {
             body: jsonEncode(requestBody),
           )
           .timeout(timeoutDuration);
-      
+       
       if (response.statusCode == 200) {
         final responseJson = jsonDecode(response.body);
         final responseMsg = responseJson['response_msg'];
