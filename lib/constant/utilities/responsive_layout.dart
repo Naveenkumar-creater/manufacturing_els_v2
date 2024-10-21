@@ -6,7 +6,7 @@ class Responsive extends StatelessWidget {
   final Widget? tablet;
   final Widget? desktop;
 
-  const Responsive({super.key, this.mobile, this.tablet, this.desktop});
+const Responsive({super.key, this.mobile, this.tablet, this.desktop});
 
  static bool isMobile(BuildContext context) => MediaQuery.of(context as BuildContext).size.width<576;
  static bool isTablet(BuildContext context)=> MediaQuery.of(context as BuildContext).size.width>=576 &&  MediaQuery.of(context as BuildContext).size.width<=992; 

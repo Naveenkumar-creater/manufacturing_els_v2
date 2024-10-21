@@ -10,4 +10,8 @@ class CardNoProvider extends ChangeNotifier {
     _user = cardNo;
     notifyListeners();
   }
+  void reset() {
+    _user = null;
+    notifyListeners();
+  }
 }

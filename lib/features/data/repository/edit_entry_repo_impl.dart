@@ -4,12 +4,11 @@ import 'package:prominous/features/domain/repository/edit_entry_repo.dart';
 
 class EditEntryRepoImpl implements  EditEntryRepository{
 
-  final EditEntryDatasourceImpl editEntryDatasourceImpl;
-  EditEntryRepoImpl(this.editEntryDatasourceImpl);
-
+  final EditEntryDatasource editEntryDatasource;
+  EditEntryRepoImpl(this.editEntryDatasource);
   @override
   Future<EditEntryEntity> getEditEntry(int ipdId, int pwsId,int psid, int deptid,String token) {
-  final result= editEntryDatasourceImpl.getEditEntry(ipdId, pwsId, psid, deptid, token);
+  final result= editEntryDatasource.getEditEntry(ipdId, pwsId, psid, deptid, token);
   return result;
   }
   

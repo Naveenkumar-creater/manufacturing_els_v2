@@ -10,12 +10,14 @@ class CustomNumField extends StatelessWidget {
   final String? Function(String?)? validation;
   final String hintText;
   final Function()? onEditingComplete;
+   final void Function(String)? onChanged;
   final TextInputType? keyboardtype;
   final bool isAlphanumeric;
   final OutlineInputBorder? enabledBorder;
   final OutlineInputBorder? focusedBorder;
   final OutlineInputBorder? border;
-  final bool readOnly; // Add this parameter for read-only functionality
+  final bool readOnly;
+  final bool enabled; // Add this parameter for read-only functionality
 
   const CustomNumField({
     required this.controller,
@@ -23,12 +25,15 @@ class CustomNumField extends StatelessWidget {
     this.validation,
     required this.hintText,
     this.onEditingComplete,
+    this.onChanged,
     this.keyboardtype,
     this.isAlphanumeric = false,
     this.enabledBorder,
     this.focusedBorder,
     this.border,
-    this.readOnly = false, // Default to false
+    this.readOnly = false, 
+    this.enabled=true
+    // Default to false
   });
 
   @override
@@ -69,8 +74,10 @@ class CustomNumField extends StatelessWidget {
             ),
       ),
       onEditingComplete: onEditingComplete,
+      onChanged: onChanged,
       validator: validation,
-      readOnly: readOnly, // Pass the readOnly parameter to TextFormField
+      readOnly: readOnly, 
+      enabled:enabled ,// Pass the readOnly parameter to TextFormField
     );
   }
 }

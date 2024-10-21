@@ -23,17 +23,17 @@
 // import 'package:prominous/features/data/repository/listofproblem_repo_impl.dart';
 // import 'package:prominous/features/domain/entity/listof_problem_entity.dart';
 // import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
-// import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
+// import 'package:prominous/features/domain/entity/listofproblem_Category_entity.dart';
 // import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
 // import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 // import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
-// import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
+// import 'package:prominous/features/presentation_layer/api_services/listofproblem_Category_di.dart';
 // import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
 // import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
 // import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
 // import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
 // import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
-// import 'package:prominous/features/presentation_layer/provider/listofproblem_catagory_provider.dart';
+// import 'package:prominous/features/presentation_layer/provider/listofproblem_Category_provider.dart';
 // import 'package:prominous/features/presentation_layer/provider/listofproblem_provider.dart';
 // import 'package:prominous/features/presentation_layer/provider/listofrootcause_provider.dart';
 // import 'package:prominous/features/presentation_layer/provider/listofworkstation_provider.dart';
@@ -120,8 +120,8 @@
 //   final Listofproblemservice listofproblemservice = Listofproblemservice();
 //   final ListofRootCauseService listofRootCauseService =
 //       ListofRootCauseService();
-//   final ListofproblemCatagoryservice listofproblemCatagoryservice =
-//       ListofproblemCatagoryservice();
+//   final ListofproblemCategoryservice listofproblemCategoryservice =
+//       ListofproblemCategoryservice();
 //   final TargetQtyApiService targetQtyApiService = TargetQtyApiService();
 //   final EmpProductionEntryService empProductionEntryService =
 //       EmpProductionEntryService();
@@ -159,17 +159,17 @@
 //   List<Map<String, dynamic>> submittedDataList = [];
 //   String? selectedName;
 //   String? selectproblemname;
-//   String? selectproblemcatagoryname;
+//   String? selectproblemCategoryname;
 //   String? selectrootcausename;
 //   String? dropdownProduct;
 //   String? activityDropdown;
 //   String? problemDropdown;
 //   int? problemid;
-//   String? problemCatagoryDropdown;
-//   int? problemcatagoryid;
+//   String? problemCategoryDropdown;
+//   int? problemCategoryid;
 //   String? rootCauseDropdown;
 //   int? rootCauseid;
-//   List<ListOfIncidentCatagoryEntity>? problemcatagory;
+//   List<ListOfIncidentCategoryEntity>? problemCategory;
 //   List<ListrootcauseEntity>? listofrootcause;
 
 //   String? lastUpdatedTime;
@@ -727,7 +727,7 @@
 //                                     crossAxisAlignment:
 //                                         CrossAxisAlignment.start,
 //                                     children: [
-//                                       Text('Problem Catagory',
+//                                       Text('Problem Category',
 //                                           style: TextStyle(
 //                                               fontFamily: "lexend",
 //                                               fontSize: 16.sp,
@@ -790,29 +790,29 @@
 //                                               selectedProblem.incmId != null) {
 //                                             problemid = selectedProblem.incmId;
 
-//                                             await listofproblemCatagoryservice
-//                                                 .getListofProblemCatagory(
+//                                             await listofproblemCategoryservice
+//                                                 .getListofProblemCategory(
 //                                               context: context,
 //                                               deptid: widget.deptid ?? 1,
 //                                               incidentid: problemid ?? 0,
 //                                             );
 
-//                                             final listproblemcatagory = Provider
-//                                                 .of<ListofproblemCatagoryProvider>(
+//                                             final listproblemCategory = Provider
+//                                                 .of<ListofproblemCategoryProvider>(
 //                                               context,
 //                                               listen: false,
-//                                             ).user?.listOfIncidentcatagory;
+//                                             ).user?.listOfIncidentCategory;
 
 //                                             setState(() {
-//                                               problemcatagory =
-//                                                   listproblemcatagory;
+//                                               problemCategory =
+//                                                   listproblemCategory;
 //                                             });
 //                                           }
 //                                         } else {
 //                                           setState(() {
 //                                             problemDropdown = null;
-//                                             problemcatagory =
-//                                                 null; // Clear problemcatagory when no problem selected
+//                                             problemCategory =
+//                                                 null; // Clear problemCategory when no problem selected
 //                                           });
 //                                         }
 //                                       },
@@ -880,7 +880,7 @@
 //                                           BorderRadius.all(Radius.circular(5)),
 //                                     ),
 //                                     child: DropdownButtonFormField<String>(
-//                                       value: problemCatagoryDropdown,
+//                                       value: problemCategoryDropdown,
 //                                       decoration: InputDecoration(
 //                                         contentPadding: EdgeInsets.symmetric(
 //                                             horizontal: 5.w, vertical: 2.h),
@@ -891,17 +891,17 @@
 //                                       onChanged: (String? newvalue) async {
 //                                         if (newvalue != null) {
 //                                           setState(() {
-//                                             problemCatagoryDropdown = newvalue;
+//                                             problemCategoryDropdown = newvalue;
 //                                           });
 
-//                                           final selectproblemCatagory =
-//                                               problemcatagory?.firstWhere(
-//                                                   (problemcatagory) =>
-//                                                       problemcatagory
+//                                           final selectproblemCategory =
+//                                               problemCategory?.firstWhere(
+//                                                   (problemCategory) =>
+//                                                       problemCategory
 //                                                           .incmName ==
 //                                                       newvalue,
 //                                                   orElse: () =>
-//                                                       ListOfIncidentCatagory(
+//                                                       ListOfIncidentCategory(
 //                                                         incmDesc: '',
 //                                                         incmId: 0,
 //                                                         incmMpmId: 0,
@@ -909,12 +909,12 @@
 //                                                         incmParentId: 0,
 //                                                       ));
 
-//                                           if (selectproblemCatagory?.incmName !=
+//                                           if (selectproblemCategory?.incmName !=
 //                                                   null &&
-//                                               selectproblemCatagory?.incmId !=
+//                                               selectproblemCategory?.incmId !=
 //                                                   null) {
-//                                             problemcatagoryid =
-//                                                 selectproblemCatagory?.incmId;
+//                                             problemCategoryid =
+//                                                 selectproblemCategory?.incmId;
 
 //                                             await listofRootCauseService
 //                                                 .getListofRootcause(
@@ -922,7 +922,7 @@
 //                                                     deptid:
 //                                                         widget.deptid ?? 1057,
 //                                                     incidentid:
-//                                                         problemcatagoryid ?? 0);
+//                                                         problemCategoryid ?? 0);
 
 //                                             final listofroot = Provider.of<
 //                                                         ListofRootcauseProvider>(
@@ -936,25 +936,25 @@
 //                                           }
 //                                         } else {
 //                                           setState(() {
-//                                             problemCatagoryDropdown = null;
-//                                             problemcatagoryid = 0;
+//                                             problemCategoryDropdown = null;
+//                                             problemCategoryid = 0;
 //                                           });
 //                                         }
 //                                       },
-//                                       items: problemcatagory
-//                                               ?.map((problemcatagory) {
+//                                       items: problemCategory
+//                                               ?.map((problemCategory) {
 //                                                 return DropdownMenuItem<String>(
 //                                                   onTap: () {
 //                                                     setState(() {
-//                                                       selectproblemcatagoryname =
-//                                                           problemcatagory
+//                                                       selectproblemCategoryname =
+//                                                           problemCategory
 //                                                               .incmName;
 //                                                     });
 //                                                   },
 //                                                   value:
-//                                                       problemcatagory.incmName,
+//                                                       problemCategory.incmName,
 //                                                   child: Text(
-//                                                     problemcatagory.incmName ??
+//                                                     problemCategory.incmName ??
 //                                                         "",
 //                                                     style: TextStyle(
 //                                                       color: Colors.black87,
@@ -1104,7 +1104,7 @@
 //                                       width: 130.w,
 //                                       height: 50.h,
 //                                       onPressed: selectproblemname != null &&
-//                                               selectproblemcatagoryname !=
+//                                               selectproblemCategoryname !=
 //                                                   null &&
 //                                               selectrootcausename != null
 //                                           ? () {
@@ -1112,13 +1112,13 @@
 //                                                 final data = {
 //                                                   "problemname":
 //                                                       selectproblemname,
-//                                                   "problemcatagoryname":
-//                                                       selectproblemcatagoryname,
+//                                                   "problemCategoryname":
+//                                                       selectproblemCategoryname,
 //                                                   "rootcausename":
 //                                                       selectrootcausename,
 //                                                   "incident_id": problemid,
 //                                                   "subincident_id":
-//                                                       problemcatagoryid,
+//                                                       problemCategoryid,
 //                                                   "rootcause_id": rootCauseid,
 //                                                   "reason":
 //                                                       incidentReasonController
@@ -3389,7 +3389,7 @@
 //                                                   alignment: Alignment.center,
 //                                                   width: 250.w,
 //                                                   child: Text(
-//                                                       'Problem Catagory',
+//                                                       'Problem Category',
 //                                                       style: TextStyle(
 //                                                           color: Colors.white,
 //                                                           fontFamily: "lexend",
@@ -3507,13 +3507,13 @@
 //                                                                       .center,
 //                                                               width: 200.w,
 //                                                               child: Text(
-//                                                                 item?["problemcatagoryname"]
+//                                                                 item?["problemCategoryname"]
 //                                                                             [0]
 //                                                                         .toUpperCase() +
-//                                                                     item?["problemcatagoryname"]
+//                                                                     item?["problemCategoryname"]
 //                                                                         .substring(
 //                                                                             1,
-//                                                                             item?["problemcatagoryname"].length)
+//                                                                             item?["problemCategoryname"].length)
 //                                                                         .toLowerCase(),
 //                                                                 style: TextStyle(
 //                                                                     fontFamily:

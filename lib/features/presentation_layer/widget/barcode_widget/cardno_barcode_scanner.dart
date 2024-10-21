@@ -8,7 +8,7 @@ import 'package:prominous/features/presentation_layer/provider/card_no_provider.
 class CardNoScanner extends StatefulWidget {
 
 
-  final Function(String, String)? onCardDataReceived;
+  final Function(String, String,int, int)? onCardDataReceived;
 
   const CardNoScanner({
     Key? key,
@@ -73,10 +73,12 @@ class _CardNoScannerState extends State<CardNoScanner> {
           ?.scanCardForItem;
 
       if (widget.onCardDataReceived != null && cardNumber != null) {
-        final cardNo = cardNumber.pcCardNo?.toString() ?? "";
+        final cardNo = cardNumber.pcCardNo ?? "";
         final productName = cardNumber.itemName?.toString() ?? "";
+        final itemid=cardNumber.pcItemId ?? 0;
+        final cardid=cardNumber.pcId ?? 0;
 
-        widget.onCardDataReceived!(cardNo, productName);
+        widget.onCardDataReceived!(cardNo, productName,itemid,cardid);
       }
     } catch (e) {
       ShowError.showAlert(context, 'Error: Failed to fetch card number');

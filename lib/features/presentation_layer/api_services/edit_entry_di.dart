@@ -13,11 +13,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class EditEntryApiservice{
 
   Future<void>getEntryValues({
-      required BuildContext context,
+    required BuildContext context,
     required int psId,
     required int ipdid,
     required int pwsId,
-     required int deptid
+    required int deptid
   })async {
     try {
       SharedPreferences   pref=await SharedPreferences.getInstance();

@@ -4,36 +4,42 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'package:prominous/constant/request_data_model/delete_production_entry.dart';
 import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_close_shift_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
+import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/card_no_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_entry_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/non_production_activity_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/problem_status_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/product_avilable_qty_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/product_location_di.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
-import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
+
 import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
-import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
+
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/listofproblem_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/edit_workstation_entry.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
@@ -117,18 +123,19 @@ class _EmpProductionEntryPageState
   final ProductApiService productApiService = ProductApiService();
   final RecentActivityService recentActivityService = RecentActivityService();
   final ActivityService activityService = ActivityService();
+  ProductLocationService productLocationService=ProductLocationService();
   final Listofproblemservice listofproblemservice = Listofproblemservice();
   final ProblemStatusService problemStatusService = ProblemStatusService();
   final ListofRootCauseService listofRootCauseService =
       ListofRootCauseService();
-  final ListofproblemCatagoryservice listofproblemCatagoryservice =
-      ListofproblemCatagoryservice();
+  final ListofproblemCategoryservice listofproblemCategoryservice =
+      ListofproblemCategoryservice();
   final TargetQtyApiService targetQtyApiService = TargetQtyApiService();
   final EmpProductionEntryService empProductionEntryService =
       EmpProductionEntryService();
   final ListofEmpworkstationService listofEmpworkstationService =
       ListofEmpworkstationService();
-        final WorkstationProblemService workstationProblemService =
+  final WorkstationProblemService workstationProblemService =
       WorkstationProblemService();
   final NonProductionActivityService nonProductionActivityService =
       NonProductionActivityService();
@@ -138,8 +145,15 @@ class _EmpProductionEntryPageState
   List<Map<String, dynamic>> incidentList = [];
   ActualQtyService actualQtyService = ActualQtyService();
   EditEntryApiservice editEntryApiservice = EditEntryApiservice();
-  PlanQtyService planQtyService = PlanQtyService();
+    final CardNoApiService cardNoApiService = CardNoApiService();
 
+
+  ProductAvilableQtyService productAvilableQtyService=ProductAvilableQtyService();
+  PlanQtyService planQtyService = PlanQtyService();
+  FocusNode goodQtyFocusNode = FocusNode();
+  FocusNode rejectedQtyFocusNode = FocusNode();
+  FocusNode reworkFocusNode = FocusNode();
+  FocusNode cardNoFocusNode=FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -158,25 +172,27 @@ class _EmpProductionEntryPageState
   TimeOfDay timeofDay = TimeOfDay.now();
   late DateTime currentDateTime;
   // Initialized to avoid null check
-
-  List<Map<String, dynamic>> submittedDataList = [];
   String? selectedName;
   String? selectproblemname;
-  String? selectproblemcatagoryname;
+  String? selectproblemCategoryname;
   String? selectrootcausename;
   String? dropdownProduct;
   String? activityDropdown;
+  String? locationDropdown;
+  String?locationName;
+    int? locationid;
+
   String? problemDropdown;
   int? problemid;
-  String? problemCatagoryDropdown;
-  int? problemcatagoryid;
+  String? problemCategoryDropdown;
+  int? problemCategoryid;
   String? rootCauseDropdown;
   int? rootCauseid;
-  List<ListOfIncidentCatagoryEntity>? problemcatagory;
+  List<ListOfIncidentCategoryEntity>? problemCategory;
   List<ListrootcauseEntity>? listofrootcause;
 
   String? lastUpdatedTime;
-  String?fromtime;
+  String? fromtime;
   String? currentDate;
   int? reworkValue;
   int? productid;
@@ -186,24 +202,39 @@ class _EmpProductionEntryPageState
   String? productName;
   String? assetID;
   String? achivedTargetQty;
-  final _formKey = GlobalKey<FormState>();
-    List<TextEditingController> empTimingTextEditingControllers = [];
+  List<TextEditingController> empTimingTextEditingControllers = [];
   final List<String?> errorMessages = [];
 
   EmployeeApiService employeeApiService = EmployeeApiService();
-  int? fromMinutes; // Total minutes// Variable to track the error message
+  int? fromMinutes;
+  int ? overallqty ;
+  int? avilableqty;
+  int ?seqNo;
+  int ?pcid;
 
- 
+  int?previousGoodValue; // Variable to store the previous value entered for Good Quantity
+  int? previousRejectedValue;
+  int?previousReworkValue; // Total minutes// Variable to track the error message
+  String? errorMessage;
+  String? rejectederrorMessage;
+  String? reworkerrorMessage;
+
+  // void updateOverallQty(int value) {
+  //   setState(() {
+  //     // Check if overallqty is null and set it to 0 if it is, then subtract the value
+  //     overallqty = (overallqty ?? 0) - value;
+
+  //     print(overallqty);
+  //   });
+  // }
+
   Future<void> updateproduction(int? processid) async {
     final responsedata =
         Provider.of<EmpProductionEntryProvider>(context, listen: false)
             .user
             ?.empProductionEntity;
 
-    final pcid = Provider.of<CardNoProvider>(context, listen: false)
-        .user
-        ?.scanCardForItem
-        ?.pcId;
+  
     final Shiftid = Provider.of<ShiftStatusProvider>(context, listen: false)
         .user
         ?.shiftStatusdetailEntity
@@ -245,8 +276,6 @@ class _EmpProductionEntryPageState
       final currentDateTime =
           '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
 
-
-
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       WorkStationEntryReqModel workStationEntryReq = WorkStationEntryReqModel(
           apiFor: "update_production_v1",
@@ -257,51 +286,53 @@ class _EmpProductionEntryPageState
           // batchno: int.tryParse(batchNOController.text),
           targetqty: double.tryParse(targetQtyController.text),
           ipdreworkableqty: double.tryParse(reworkQtyController.text),
-          ipdCardNo: int.tryParse(cardNoController.text.toString()),
+          ipdCardNo: cardNoController.text.toString(),
           ipdpaid: activityid ?? 0,
           ipdFromTime: fromtime,
           ipdToTime: lastUpdatedTime ?? currentDateTime,
           ipdDate: currentDateTime.toString(),
           ipdId: 0,
           // activityid == empproduction.ipdpaid ? empproduction.ipdid : 0,
-          ipdPcId: pcid ?? empproduction.ipdpcid,
+          ipdPcId: pcid??0,
           ipdDeptId: widget.deptid ?? 1,
           ipdAssetId: int.tryParse(assetCotroller.text.toString()) ?? 0,
           //ipdcardno: empproduction.first.ipdcardno,
-          ipdItemId: product_Id,
+          ipdItemId: product_Id??empproduction.itemid ,
           ipdMpmId: processid,
           // emppersonId: widget.empid ?? 0,
           ipdpsid: widget.psid,
           ppid: ppId ?? 0,
           shiftid: Shiftid,
+          ipdareaid: locationid ?? 0,
           listOfEmployeesForWorkStation: [],
           pwsid: widget.pwsid,
           listOfWorkstationIncident: [],
-          nonProductionList: []);
+          nonProductionList: []
+          );
 
 // // Clear the list to avoid duplicates
 // workStationEntryReq.listOfEmployeesForWorkStation.clear();
 
 // Loop through each EmpWorkstation entry
-for (int index = 0; index < EmpWorkstation!.length; index++) {
-  final empid = EmpWorkstation[index];
-  final emptimingController = empTimingTextEditingControllers[index];
+      for (int index = 0; index < EmpWorkstation!.length; index++) {
+        final empid = EmpWorkstation[index];
+        final emptimingController = empTimingTextEditingControllers[index];
 
-  // Parse the timing from the TextEditingController's text
-  final emptiming = int.tryParse(emptimingController.text) ?? 0;
+        // Parse the timing from the TextEditingController's text
+        final emptiming = int.tryParse(emptimingController.text) ?? 0;
 
-  print(emptiming);
+        print(emptiming);
 
-  // Create a ListOfEmployeesForWorkStation object with the timing
-  final listofempworkstation = ListOfEmployeesForWorkStation(
-    empId: empid.empPersonid ?? 0,
-    timing:emptiming, ipdeId: 0 ,  // Assign the parsed timing value
-  );
+        // Create a ListOfEmployeesForWorkStation object with the timing
+        final listofempworkstation = ListOfEmployeesForWorkStation(
+          empId: empid.empPersonid ?? 0,
+          timing: emptiming, ipdeId: 0, // Assign the parsed timing value
+        );
 
-  // Add the object to workStationEntryReq.listOfEmployeesForWorkStation
-  workStationEntryReq.listOfEmployeesForWorkStation.add(listofempworkstation);
-}
-
+        // Add the object to workStationEntryReq.listOfEmployeesForWorkStation
+        workStationEntryReq.listOfEmployeesForWorkStation
+            .add(listofempworkstation);
+      }
 
       for (int index = 0; index < StoredListOfProblem.length; index++) {
         final incident = StoredListOfProblem[index];
@@ -309,15 +340,14 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
             incidenid: incident.problemId,
             notes: incident.reasons,
             rootcauseid: incident.rootCauseId,
-            subincidentid: incident.problemcatagoryId,
-        incfromtime: incident.fromtime,
-        incendtime:incident.endtime,
-        problemStatusId:incident.problemstatusId ,
-        productionstopageId:incident.productionStoppageId ?? 0 ,
-        solutionId:incident.solutionId );
+            subincidentid: incident.problemCategoryId,
+            incfromtime: incident.fromtime,
+            incendtime: incident.endtime,
+            problemStatusId: incident.problemstatusId,
+            productionstopageId: incident.productionStoppageId ?? 0,
+            solutionId: incident.solutionId);
         workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
       }
-
       for (int index = 0; index < ListofNonProduction.length; index++) {
         final nonProduction = ListofNonProduction[index];
         final nonProductionList = NonProductionList(
@@ -351,11 +381,20 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
         if (response.statusCode == 200) {
           try {
             final responseJson = jsonDecode(response.body);
+
+            final responseMsg=responseJson["response_msg"];
             print(responseJson);
-            return responseJson;
+
+            if(responseMsg=="success"){
+    return  ShowError.showAlert(context,"Saved Successfully","Success");
+            }else{
+              return ShowError.showAlert(context,responseMsg);
+            }
+        
+            
           } catch (e) {
             // Handle the case where the response body is not a valid JSON object
-            throw ("Invalid JSON response from the server");
+             ShowError.showAlert(context, e.toString());
           }
         } else {
           throw ("Server responded with status code ${response.statusCode}");
@@ -372,7 +411,493 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     }
   }
 
+  void updateinitial() {
+    if (widget.isload == true) {
+      final productionEntry =
+          Provider.of<EmpProductionEntryProvider>(context, listen: false)
+              .user
+              ?.empProductionEntity;
+      final productname = Provider.of<ProductProvider>(context, listen: false)
+          .user
+          ?.listofProductEntity;
+
+      setState(() {
+        assetCotroller.text = productionEntry?.ipdassetid?.toString() ?? "0";
+        cardNoController.text = productionEntry?.ipdcardno?.toString() ?? "0";
+        reworkQtyController.text =
+            productionEntry?.ipdreworkableqty?.toString() ?? "0";
+        // If itemid is not 0, find the matching product name
+        productNameController.text = (productionEntry?.itemid != 0
+            ? productname
+                ?.firstWhere(
+                  (product) => productionEntry?.itemid == product.productid,
+                )
+                .productName
+            : "0")!;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Fetch recent activity, then initialize the values
+    _fetchARecentActivity().then((_) {
+      updateinitial();
+    });
+reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
+    // Get the current time details
+    currentDateTime = DateTime.now();
+    now = DateTime.now();
+    currentYear = now.year;
+    currentMonth = now.month;
+    currentDay = now.day;
+    currentHour = now.hour;
+    currentMinute = now.minute;
+    currentSecond = now.second;
+    String? shiftTime;
+    final productionEntry =
+        Provider.of<EmpProductionEntryProvider>(context, listen: false)
+            .user
+            ?.empProductionEntity;
+
+    String? shifttodate = productionEntry?.ipdtotime;
+
+    final shiftFromtime =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftFromTime;
+
+// Construct the shift start date with current time
+    final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
+        '${currentMonth.toString().padLeft(2, '0')}-'
+        '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+
+// Reassign the current fromtime value based on the condition
+    fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+        ? shiftStartDateTiming
+        : productionEntry?.ipdtotime;
+
+// Retrieve shift details
+    final shiftToTimeString =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftToTime;
+
+    DateTime? shiftToTime;
+    if (shifttodate != null && shifttodate.isNotEmpty) {
+      // Parse shifttodate if it's not empty
+      shiftToTime = DateTime.parse(shifttodate);
+
+
+    } else if (shiftToTimeString != null) {
+      // Parse the shiftToTimeString if shifttodate is not provided
+      final shiftToTimeParts = shiftToTimeString.split(':');
+      final now = DateTime.now();
+      shiftToTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(shiftToTimeParts[0]),
+        int.parse(shiftToTimeParts[1]),
+        int.parse(shiftToTimeParts[2]),
+      );
+    }
+
+// Get the current time
+    final currentTime = DateTime.now();
+
+// Retrieve the shift start time
+    final shiftFromTimeString =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftFromTime;
+
+    DateTime? shiftFromTime;
+    if (shiftFromTimeString != null && shiftToTime != null) {
+      // Parse the shiftFromTime but using the same date as shiftToTime
+      final shiftFromTimeParts = shiftFromTimeString.split(':');
+
+      shiftFromTime = DateTime(
+        shiftToTime.year, // Use the same year as shiftToTime
+        shiftToTime.month, // Use the same month as shiftToTime
+        shiftToTime.day, // Use the same day as shiftToTime
+        int.parse(shiftFromTimeParts[0]),
+        int.parse(shiftFromTimeParts[1]),
+        int.parse(shiftFromTimeParts[2]),
+      );
+
+      // Adjust the date of shiftToTime if it falls on the next day
+      if (shiftFromTime != null &&
+          shiftToTime != null &&
+shiftToTime.isBefore(shiftFromTime)) {
+        shiftToTime = shiftToTime.add(Duration(days: 1));
+      }
+
+
+
+
+    //         if (shiftFromTime != null &&
+    //       shiftToTime != null ){
+    //       if((shiftToTime.day == DateTime.now().day &&
+    //          shiftToTime.month == DateTime.now().month &&
+    //          shiftToTime.year == DateTime.now().year &&
+    //          shiftToTime.isAfter(shiftFromTime)) ){
+    //        shiftToTime = shiftToTime;
+    //          }
+    //      else {
+    //     shiftToTime = shiftToTime.add(Duration(days: 1));
+      
+    // }
+    //       }
+    }
+
+
+
+
+
+
+
+    if (shiftFromTime != null && shiftToTime != null) {
+      // No adjustment of shiftToTime date, keeping it as-is
+      if (currentTime.isAfter(shiftFromTime) &&
+          currentTime.isBefore(shiftToTime)) {
+        // Current time is within the shift time
+        final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+            '${currentTime.minute.toString().padLeft(2, '0')}:'
+            '${currentTime.second.toString().padLeft(2, '0')}';
+        shiftTime = timeString;
+      } else {
+        // Current time is outside the shift time
+        shiftTime = shiftToTimeString;
+      }
+
+      if (shiftToTime != null) {
+        setState(() {
+          lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
+              '${shiftToTime.month.toString().padLeft(2, '0')}-'
+              '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
+
+              print(lastUpdatedTime);
+        });
+      } else {
+        print("Shift To time is not available.");
+      }
+    } else {
+      print("Shift From or To time is not available.");
+    }
+
+
+  }
+
+  void submitGoodQuantity() {
+    final value = goodQController.text;
+    final currentValue = int.tryParse(value) ?? 0;
+
+    setState(() {
+      
+     if (currentValue > (overallqty ?? 0)) {
+        errorMessage = 'Value must be between 1 and $overallqty.';
+      } else {
+        errorMessage = null;
+        overallqty = (overallqty ?? 0) - currentValue;
+        previousGoodValue = currentValue;
+      }
+    });
+  }
+
+  void submitRejectedQuantity() {
+    final value = rejectedQController.text;
+    final currentValue = int.tryParse(value) ?? 0;
+
+    setState(() {
+      if (currentValue > (overallqty ?? 0)) {
+        rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+      } else {
+        rejectederrorMessage = null;
+        overallqty = (overallqty ?? 0) - currentValue;
+        previousRejectedValue = currentValue;
+      }
+    });
+  }
+
+  void submitReworkQuantity() {
+    final value = reworkQtyController.text;
+    final currentValue = int.tryParse(value) ?? 0;
+
+    setState(() {
+ if (currentValue > (overallqty ?? 0)) {
+        reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+      } else {
+        reworkerrorMessage = null;
+        overallqty = (overallqty ?? 0) - currentValue;
+        previousReworkValue = currentValue;
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    storedListOfProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: false);
+
+    nonProductionList =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false);
+
+    // Safely trigger the state update after the widget build phase
+  }
+
+  @override
+  void dispose() {
+    // Dispose text controllers
+    targetQtyController.dispose();
+    goodQController.dispose();
+    rejectedQController.dispose();
+    reworkQtyController.dispose();
+    overallqty=null;
+
+
+    for (var controller in empTimingTextEditingControllers) {
+      controller.dispose();
+    }
+    // Use the stored reference
+    storedListOfProblem.reset(notify: false);
+    nonProductionList.reset(notify: false);
+    super.dispose();
+  }
+
+  // String _formatDateTime(DateTime dateTime) {
+  //   return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
+  // }
+
+  Future<void> _fetchARecentActivity() async {
+    try {
+      // Fetch data
+      await empProductionEntryService.productionentry(
+          context: context,
+          pwsId: widget.pwsid ?? 0,
+          deptid: widget.deptid ?? 0,
+          psid: widget.psid ?? 0);
+
+      await listofEmpworkstationService.getListofEmpWorkstation(
+          context: context,
+          deptid: widget.deptid ?? 0,
+          psid: widget.psid ?? 0,
+          processid: widget.processid ?? 1,
+          pwsId: widget.pwsid ?? 0);
+
+      await workstationProblemService.getListofSolution(
+          context: context, pwsid: widget.pwsid ?? 0);
+
+      await productApiService.productList(
+          context: context,
+          id: widget.processid ?? 1,
+          deptId: widget.deptid ?? 0);
+
+      await recentActivityService.getRecentActivity(
+          context: context,
+          id: widget.pwsid ?? 0,
+          deptid: widget.deptid ?? 0,
+          psid: widget.psid ?? 0);
+
+      await activityService.getActivity(
+          context: context,
+          id: widget.processid ?? 0,
+          deptid: widget.deptid ?? 0,
+          pwsId: widget.pwsid ?? 0);
+          await productLocationService.getAreaList(context: context);
+
+          currentDateTime = DateTime.now();
+    now = DateTime.now();
+    currentYear = now.year;
+    currentMonth = now.month;
+    currentDay = now.day;
+    currentHour = now.hour;
+    currentMinute = now.minute;
+    currentSecond = now.second;
+    String? shiftTime;
+    final productionEntry =
+        Provider.of<EmpProductionEntryProvider>(context, listen: false)
+            .user
+            ?.empProductionEntity;
+
+    String? shifttodate = productionEntry?.ipdtotime;
+
+    final shiftFromtime =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftFromTime;
+
+// Construct the shift start date with current time
+    final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
+        '${currentMonth.toString().padLeft(2, '0')}-'
+        '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+
+// Reassign the current fromtime value based on the condition
+    fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+        ? shiftStartDateTiming
+        : productionEntry?.ipdtotime;
+
+// Retrieve shift details
+    final shiftToTimeString =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftToTime;
+
+    DateTime? shiftToTime;
+    if (shifttodate != null && shifttodate.isNotEmpty) {
+      // Parse shifttodate if it's not empty
+      shiftToTime = DateTime.parse(shifttodate);
+
+
+    } else if (shiftToTimeString != null) {
+      // Parse the shiftToTimeString if shifttodate is not provided
+      final shiftToTimeParts = shiftToTimeString.split(':');
+      final now = DateTime.now();
+      shiftToTime = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        int.parse(shiftToTimeParts[0]),
+        int.parse(shiftToTimeParts[1]),
+        int.parse(shiftToTimeParts[2]),
+      );
+    }
+
+// Get the current time
+    final currentTime = DateTime.now();
+
+// Retrieve the shift start time
+    final shiftFromTimeString =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftFromTime;
+
+    DateTime? shiftFromTime;
+    if (shiftFromTimeString != null && shiftToTime != null) {
+      // Parse the shiftFromTime but using the same date as shiftToTime
+      final shiftFromTimeParts = shiftFromTimeString.split(':');
+
+      shiftFromTime = DateTime(
+        shiftToTime.year, // Use the same year as shiftToTime
+        shiftToTime.month, // Use the same month as shiftToTime
+        shiftToTime.day, // Use the same day as shiftToTime
+        int.parse(shiftFromTimeParts[0]),
+        int.parse(shiftFromTimeParts[1]),
+        int.parse(shiftFromTimeParts[2]),
+      );
+
+    if (shiftFromTime != null &&
+          shiftToTime != null &&
+shiftToTime.isBefore(shiftFromTime)) {
+        shiftToTime = shiftToTime.add(Duration(days: 1));
+      }
+
+
+      // Adjust the date of shiftToTime if it falls on the next day
+    //   if (shiftFromTime != null &&
+    //       shiftToTime != null ){
+    //       if((shiftToTime.day == DateTime.now().day &&
+    //          shiftToTime.month == DateTime.now().month &&
+    //          shiftToTime.year == DateTime.now().year &&
+    //          shiftToTime.isAfter(shiftFromTime)) ){
+    //        shiftToTime = shiftToTime;
+    //          }
+    //      else {
+    //     shiftToTime = shiftToTime.add(Duration(days: 1));
+      
+    // }
+    //       }
+    }
+
+
+    if (shiftFromTime != null && shiftToTime != null) {
+      // No adjustment of shiftToTime date, keeping it as-is
+      if (currentTime.isAfter(shiftFromTime) &&
+          currentTime.isBefore(shiftToTime)) {
+        // Current time is within the shift time
+        final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+            '${currentTime.minute.toString().padLeft(2, '0')}:'
+            '${currentTime.second.toString().padLeft(2, '0')}';
+        shiftTime = timeString;
+      } else {
+        // Current time is outside the shift time
+        shiftTime = shiftToTimeString;
+      }
+
+      if (shiftToTime != null) {
+        setState(() {
+          lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
+              '${shiftToTime.month.toString().padLeft(2, '0')}-'
+              '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
+
+              print(lastUpdatedTime);
+        });
+      } else {
+        print("Shift To time is not available.");
+      }
+    } else {
+      print("Shift From or To time is not available.");
+    }
+
   
+      empTimingUpdation(fromtime!, lastUpdatedTime!);
+      Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+      _storedWorkstationProblemList();
+
+      DateTime StartfromTime =
+          DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+      DateTime toTime =
+          DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+
+      fromMinutes = toTime.difference(StartfromTime).inMinutes;
+
+      // Initialize controllers and error messages based on list length
+      final listofempworkstation =
+          Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+              .user
+              ?.empWorkstationEntity;
+
+      if (listofempworkstation != null) {
+        for (int i = 0; i < listofempworkstation.length; i++) {
+          empTimingTextEditingControllers.add(TextEditingController());
+          errorMessages.add(null); // Initially no error
+        }
+      }
+
+      // Access fetched data and set initial values
+      final initialValue = productionEntry?.ipdflagid;
+
+      if (initialValue != null) {
+        setState(() {
+          isChecked = initialValue == 1;
+          goodQController.text = productionEntry?.goodqty?.toString() ?? "";
+          rejectedQController.text = productionEntry?.rejqty?.toString() ?? "";
+          batchNOController.text = productionEntry?.ipdbatchno.toString() ??
+              ""; // Set isChecked based on initialValue
+        });
+      }
+
+      setState(() {
+        // Set initial values inside setState
+        isLoading = false; // Set isLoading to false when data is fetched
+      });
+    } catch (e) {
+      // Handle errors
+      setState(() {
+        isLoading = false; // Set isLoading to false even if there's an error
+      });
+    }
+  }
 
   void _recentActivityList() {
     final productname = Provider.of<ProductProvider>(context, listen: false)
@@ -384,9 +909,8 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
             .user
             ?.recentActivitesEntityList;
 
-  final nonProductionlist =
-        Provider.of<NonProductionStoredListProvider>(context, listen: false)
-            ;
+    final nonProductionlist =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false);
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -514,17 +1038,12 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
                                                   ),
                                                   IconButton(
                                                       onPressed: () {
+                                                        nonProductionList.reset(
+                                                            notify: false);
+                                                        storedListOfProblem
+                                                            .reset(
+                                                                notify: false);
 
-                                                   nonProductionList.reset(notify: false);
-                                                    storedListOfProblem.reset(notify: false);
-                                                 editEntryApiservice.getEntryValues(
-        context: context,
-        psId:  data ?.ipdpsid?? 0,
-        ipdid:  data?.ipdid ?? 0,
-        pwsId:  widget.pwsid?? 0,
-        deptid: widget.deptid ?? 0,
-      );
-                            
                                                         Navigator.push(
                                                             context,
                                                             MaterialPageRoute(
@@ -556,7 +1075,6 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
                                                                         .workstationName,
                                                               ),
                                                             ));
-
                                                       },
                                                       icon: Icon(
                                                           Icons.edit_sharp,
@@ -638,22 +1156,19 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     );
   }
 
-  Future<void> _problemEntrywidget(
-     String ? shiftFromTime,
-      String ? shiftToTime,
-      [
-      int? selectproblemid,
-      int? problemcatagoryId,
+  Future<void> _problemEntrywidget(String? shiftFromTime, String? shiftToTime,
+      [int? selectproblemid,
+      int? problemCategoryId,
       int? rootcauseid,
       String? reason,
-      int?solutionid,
+      int? solutionid,
       int? problemStatusId,
       int? productionStopageid,
-      int?ipdId,
-      int?ipdincId,
+      int? ipdId,
+      int? ipdincId,
       bool? showButton,
-      String? closeStartTime
-     ]) async {
+      String? closeStartTime,
+      int? pwsid]) async {
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -678,21 +1193,20 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
                       .size
                       .height, // Set the height to full screen height
                   child: ProblemEntryPopup(
-                    SelectProblemId: selectproblemid,
-                    problemcatagoryId: problemcatagoryId,
-                    reason: reason,
-                    rootcauseid: rootcauseid,
-                    showButton: showButton,
-                    shiftFromTime: shiftFromTime,
-                    shiftToTime: shiftToTime,
-                    problemStatusId:problemStatusId ,
-                    solutionId: solutionid,
-                    productionStopageId:productionStopageid,
-                    ipdid: ipdId,
-                    ipdincid:ipdincId ,
-                  closestartTime: closeStartTime,
-
-                  )),
+                      SelectProblemId: selectproblemid,
+                      problemCategoryId: problemCategoryId,
+                      reason: reason,
+                      rootcauseid: rootcauseid,
+                      showButton: showButton,
+                      shiftFromTime: shiftFromTime,
+                      shiftToTime: shiftToTime,
+                      problemStatusId: problemStatusId,
+                      solutionId: solutionid,
+                      productionStopageId: productionStopageid,
+                      ipdid: ipdId,
+                      ipdincid: ipdincId,
+                      closestartTime: closeStartTime,
+                      pwsId: pwsid)),
             ),
           ),
         );
@@ -734,7 +1248,8 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     );
   }
 
-  void _EmpOpenandCloseShiftPop(BuildContext context, String attid, String attstatus,int shiftstatus) {
+  void _EmpOpenandCloseShiftPop(
+      BuildContext context, String attid, String attstatus, int shiftstatus) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1005,266 +1520,6 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     }
   }
 
-
- 
-
-  void updateinitial() {
-    if (widget.isload == true) {
-      final productionEntry =
-          Provider.of<EmpProductionEntryProvider>(context, listen: false)
-              .user
-              ?.empProductionEntity;
-      final productname = Provider.of<ProductProvider>(context, listen: false)
-          .user
-          ?.listofProductEntity;
-
-      setState(() {
-        assetCotroller.text = productionEntry?.ipdassetid?.toString() ?? "0";
-        cardNoController.text = productionEntry?.ipdcardno?.toString() ?? "0";
-        reworkQtyController.text =
-            productionEntry?.ipdreworkableqty?.toString() ?? "0";
-        // If itemid is not 0, find the matching product name
-        productNameController.text = (productionEntry?.itemid != 0
-            ? productname
-                ?.firstWhere(
-                  (product) => productionEntry?.itemid == product.productid,
-                )
-                .productName
-            : "0")!;
-      });
-    }
-  }
-
-    @override
-    void initState() {
-      super.initState();
-
-      _fetchARecentActivity().then((_) {
-        updateinitial();
-      });
-
-      currentDateTime = DateTime.now();
-      now = DateTime.now();
-      currentYear = now.year;
-
-      currentMonth = now.month;
-      currentDay = now.day;
-      currentHour = now.hour;
-      currentMinute = now.minute;
-      currentSecond = now.second;
-
-      String? shiftTime;
-
-      final shiftToTimeString =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
-              .user
-              ?.shiftStatusdetailEntity
-              ?.shiftToTime;
-
-      if (shiftToTimeString != null) {
-        DateTime? shiftToTime;
-        // Parse the shiftToTime
-        final shiftToTimeParts = shiftToTimeString.split(':');
-        final now = DateTime.now();
-        shiftToTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(shiftToTimeParts[0]),
-          int.parse(shiftToTimeParts[1]),
-          int.parse(shiftToTimeParts[2]),
-        );
-
-        // Get the current time
-        final currentTime = DateTime.now();
-
-        final shiftFromTimeString =
-            Provider.of<ShiftStatusProvider>(context, listen: false)
-                .user
-                ?.shiftStatusdetailEntity
-                ?.shiftFromTime;
-
-        if (shiftFromTimeString != null) {
-          // Parse the shiftFromTime
-          final shiftFromTimeParts = shiftFromTimeString.split(':');
-          final shiftFromTime = DateTime(
-            now.year,
-            now.month,
-            now.day,
-            int.parse(shiftFromTimeParts[0]),
-            int.parse(shiftFromTimeParts[1]),
-            int.parse(shiftFromTimeParts[2]),
-          );
-  // Check if shiftToTime is on the next day
-          if (shiftToTime.isBefore(shiftFromTime)) {
-            shiftToTime = shiftToTime.add(Duration(days: 1));
-          }
-
-          if (currentTime.isAfter(shiftFromTime) &&
-              currentTime.isBefore(shiftToTime)) {
-            // Current time is within the shift time
-            final timeString =
-                '${currentHour.toString().padLeft(2, '0')}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
-            shiftTime = timeString;
-          } else {
-            // Current time exceeds the shift time
-            print("Current time exceeds the shift time.");
-            shiftTime = shiftToTimeString;
-          }
-        } else {
-          print("shiftToTime is not available.");
-          // Handle the case where shiftToTime is not available
-        }
-      }
-  lastUpdatedTime =
-      '${currentYear.toString().padLeft(4, '0')}-'
-      '${currentMonth.toString().padLeft(2, '0')}-'
-      '${currentDay.toString().padLeft(2, '0')} $shiftTime';
-
-  final productionEntry =
-      Provider.of<EmpProductionEntryProvider>(context, listen: false)
-          .user
-          ?.empProductionEntity;
-
-  final shiftFromtime =
-      Provider.of<ShiftStatusProvider>(context, listen: false)
-          .user
-          ?.shiftStatusdetailEntity
-          ?.shiftFromTime;
-
-  final shiftStartDateTiming =
-      '${currentYear.toString().padLeft(4, '0')}-'
-      '${currentMonth.toString().padLeft(2, '0')}-'
-      '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
-
-  fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
-      ? shiftStartDateTiming
-      : productionEntry?.ipdtotime;
-
-
-
-   
-    }
-
-@override
-void didChangeDependencies() {
-  super.didChangeDependencies();
-  
-    storedListOfProblem =
-        Provider.of<ListProblemStoringProvider>(context, listen: false);
-
-    nonProductionList =
-        Provider.of<NonProductionStoredListProvider>(context, listen: false);
-
-  // Safely trigger the state update after the widget build phase
-
-}
-
-  @override
-  void dispose() {
-    // Dispose text controllers
-    targetQtyController.dispose();
-    goodQController.dispose();
-    rejectedQController.dispose();
-
-   for (var controller in empTimingTextEditingControllers) {
-      controller.dispose();
-    }
-    // Use the stored reference
-    storedListOfProblem.reset(notify: false);
-    nonProductionList.reset(notify: false);
-    super.dispose();
-  }
-
-  // String _formatDateTime(DateTime dateTime) {
-  //   return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
-  // }
-
-  Future<void> _fetchARecentActivity() async {
-    try {
-      // Fetch data
-      await empProductionEntryService.productionentry(
-          context: context,
-          pwsId: widget.pwsid ?? 0,
-          deptid: widget.deptid ?? 0,
-          psid: widget.psid ?? 0);
-
-      await listofEmpworkstationService.getListofEmpWorkstation(
-          context: context,
-          deptid: widget.deptid ?? 0,
-          psid: widget.psid ?? 0,
-          processid: widget.processid ?? 1,
-          pwsId: widget.pwsid ?? 0);
-
-await workstationProblemService.getListofSolution(context: context, pwsid: widget.pwsid ?? 0);
-
-await productApiService.productList(
-          context: context,
-          id: widget.processid ?? 1,
-          deptId: widget.deptid ?? 0);
-
-      await recentActivityService.getRecentActivity(
-          context: context,
-          id: widget.pwsid ?? 0,
-          deptid: widget.deptid ?? 0,
-          psid: widget.psid ?? 0);
-
-      await activityService.getActivity(
-          context: context,
-          id: widget.processid ?? 0,
-          deptid: widget.deptid ?? 0,
-          pwsId: widget.pwsid ?? 0);
-
-            empTimingUpdation(fromtime!, lastUpdatedTime!);
-     _storedWorkstationProblemList();
-   
-      DateTime StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-  DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
-
-   fromMinutes = toTime.difference(StartfromTime).inMinutes;
-   
-    // Initialize controllers and error messages based on list length
-      final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-      .user
-      ?.empWorkstationEntity;
-
-      if(listofempworkstation !=null){
-      for (int i = 0; i < listofempworkstation.length; i++) {
-      empTimingTextEditingControllers.add(TextEditingController());
-      errorMessages.add(null); // Initially no error
-    }
-      }
-
-      final productionEntry =
-          Provider.of<EmpProductionEntryProvider>(context, listen: false)
-              .user
-              ?.empProductionEntity;
-
-      // Access fetched data and set initial values
-      final initialValue = productionEntry?.ipdflagid;
-
-      if (initialValue != null) {
-        setState(() {
-          isChecked = initialValue == 1;
-          goodQController.text = productionEntry?.goodqty?.toString() ?? "";
-          rejectedQController.text = productionEntry?.rejqty?.toString() ?? "";
-          batchNOController.text = productionEntry?.ipdbatchno.toString() ??
-              ""; // Set isChecked based on initialValue
-        });
-      }
-
-      setState(() {
-        // Set initial values inside setState
-        isLoading = false; // Set isLoading to false when data is fetched
-      });
-    } catch (e) {
-      // Handle errors
-      setState(() {
-        isLoading = false; // Set isLoading to false even if there's an error
-      });
-    }
-  }
-
   void _submitPop(BuildContext context) {
     showDialog(
         context: context,
@@ -1302,18 +1557,15 @@ await productApiService.productList(
                                         goodQController.text.isNotEmpty ||
                                     rejectedQController.text.isNotEmpty ||
                                     reworkQtyController.text.isNotEmpty) {
+                                       Navigator.pop(context);
                                   await updateproduction(widget.processid);
-                                  await _fetchARecentActivity();
-                                  Navigator.pop(context);
+
+                                  _fetchARecentActivity();
+                                  
+                             
                                 }
                               } catch (error) {
-                                // Handle and show the error message here
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(error.toString()),
-                                    backgroundColor: Colors.amber,
-                                  ),
-                                );
+                     
                               }
                             },
                             child: const Text("Submit"),
@@ -1337,42 +1589,33 @@ await productApiService.productList(
         });
   }
 
+  void _storedWorkstationProblemList() {
+    final workstationProblem =
+        Provider.of<WorkstationProblemProvider>(context, listen: false)
+            .user
+            ?.resolvedProblemInWs;
 
-     void _storedWorkstationProblemList() {
-   final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
-        .user
-        ?.resolvedProblemInWs;
-           
     if (workstationProblem != null) {
       for (int i = 0; i < workstationProblem.length; i++) {
-         ListOfWorkStationIncident data =
-                                          ListOfWorkStationIncident(
-                                              fromtime: workstationProblem[i].fromTime,
-                                              endtime: workstationProblem[i].endTime,
-                                              productionStoppageId:
-                                                  workstationProblem[i].productionStopageId,
-                                              problemstatusId: workstationProblem[i].problemStatusId,
-                                              problemsolvedName:
-                                                  workstationProblem[i].problemStatus,
-                                              solutionId: workstationProblem[i].solId,
-                                              solutionName: workstationProblem[i].solDesc,
-                                              problemCatagoryname:
-                                                 workstationProblem[i].subincidentName,
-                                              problemId: workstationProblem[i].incidentId,
-                                              problemName: workstationProblem[i].incidentName,
-                                              problemcatagoryId:
-                                                  workstationProblem[i].subincidentId,
-                                              reasons:
-                                                  workstationProblem[i].ipdincNotes,
-                                              rootCauseId: workstationProblem[i].ipdincIncrcmId,
-                                              rootCausename:
-                                                  workstationProblem[i].incrcmRootcauseBrief,
-                                                  ipdId:workstationProblem[i].ipdincipdid,
-                                                  ipdIncId: workstationProblem[i].ipdincid );
-       Provider.of<ListProblemStoringProvider>(
-                                                    context,
-                                                    listen: false)
-                                                .addIncidentList(data);
+        ListOfWorkStationIncident data = ListOfWorkStationIncident(
+            fromtime: workstationProblem[i].fromTime,
+            endtime: workstationProblem[i].endTime,
+            productionStoppageId: workstationProblem[i].productionStopageId,
+            problemstatusId: workstationProblem[i].problemStatusId,
+            problemsolvedName: workstationProblem[i].problemStatus,
+            solutionId: workstationProblem[i].solId,
+            solutionName: workstationProblem[i].solDesc,
+            problemCategoryname: workstationProblem[i].subincidentName,
+            problemId: workstationProblem[i].incidentId,
+            problemName: workstationProblem[i].incidentName,
+            problemCategoryId: workstationProblem[i].subincidentId,
+            reasons: workstationProblem[i].ipdincNotes,
+            rootCauseId: workstationProblem[i].ipdincIncrcmId,
+            rootCausename: workstationProblem[i].incrcmRootcauseBrief,
+            ipdId: workstationProblem[i].ipdincipdid,
+            ipdIncId: workstationProblem[i].ipdincid);
+        Provider.of<ListProblemStoringProvider>(context, listen: false)
+            .addIncidentList(data);
       }
     }
   }
@@ -1445,34 +1688,68 @@ await productApiService.productList(
         });
   }
 
+  void empTimingUpdation(String startTime, String endTime) {
+    DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+    DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
 
-void empTimingUpdation(String startTime, String endTime) {
-  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
-  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+    Duration timeoutDuration = toDate.difference(fromDate);
+    int minutes = timeoutDuration.inMinutes;
 
-  Duration timeoutDuration = toDate.difference(fromDate);
-  int minutes = timeoutDuration.inMinutes;
+    final listofempworkstation =
+        Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+            .user
+            ?.empWorkstationEntity;
 
-  final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-      .user
-      ?.empWorkstationEntity;
+    if (listofempworkstation != null) {
+      setState(() {
+        // Ensure empTimingTextEditingControllers has the correct number of controllers
+        empTimingTextEditingControllers.clear(); // Clear previous controllers
 
-  if (listofempworkstation != null) {
-    setState(() {
-      // Ensure empTimingTextEditingControllers has the correct number of controllers
-      empTimingTextEditingControllers.clear();  // Clear previous controllers
-
-      for (int i = 0; i <=listofempworkstation.length; i++) {
-        TextEditingController controller = TextEditingController();
-        controller.text = minutes.toString();
-        empTimingTextEditingControllers.add(controller);
-      }
-    });
-  } else {
-    print("listofempworkstation is null");
+        for (int i = 0; i <= listofempworkstation.length; i++) {
+          TextEditingController controller = TextEditingController();
+          controller.text = minutes.toString();
+          empTimingTextEditingControllers.add(controller);
+        }
+      });
+    } else {
+      print("listofempworkstation is null");
+    }
   }
+
+void addFocusListeners() {
+  goodQtyFocusNode.addListener(() {
+    if (!goodQtyFocusNode.hasFocus) {
+      submitGoodQuantity();
+    }
+  });
+
+  rejectedQtyFocusNode.addListener(() {
+    if (!rejectedQtyFocusNode.hasFocus) {
+      submitRejectedQuantity();
+    }
+  });
+
+  reworkFocusNode.addListener(() {
+    if (!reworkFocusNode.hasFocus) {
+      submitReworkQuantity();
+    }
+  });
 }
 
+void clearTextFields() {
+  goodQController.clear();
+  rejectedQController.clear();
+  reworkQtyController.clear();
+  overallqty = null;
+  seqNo = null;
+}
+
+
+
+  void updateProductName(String name) {
+    productName = name;
+    productNameController.text = name; // Sync the controller text
+  }
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -1504,8 +1781,9 @@ void empTimingUpdation(String startTime, String endTime) {
         Provider.of<ListProblemStoringProvider>(context, listen: true)
             .getIncidentList;
 
-    print(productionEntry);
 
+
+    print(productionEntry);
 
     // final productname = Provider.of<ProductProvider>(context, listen: false)
     //     .user
@@ -1515,10 +1793,21 @@ void empTimingUpdation(String startTime, String endTime) {
         .user
         ?.activityEntity;
 
-    DateTime shiftStartTime=DateTime.parse(fromtime!);
-    DateTime shiftEndtTime=DateTime.parse(lastUpdatedTime!);
+         final location = Provider.of<ProductLocationProvider>(context, listen: false)
+        .user
+        ?.itemProductionArea;
 
-   final startTime = DateFormat('HH:mm:ss').format(shiftStartTime);
+    DateTime shiftStartTime = DateTime.parse(fromtime!);
+    DateTime shiftEndtTime = DateTime.parse(lastUpdatedTime!);
+
+    final startTime = DateFormat('HH:mm:ss').format(shiftStartTime);
+
+    final actualdate = (fromtime != null && fromtime!.isNotEmpty)
+        ? DateTime.parse(fromtime!)
+        : DateTime.now();
+    //  final actualdate = (lastUpdatedTime != null && lastUpdatedTime!.isNotEmpty)
+    //   ? DateTime.parse(lastUpdatedTime!)
+    //   : DateTime.now();
 
     final processName = Provider.of<EmployeeProvider>(context, listen: false)
             .user
@@ -1526,6 +1815,7 @@ void empTimingUpdation(String startTime, String endTime) {
             ?.first
             .processName ??
         "";
+    
 
     return isLoading
         ? Scaffold(
@@ -1689,21 +1979,30 @@ void empTimingUpdation(String startTime, String endTime) {
                                                 SizedBox(
                                                   width: 30.w,
                                                 ),
-                                               UpdateTime(
-  onTimeChanged: (time) {
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        lastUpdatedTime = time.toString();
+                                                UpdateTime(
+                                                  onTimeChanged: (time) {
+                                                    Future.delayed(
+                                                        Duration.zero, () {
+                                                      setState(() {
+                                                        lastUpdatedTime =
+                                                            time.toString();
 
-        if (fromtime != null && lastUpdatedTime != null) {
-          empTimingUpdation(fromtime!, lastUpdatedTime!);
-        }
-      });
-    });
-  },
-  shiftFromTime: startTime ?? "",
-  shiftToTime: shiftTotime ?? "",
-),
+                                                        if (fromtime != null &&
+                                                            lastUpdatedTime !=
+                                                                null) {
+                                                          empTimingUpdation(
+                                                              fromtime!,
+                                                              lastUpdatedTime!);
+                                                        }
+                                                      });
+                                                    });
+                                                  },
+                                                  shiftFromTime:
+                                                      startTime ?? "",
+                                                  shiftToTime:
+                                                      shiftTotime ?? "",
+                                                  shiftDate: actualdate,
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -1716,7 +2015,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                 _WorkStationcloseShiftPop(
                                                     context);
                                               },
-                                              child: Text('Close Shift',
+                                              child: Text('Close',
                                                   style: TextStyle(
                                                       fontFamily: "lexend",
                                                       fontSize: 16.sp,
@@ -1741,8 +2040,17 @@ void empTimingUpdation(String startTime, String endTime) {
                                                           false) {
                                                         // If the form is valid, perform your actions
                                                         print('Form is valid');
-                                                        _submitPop(
-                                                            context); // Call _submitPop function or perform actions here
+
+                                                        if (fromtime !=
+                                                            lastUpdatedTime) {
+                                                          _submitPop(context);
+                                                        } else {
+                                                          ShowError.showAlert(
+                                                              context,
+                                                              "The shift has ended, and you cannot submit any values.",
+                                                              "Alert");
+                                                        }
+                                                        // Call _submitPop function or perform actions here
                                                       } else {
                                                         // If the form is not valid, you can handle this case as needed
                                                         print(
@@ -1751,6 +2059,8 @@ void empTimingUpdation(String startTime, String endTime) {
                                                       }
                                                     }
                                                   : null,
+
+
                                               child: Text(
                                                 'Submit',
                                                 style: TextStyle(
@@ -1804,7 +2114,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                         child: Container(
                                           padding: EdgeInsets.only(left: 8.w),
                                           width: 506.w,
-                                          height: 270.h,
+                                          height: 285.h,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(8),
@@ -1855,7 +2165,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                               // processId: widget.processid,
                                                               onCardDataReceived:
                                                                   (scannedCardNo,
-                                                                      scannedProductName) {
+                                                                      scannedProductName,itemid,cardid) {
                                                                 setState(() {
                                                                   cardNoController
                                                                           .text =
@@ -1863,137 +2173,165 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                   productNameController
                                                                           .text =
                                                                       scannedProductName;
+                                                                      product_Id=itemid;
+                                                                      pcid=cardid;
+
+
                                                                 });
                                                               },
                                                             ),
                                                           ],
                                                         ),
-                                                        SizedBox(
-                                                          width: 170.w,
-                                                          height: 45.h,
-                                                          child: CustomNumField(
-                                                            validation:
-                                                                (value) {
-                                                              if (value ==
-                                                                      null ||
-                                                                  value
-                                                                      .isEmpty) {
-                                                                return 'Enter card No.';
-                                                              } else if (RegExp(
-                                                                      r'^0+$')
-                                                                  .hasMatch(
-                                                                      value)) {
-                                                                return 'Cannot contain zeros';
-                                                              }
-                                                              return null;
-                                                            },
+          Focus(
+  focusNode: cardNoFocusNode,
+  onKey: (node, event) {
+    if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
+      // Trigger the API call when the Tab key is pressed
+      cardNoApiService.getCardNo(
+        context: context,
+        cardNo: int.tryParse(cardNoController.text) ?? 0,
+      ).then((_) {
+        final item = Provider.of<CardNoProvider>(context, listen: false)
+            .user
+            ?.scanCardForItem;
 
-                                                            controller:
-                                                                cardNoController,
-                                                            hintText:
-                                                                'Card No ',
-                                                            // Only digits allowed
-                                                          ),
-                                                        )
-                                                      ],
+        if (item != null) {
+          product_Id = item.pcItemId;
+          pcid = item.pcId;
+          updateProductName(item.itemName ?? "");
+        }
+      });
+    }
+    return KeyEventResult.ignored;
+  },
+  child: SizedBox(
+    width: 170.w,
+    height: 40.h,
+    child: CustomNumField(
+      controller: cardNoController,
+      hintText: 'Card No',
+      keyboardtype: TextInputType.number,
+      validation: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Enter card No.';
+        } else if (RegExp(r'^0+$').hasMatch(value)) {
+          return 'Cannot contain zeros';
+        }
+        return null;
+      },
+      enabled: reworkValue != 1,
+      onEditingComplete: (){
+         final item = Provider.of<CardNoProvider>(context, listen: false)
+            .user
+            ?.scanCardForItem;
+
+        if (item != null) {
+          product_Id = item.pcItemId;
+          pcid = item.pcId;
+          updateProductName(item.itemName ?? "");
+        }
+      
+      },
+    ),
+  ),
+),
+                          ],
                                                     ),
                                                     SizedBox(
                                                       width: 50.h,
                                                     ),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Text("Item Ref",
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "lexend",
-                                                                    fontSize:
-                                                                        16.sp,
-                                                                    color: Colors
-                                                                        .black54)),
-                                                            Text(
-                                                              ' *',
-                                                              style: TextStyle(
-                                                                fontFamily:
-                                                                    "lexend",
-                                                                fontSize: 16.sp,
-                                                                color:
-                                                                    Colors.red,
-                                                              ),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 40,
-                                                            )
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                            width: 170.w,
-                                                            height: 45.h,
-                                                            child: Consumer<
-                                                                ProductProvider>(
-                                                              builder: (context,
-                                                                  productProvider,
-                                                                  child) {
-                                                                final productList =
-                                                                    productProvider
-                                                                            .user
-                                                                            ?.listofProductEntity ??
-                                                                        [];
+                                                     Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  "Item Ref",
+                  style: TextStyle(
+                    fontFamily: "lexend",
+                    fontSize: 16.sp,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  ' *',
+                  style: TextStyle(
+                    fontFamily: "lexend",
+                    fontSize: 16.sp,
+                    color: Colors.red,
+                  ),
+                ),
+                SizedBox(height: 40),
+              ],
+            ),
+ SizedBox(
+      width: 170,
+      height: 40,
+      child: TypeAheadField<String>(
+        textFieldConfiguration: TextFieldConfiguration(
+          enabled: product_Id!=null ?false :true,
+          controller: productNameController,
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.all(10),
+            constraints: BoxConstraints(maxHeight: 40, maxWidth: 200),
+            hintText: "", // Set a hint text if needed
+            hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
+            labelStyle: TextStyle(fontSize: 12),
+            filled: true,
+            fillColor: Colors.white,
+            errorStyle: TextStyle(
+              fontSize: 10.0,
+              height: 0.10,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(color: Colors.grey, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey, width: 1),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(color: Colors.grey, width: 1),
+            ),
+          ),
+        ),
+        
+        suggestionsCallback: (pattern) async {
+          if (pattern.isEmpty) return [];
+          // Get product suggestions
+          final productList = Provider.of<ProductProvider>(context, listen: false)
+              .user?.listofProductEntity ?? [];
+          return productList
+              .where((product) =>
+                  product.productName?.toLowerCase().contains(pattern.toLowerCase()) ?? false)
+              .map((product) => product.productName ?? '')
+              .toList();
+        },
+        itemBuilder: (context, String suggestion) {
+          return ListTile(
+            title: Text(suggestion),
+          );
+        },
+        onSuggestionSelected: (String suggestion) {
+          updateProductName(suggestion);
+          // Update product ID based on selected suggestion
+          final productList = Provider.of<ProductProvider>(context, listen: false)
+              .user?.listofProductEntity ?? [];
+          final selectedProductItem = productList.firstWhere(
+            (product) => product.productName?.toLowerCase() == suggestion.toLowerCase(),
+          // Use orElse to prevent errors
+          );
 
-                                                                return CustomNumField(
-                                                                  controller:
-                                                                      productNameController,
-                                                                  hintText:
-                                                                      'Item Ref',
-                                                                  keyboardtype:
-                                                                      TextInputType
-                                                                          .streetAddress,
-                                                                  isAlphanumeric:
-                                                                      true,
-                                                                  validation:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                            null ||
-                                                                        value
-                                                                            .isEmpty) {
-                                                                      return 'Enter a product name';
-                                                                    }
-
-                                                                    // Convert product names in productList to lowercase for case-insensitive comparison
-                                                                    final productListLowercase = productList
-                                                                        .map((product) => product
-                                                                            .productName
-                                                                            ?.toLowerCase())
-                                                                        .toList();
-
-                                                                    // Check if any product name matches the entered value (case-insensitive)
-                                                                    final index =
-                                                                        productListLowercase.indexWhere((productName) =>
-                                                                            productName ==
-                                                                            value.toLowerCase());
-
-                                                                    if (index !=
-                                                                        -1) {
-                                                                      // Product found, update the controller with product id
-                                                                      final product =
-                                                                          productList[
-                                                                              index];
-                                                                      product_Id =
-                                                                          product
-                                                                              .productid;
-                                                                      return null; // Valid input
-                                                                    } else {
-                                                                      // Product not found
-                                                                      return 'Product name not found';
-                                                                    }
-                                                                  },
-                                                                );
-                                                              },
-                                                            )),
+          if (selectedProductItem != null) {
+            product_Id = selectedProductItem.productid; // Update product ID
+          }
+        },
+      ),
+    ),
+           
+                                                        
                                                       ],
                                                     ),
                                                     SizedBox(width: 50.w),
@@ -2078,156 +2416,135 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                 height: 40.h),
                                                           ],
                                                         ),
-                                                        Container(
-                                                            width: 170.w,
-                                                            height: 45.h,
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              border: Border.all(
-                                                                  width: 1,
-                                                                  color: Colors
-                                                                      .grey),
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(Radius
-                                                                          .circular(
-                                                                              5)),
-                                                            ),
-                                                            child:
-                                                                DropdownButtonFormField<
-                                                                    String>(
-                                                              value:
-                                                                  activityDropdown,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                contentPadding:
-                                                                    EdgeInsets.symmetric(
-                                                                        horizontal:
-                                                                            5.w,
-                                                                        vertical:
-                                                                            2.h),
-                                                                border:
-                                                                    InputBorder
-                                                                        .none,
-                                                              ),
-                                                              hint: Text(
-                                                                  "Select"),
-                                                              isExpanded: true,
-                                                              onChanged: (String?
-                                                                  newvalue) async {
-                                                                if (newvalue !=
-                                                                    null) {
-                                                                  setState(() {
-                                                                    activityDropdown =
-                                                                        newvalue;
-                                                                  });
+                                   Container(
+  width: 170.w,
+  height: 45.h,
+  decoration: BoxDecoration(
+    border: Border.all(width: 1, color: Colors.grey),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  child: DropdownButtonFormField<String>(
+    value: activityDropdown,
+    decoration: InputDecoration(
+      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      border: InputBorder.none,
+    ),
+    hint: Text("Select"),
+    isExpanded: true,
+    onChanged: (cardNoController.text == "0" || cardNoController.text.isEmpty || reworkValue == 1)
+        ? null
+        : (String? newvalue) async {
+            if (newvalue != null) {
+              setState(() {
+                activityDropdown = newvalue;
+                clearTextFields();
+              });
 
-                                                                  final selectedActivity =
-                                                                      activity
-                                                                          ?.firstWhere(
-                                                                    (activity) =>
-                                                                        activity
-                                                                            .paActivityName ==
-                                                                        newvalue,
-                                                                    orElse: () => ProcessActivity(
-                                                                        paActivityName:
-                                                                            "",
-                                                                        mpmName:
-                                                                            "",
-                                                                        pwsName:
-                                                                            "",
-                                                                        paId: 0,
-                                                                        paMpmId:
-                                                                            0),
-                                                                  );
+              final selectedActivity = activity?.firstWhere(
+                (activity) => activity.paActivityName == newvalue,
+                orElse: () => ProcessActivity(
+                    paActivityName: "", mpmName: "", pwsName: "", paId: 0, paMpmId: 0),
+              );
 
-                                                                  if (selectedActivity !=
-                                                                          null &&
-                                                                      selectedActivity
-                                                                              .paId !=
-                                                                          null) {
-                                                                    activityid =
-                                                                        selectedActivity.paId ??
-                                                                            0;
+              if (selectedActivity != null && selectedActivity.paId != null) {
+                activityid = selectedActivity.paId ?? 0;
 
-                                                                    await targetQtyApiService
-                                                                        .getTargetQty(
-                                                                      context:
-                                                                          context,
-                                                                      paId:
-                                                                          activityid ??
-                                                                              0,
-                                                                      deptid:
-                                                                          widget.deptid ??
-                                                                              1,
-                                                                      psid:
-                                                                          widget.psid ??
-                                                                              0,
-                                                                      pwsid:
-                                                                          widget.pwsid ??
-                                                                              0,
-                                                                    );
+                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
 
-                                                                    final targetqty = Provider.of<TargetQtyProvider>(
+                await productAvilableQtyService.getAvilableQty(
+                  context: context,
+                  reworkflag: reworkValue ?? 0,
+                  processid: widget.processid ?? 0,
+                  paid: activityid ?? 0,
+                  cardno: cardNoController.text,
+                );
+
+                await targetQtyApiService.getTargetQty(
+                  context: context,
+                  paId: activityid ?? 0,
+                  deptid: widget.deptid ?? 1,
+                  psid: widget.psid ?? 0,
+                  pwsid: widget.pwsid ?? 0,
+                );
+
+                final targetqty = Provider.of<TargetQtyProvider>(context, listen: false)
+                    .user
+                    ?.targetQty;
+      final overallgoodQty =Provider.of<ProductAvilableQtyProvider>(
                                                                             context,
                                                                             listen:
                                                                                 false)
                                                                         .user
-                                                                        ?.targetQty;
+                                                                        ?.productqty;
+                if (overallgoodQty != null) {
 
-                                                                    setState(
-                                                                        () {
-                                                                      targetQtyController
-                                                                          .text = targetqty
-                                                                              ?.targetqty
-                                                                              ?.toString() ??
-                                                                          '';
-                                                                      achivedTargetQty =
-                                                                          targetqty?.achivedtargetqty?.toString() ??
-                                                                              "";
-                                                                    });
-                                                                  }
-                                                                } else {
-                                                                  setState(() {
-                                                                    activityDropdown =
-                                                                        null;
-                                                                    activityid =
-                                                                        0;
-                                                                  });
-                                                                }
-                                                              },
-                                                              items: activity
-                                                                      ?.map(
-                                                                        (activityName) {
-                                                                          return DropdownMenuItem<
-                                                                              String>(
-                                                                            onTap:
-                                                                                () {
-                                                                              setState(() {
-                                                                                selectedName = activityName.paActivityName;
-                                                                              });
-                                                                            },
-                                                                            value:
-                                                                                '${activityName.paActivityName}', // Append index to ensure uniqueness
-                                                                            child:
-                                                                                Text(
-                                                                              activityName.paActivityName ?? "",
-                                                                              style: TextStyle(
-                                                                                color: Colors.black87,
-                                                                                fontFamily: "lexend",
-                                                                                fontSize: 16.sp,
-                                                                              ),
-                                                                            ),
-                                                                          );
-                                                                        },
-                                                                      )
-                                                                      ?.toSet()
-                                                                      .toList() ??
-                                                                  [],
-                                                            )),
+                  print('overallgoodQty list state: $overallgoodQty');
+                  avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
+                          .user
+                          ?.productqty
+                          ?.ipcwGoodQtyAvl ??
+                      0;
+
+                  final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
+                      .user
+                      ?.productqty
+                      ?.imfgpProcessSeq;
+
+                  setState(() {
+                    overallqty = avilableqty;
+                    seqNo = processSeq;
+
+                    if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) && overallqty != 0) {
+                      addFocusListeners();
+                    }else if((seqNo == 1 && overallqty == 0)){
+                      return null;
+                    }
+                    else{
+            
+ShowError.showAlert(context, "Rework Qty Not Avilable");                
+
+                    }
+                  });
+                } else {
+                  ShowError.showAlert(context, "Skipped Previous Process");
+                }
+
+                setState(() {
+                  targetQtyController.text = targetqty?.targetqty?.toString() ?? '';
+                  achivedTargetQty = targetqty?.achivedtargetqty?.toString() ?? "";
+                });
+              }
+            } else {
+              setState(() {
+                activityDropdown = null;
+                activityid = 0;
+              });
+            }
+          },
+    items: activity?.map((activityName) {
+          return DropdownMenuItem<String>(
+            onTap: () {
+              setState(() {
+                selectedName = activityName.paActivityName;
+              });
+            },
+            value: activityName.paActivityName,
+            child: Text(
+              activityName.paActivityName ?? "",
+              style: TextStyle(
+                color: Colors.black87,
+                fontFamily: "lexend",
+                fontSize: 16.sp,
+              ),
+            ),
+          );
+        }).toList() ??
+        [],
+  ),
+),
                                                       ],
                                                     ),
-                                                    SizedBox(width: 40.w),
+                                                    SizedBox(width: 50.w),
                                                     Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
@@ -2304,32 +2621,78 @@ void empTimingUpdation(String startTime, String endTime) {
                                                             SizedBox(
                                                               width: 2.w,
                                                             ),
-                                                            SizedBox(
-                                                              width: 100.w,
-                                                              height: 40.h,
-                                                              child: Checkbox(
-                                                                value:
-                                                                    isChecked,
-                                                                activeColor:
-                                                                    Colors
-                                                                        .green,
-                                                                onChanged:
-                                                                    (newValue) {
-                                                                  setState(() {
-                                                                    isChecked =
-                                                                        newValue ??
-                                                                            false;
-                                                                    reworkValue =
-                                                                        isChecked
-                                                                            ? 1
-                                                                            : 0;
-                                                                  });
-                                                                  print(
-                                                                      "reworkvalue  ${reworkValue}");
-                                                                  // Perform any additional actions here, such as updating the database
-                                                                },
-                                                              ),
-                                                            ),
+                                                           SizedBox(
+  width: 100.w,
+  height: 40.h,
+  child: Checkbox(
+    value: isChecked,
+    activeColor: Colors.green,
+    onChanged: (selectedName == null)
+        ? null
+        : (newValue) async{
+            setState(() {
+              isChecked = newValue ?? false;
+              reworkValue = isChecked ? 1 : 0;
+              clearTextFields();
+  });
+
+              if (reworkValue == 1) {
+
+                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+
+              await  productAvilableQtyService.getAvilableQty(
+                  context: context,
+                  reworkflag: reworkValue ?? 0,
+                  processid: widget.processid ?? 0,
+                  paid: activityid ?? 0,
+                  cardno: cardNoController.text,
+                );
+
+                final overallgoodQty =Provider.of<ProductAvilableQtyProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.productqty;
+
+                if (overallgoodQty != null) {
+                  print('overallgoodQty list state: $overallgoodQty');
+                  avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
+                          .user
+                          ?.productqty
+                          ?.ipcwGoodQtyAvl ??
+                      0;
+
+                  final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
+                      .user
+                      ?.productqty
+                      ?.imfgpProcessSeq;
+
+                  setState(() {
+                    overallqty = avilableqty;
+                    seqNo = processSeq;
+                    if (( seqNo != 1 || (seqNo == 1 && reworkValue == 1 && overallqty != 0 )) && overallqty != 0) {
+                      addFocusListeners();
+                    }else if((seqNo == 1 && reworkValue==0)){
+                      return;
+                    }
+                    else{
+            
+ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");                
+
+                    }
+                  });
+                } else {
+                  ShowError.showAlert(context, "Skipped Previous Process");
+                }
+              }
+          
+            print("reworkvalue $reworkValue");
+          },
+  ),
+),
+
+
                                                           ],
                                                         ),
                                                       ],
@@ -2337,18 +2700,16 @@ void empTimingUpdation(String startTime, String endTime) {
                                                   ],
                                                 ),
                                                 SizedBox(
-                                                  height: 20.h,
+                                                  height: 2.h,
                                                 ),
                                                 Row(
                                                   children: [
-                                                    Container(
-                                               
-                                                    
-                                                    ),
+                                         
                                                   ],
                                                 ),
                                               ],
                                             ),
+
                                           ),
                                         ),
                                       ),
@@ -2363,7 +2724,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                             BorderRadius.circular(5.r),
                                         child: Container(
                                           width: 506.w,
-                                          height: 270.h,
+                                          height: 280.h,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(5.r),
@@ -2378,193 +2739,322 @@ void empTimingUpdation(String startTime, String endTime) {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                Row(
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Text(
-                                                              'Good Qty',
-                                                              style: TextStyle(
-                                                                fontFamily:
-                                                                    "lexend",
-                                                                fontSize: 16.sp,
-                                                                color: Colors
-                                                                    .black54,
+                                                Padding(
+                                                  padding:  EdgeInsets.only(top:4.h),
+                                                  child: Row(
+                                                    children: [
+                                                    Expanded(
+                                                        child: SizedBox(
+                                                          height: 95,
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    'Good Qty',
+                                                                    style: TextStyle(
+                                                                      fontFamily: "lexend",
+                                                                      fontSize: 16.sp,
+                                                                      color: Colors.black54,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    ' *',
+                                                                    style: TextStyle(
+                                                                      fontFamily: "lexend",
+                                                                      fontSize: 16.sp,
+                                                                      color: Colors.red,
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ),
-                                                            Text(
-                                                              ' *',
-                                                              style: TextStyle(
-                                                                fontFamily:
-                                                                    "lexend",
-                                                                fontSize: 16.sp,
-                                                                color:
-                                                                    Colors.red,
+                                                              SizedBox(height: 8.h), // Space between label and input
+                                                              SizedBox(
+                                                                width: double.infinity, // Take full width
+                                                                height: 45.h,
+                                                                child: CustomNumField(
+                                                                  validation: (value) {
+                                                                    if (value == null || value.isEmpty) {
+                                                                      return 'Enter good qty';
+                                                                    } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                                      return 'Cannot contain zeros';
+                                                                    }
+                                                                    return null; // Return null if no validation errors
+                                                                  },
+                                                                  controller: goodQController,
+                                                                  focusNode: goodQtyFocusNode,
+                                                                  isAlphanumeric: false,
+                                                                  hintText: 'Good Quantity',
+                                                                enabled: (selectedName != null && 
+          cardNoController.text.isNotEmpty &&
+          ((seqNo == 1 && reworkValue == 0) ||
+           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
+           (seqNo != 1 && avilableqty != 0))
+         ) ? true : false,
+                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))?  (value) {
+                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                                  
+                                                                    setState(() {
+                                                                      // Restore previous good value to overallqty if it was already subtracted
+                                                                      if (previousGoodValue != null) {
+                                                                        overallqty = (overallqty ?? 0) + previousGoodValue!;
+                                                                        previousGoodValue = null; // Reset the previous value after restoring
+                                                                      }
+                                                  
+                                                                      // Validate the entered value against overallqty
+                                                                      if (currentValue < 0) {
+                                                                        errorMessage = 'Value must be greater than 0.';
+                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
+                                                                        errorMessage = 'Value must be between 1 and $overallqty.';
+                                                                      }else if ((overallqty ?? 0)==0) {
+                                                                        errorMessage = 'Overallqty is 0 so enter 0';
+                                                                      }  
+                                                                      else {
+                                                                        errorMessage = null; // Clear the error message if valid
+                                                                      }
+                                                                    });
+                                                                  }:null
+                                                                ),
                                                               ),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 40.h,
-                                                            )
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                          width: 170.w,
-                                                          height: 45.h,
-                                                          child: CustomNumField(
-                                                            validation:
-                                                                (value) {
-                                                              if (value ==
-                                                                      null ||
-                                                                  value
-                                                                      .isEmpty) {
-                                                                return 'Enter good qty';
-                                                              } else if (RegExp(
-                                                                      r'^0+$')
-                                                                  .hasMatch(
-                                                                      value)) {
-                                                                return 'Cannot contain zeros';
-                                                              }
-                                                              return null;
-                                                            },
-                                                            controller:
-                                                                goodQController,
-                                                            isAlphanumeric:
-                                                                true,
-                                                            hintText:
-                                                                'Good Quantity',
+                                                              if (errorMessage != null)
+                                                                Padding(
+                                                                  padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+                                                                  child: Text(
+                                                                    errorMessage ?? "",
+                                                                    style: TextStyle(
+                                                                      fontSize: 9.0, // Adjust the font size as needed
+                                                                      color: Colors.red,
+                                                                      height: 1.0, // Adjust the height to control spacing
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                            ],
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                      width: 45.w,
-                                                    ),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Text('Rejected Qty',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "lexend",
-                                                                    fontSize:
-                                                                        16.sp,
-                                                                    color: Colors
-                                                                        .black54)),
-                                                            Text(
-                                                              ' *',
-                                                              style: TextStyle(
-                                                                fontFamily:
-                                                                    "lexend",
-                                                                fontSize: 16.sp,
-                                                                color:
-                                                                    Colors.red,
+                                                      ),
+                                                  
+                                                  
+                                                      SizedBox(
+                                                        width: 45.w,
+                                                      ),
+                                                     
+                                                        // Column for Rejected Quantity
+                                                      Expanded(
+                                                        child: SizedBox(
+                                                          height: 95,
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    'Rejected Qty',
+                                                                    style: TextStyle(
+                                                                      fontFamily: "lexend",
+                                                                      fontSize: 16.sp,
+                                                                      color: Colors.black54,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                    ' *',
+                                                                    style: TextStyle(
+                                                                      fontFamily: "lexend",
+                                                                      fontSize: 16.sp,
+                                                                      color: Colors.red,
+                                                                    ),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 40.h,
-                                                            )
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                          width: 170.w,
-                                                          height: 45.h,
-                                                          child: CustomNumField(
-                                                            validation:
-                                                                (value) {
-                                                              if (value ==
-                                                                      null ||
-                                                                  value
-                                                                      .isEmpty) {
-                                                                return 'Enter Rejected qty';
-                                                              }
-                                                              return null;
-                                                            },
-                                                            controller:
-                                                                rejectedQController,
-                                                            isAlphanumeric:
-                                                                true,
-                                                            hintText:
-                                                                'Rejected Quantity',
+                                                              SizedBox(height: 8.h), // Space between label and input
+                                                              SizedBox(
+                                                                width: double.infinity, // Take full width
+                                                                height: 45.h,
+                                                                child: CustomNumField(
+                                                                  validation: (value) {
+                                                                    if (value == null || value.isEmpty) {
+                                                                      return 'Enter Rejected qty';
+                                                                    }
+                                                                    return null; // Return null if no validation errors
+                                                                  },
+                                                                  focusNode: rejectedQtyFocusNode,
+                                                                  controller: rejectedQController,
+                                                                  isAlphanumeric: false,
+                                                                  hintText: 'Rejected Quantity',
+            enabled: (selectedName != null && 
+          cardNoController.text.isNotEmpty &&
+          ((seqNo == 1 && reworkValue == 0) ||
+           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
+           (seqNo != 1 && avilableqty != 0))
+         ) ? true : false,
+                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
+                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                                  
+                                                                    setState(() {
+                                                                      // Restore previous rejected value to overallqty if it was already subtracted
+                                                                      if (previousRejectedValue != null) {
+                                                                        overallqty = (overallqty ?? 0) + previousRejectedValue!;
+                                                                        previousRejectedValue = null; // Reset the previous value after restoring
+                                                                      }
+                                                  
+                                                                      // Validate the entered value against overallqty
+                                                                      if (currentValue < 0 )  {
+                                                                        rejectederrorMessage = 'Value must be greater than 0.';
+                                                                      }  else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
+                                                                        rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                      }else if ((overallqty ?? 0)==0) {
+                                                                        rejectederrorMessage = 'Overallqty is 0 so enter 0';
+                                                                      }   else {
+                                                                        rejectederrorMessage = null; // Clear the error message if valid
+                                                                      }
+                                                                    });
+                                                                  }:null
+                                                                ),
+                                                              ),
+                                                              if (rejectederrorMessage != null)
+                                                                Padding(
+                                                                  padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+                                                                  child: Text(
+                                                                    rejectederrorMessage ?? "",
+                                                                    style: TextStyle(
+                                                                      fontSize: 9.0, // Adjust the font size as needed
+                                                                      color: Colors.red,
+                                                                      height: 1.0, // Adjust the height to control spacing
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                            ],
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                      width: 45.w,
-                                                    ),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Text('Rework Qty',
-                                                                style: TextStyle(
-                                                                    fontFamily:
-                                                                        "lexend",
-                                                                    fontSize:
-                                                                        16.sp,
-                                                                    color: Colors
-                                                                        .black54)),
-                                                            Text(
-                                                              ' *',
-                                                              style: TextStyle(
-                                                                fontFamily:
-                                                                    "lexend",
-                                                                fontSize: 16.sp,
-                                                                color:
-                                                                    Colors.red,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 45.w,
+                                                      ),
+                                                      Expanded(
+                                                        child: SizedBox(
+                                                          height: 95,
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Text('Rework Qty',
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "lexend",
+                                                                          fontSize:
+                                                                              16.sp,
+                                                                          color: Colors
+                                                                              .black54)),
+                                                                  Text(
+                                                                    ' *',
+                                                                    style: TextStyle(
+                                                                      fontFamily:
+                                                                          "lexend",
+                                                                      fontSize: 16.sp,
+                                                                      color:
+                                                                          Colors.red,
+                                                                    ),
+                                                                  ),
+                                                               
+                                                                ],
                                                               ),
-                                                            ),
-                                                            SizedBox(
-                                                              height: 40.h,
-                                                            )
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                          width: 170.w,
-                                                          height: 45.h,
-                                                          child: CustomNumField(
-                                                            validation:
-                                                                (value) {
-                                                              if (value ==
-                                                                      null ||
-                                                                  value
-                                                                      .isEmpty) {
-                                                                return ' Enter rework qty';
-                                                              }
-                                                              return null;
-                                                            },
-                                                            controller:
-                                                                reworkQtyController,
-                                                            isAlphanumeric:
-                                                                true,
-                                                            hintText:
-                                                                'rework qty  ',
+                                                                SizedBox(height: 8.h),
+                                                              SizedBox(
+                                                                width:double.infinity ,
+                                                                height: 45.h,
+                                                                child: CustomNumField(
+                                                                  validation:
+                                                                      (value) {
+                                                                    if (value ==
+                                                                            null ||
+                                                                        value
+                                                                            .isEmpty) {
+                                                                      return ' Enter rework qty';
+                                                                    }
+                                                                    return null;
+                                                                  },
+                                                                  focusNode:
+                                                                      reworkFocusNode,
+                                                                  controller:
+                                                                      reworkQtyController,
+                                                                  isAlphanumeric:
+                                                                      false,
+                                                                  hintText:
+                                                                      'rework qty  ',
+                                                                         enabled: (selectedName != null && 
+          cardNoController.text.isNotEmpty &&
+          ((seqNo == 1 && reworkValue == 0) ||
+           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
+           (seqNo != 1 && avilableqty != 0))
+         ) ? true : false,
+                                                                  onChanged:  (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
+                                                                 final currentValue = int.tryParse(value) ?? 0;
+                                                          
+                                                                    setState(() {
+                                                                      // Restore previous rejected value to overallqty if it was already subtracted
+                                                                      if (previousReworkValue !=
+                                                                          null) {
+                                                                        overallqty =
+                                                                            (overallqty ??
+                                                                                    0) +
+                                                                                previousReworkValue!;
+                                                                        previousReworkValue =
+                                                                            null; // Reset the previous value after restoring
+                                                                      }
+                                                          
+                                                                      // Validate the entered value against overallqty
+                                                                      if (currentValue <
+                                                                          0) {
+                                                                        reworkerrorMessage =
+                                                                            'Value must be greater than 0.';
+                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
+                                                                        reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                      }else if ((overallqty ?? 0)==0) {
+                                                                        reworkerrorMessage = 'Overallqty is 0 so enter 0';
+                                                                      }  else {
+                                                                        reworkerrorMessage =
+                                                                            null; // Clear the error message if valid
+                                                                      }
+                                                                    });
+                                                                  }: null
+                                                                ),
+                                                              ),
+                                                              if (reworkerrorMessage !=
+                                                                  null)
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .only(
+                                                                          left: 8.0,
+                                                                          top: 1.0),
+                                                                  child: Text(
+                                                                    reworkerrorMessage ??
+                                                                        "",
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          9.0, // Adjust the font size as needed
+                                                                      color:
+                                                                          Colors.red,
+                                                                      height:
+                                                                          1.0, // Adjust the height to control spacing
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                            ],
                                                           ),
                                                         ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
-                                                SizedBox(
-                                                  height: 30.h,
-                                                ),
+                                              
                                                 Row(
                                                   children: [
                                                     SizedBox(
                                                       width: 170.w,
-                                                      height: 70.h,
                                                       child: Column(
                                                         children: [
                                                           Text('Total Good Qty',
@@ -2658,44 +3148,142 @@ void empTimingUpdation(String startTime, String endTime) {
                                                     ),
                                                   ],
                                                 ),
-                                                 SizedBox(
+                                                SizedBox(
                                                   height: 10.h,
                                                 ),
-                                               Row(
-                                                        children: [
-                                                        
-                                                          SizedBox(
-                                                                height: 50.h,
-                                                      width: 170.w,
-                                                              child:
-                                                                  FloatingActionButton(
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                mini: true,
-                                                                shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            5.r)),
-                                                                onPressed:
-                                                                    () async {
-                                                                  setState(() {
-                                                                    nonProductionActivityService
-                                                                        .getNonProductionList(
-                                                                      context:
-                                                                          context,
-                                                                    );
-                                                                    _nonProductionActivityPopup(
-                                                                        fromtime,
-                                                                        lastUpdatedTime);
-                                                                  });
+                                                Row(
+                                                  children: [
 
-                                                                  // Update time after each change
-                                                                },
-                                                                child: Text("Non Productive Time")
-                                                              )),
-                                                        ],
-                                                      ),
+                                                       Column     (
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                                'Location',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize:
+                                                                        16.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color:
+                                                                    Colors.red,
+                                                              ),
+                                                            ),
+                                                      
+                                                          ],
+                                                        ),
+                                                        SizedBox(height: 5.h,),
+                                   Container(
+  width: 170.w,
+  height: 45.h,
+  decoration: BoxDecoration(
+    border: Border.all(width: 1, color: Colors.grey),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  child: DropdownButtonFormField<String>(
+    value: locationDropdown,
+    decoration: InputDecoration(
+      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      border: InputBorder.none,
+    ),
+    hint: Text("Select"),
+    isExpanded: true,
+    onChanged: 
+         (String? newvalue) async {
+            if (newvalue != null) {
+              setState(() {
+                locationDropdown = newvalue;
+              });
+
+              final selectedlocation = location?.firstWhere(
+                (location) => location.ipaName == newvalue
+              );
+
+              if (selectedlocation != null && selectedlocation.ipaId != null) {
+                locationid = selectedlocation.ipaId ?? 0;
+              
+              }
+            } else {
+              setState(() {
+                locationDropdown = null;
+                locationid = 0;
+              });
+            }
+          },
+    items: location?.map((location) {
+          return DropdownMenuItem<String>(
+            onTap: () {
+              setState(() {
+                locationName = location.ipaName;
+              });
+            },
+            value: location.ipaName,
+            child: Text(
+              location.ipaName ?? "",
+              style: TextStyle(
+                color: Colors.black87,
+                fontFamily: "lexend",
+                fontSize: 16.sp,
+              ),
+            ),
+          );
+        }).toList() ??
+        [],
+  ),
+),
+                                                      ],
+                                                    ),
+
+                                                    SizedBox(width: 45,),
+                                                    SizedBox(
+                                                        height: 70.h,
+                                                        width: 170.w,
+                                                        child:
+                                                            Padding(
+                                                              padding: const EdgeInsets.only(top: 20.0),
+                                                              child: FloatingActionButton(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  mini: true,
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(5
+                                                                              .r)),
+                                                                  onPressed:
+                                                                      () async {
+                                                                    setState(() {
+                                                                      nonProductionActivityService
+                                                                          .getNonProductionList(
+                                                                        context:
+                                                                            context,
+                                                                      );
+                                                                      _nonProductionActivityPopup(
+                                                                          fromtime,
+                                                                          lastUpdatedTime);
+                                                                    });
+                                                              
+                                                                    // Update time after each change
+                                                                  },
+                                                                  child: Text(
+                                                                      "Non Productive Time")),
+                                                            )),
+                                                               
+
+                                                                         
+                                                  ],
+                                                ),
                                               ],
                                             ),
                                           ),
@@ -2760,7 +3348,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                           fontFamily: "lexend",
                                                           fontSize: 16.sp)),
                                                 ),
-                                                  Container(
+                                                Container(
                                                   alignment: Alignment.center,
                                                   width: 150.w,
                                                   child: Text('Working Minutes',
@@ -2817,9 +3405,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                       final data =
                                                           listofempworkstation?[
                                                               index];
-                                                       
-                                                        
-                                                      
+
                                                       return Container(
                                                         decoration:
                                                             BoxDecoration(
@@ -2888,86 +3474,136 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                         .black54),
                                                               ),
                                                             ),
-  Container(
-  alignment: Alignment.center,
-  width: 150,
-  height: 50, // Container height remains fixed
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      SizedBox(
-        width: 130,
-        height: 35, // Keep the size fixed for the TextFormField
-        child: TextFormField(
-          keyboardType: TextInputType.number,
-          controller: empTimingTextEditingControllers[index],
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: EdgeInsets.all(5),
-            hintText: "minutes",
-            hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
-            labelStyle: const TextStyle(fontSize: 12),
-            constraints: BoxConstraints(maxHeight: 40, maxWidth: 100),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey.shade200),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.red.shade300),
-            ),
-          ),
-          onChanged: (value) {
-  // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-  // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
- fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
+                                                            Container(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              width: 150,
+                                                              height:
+                                                                  50, // Container height remains fixed
+                                                              child: Column(
+                                                                crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .center,
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  SizedBox(
+                                                                    width: 130,
+                                                                    height:
+                                                                        35, // Keep the size fixed for the TextFormField
+                                                                    child:
+                                                                        TextFormField(
+                                                                      keyboardType:
+                                                                          TextInputType
+                                                                              .number,
+                                                                      controller:
+                                                                          empTimingTextEditingControllers[
+                                                                              index],
+                                                                      decoration:
+                                                                          InputDecoration(
+                                                                        filled:
+                                                                            true,
+                                                                        fillColor:
+                                                                            Colors.white,
+                                                                        contentPadding:
+                                                                            EdgeInsets.all(5),
+                                                                        hintText:
+                                                                            "minutes",
+                                                                        hintStyle: TextStyle(
+                                                                            color:
+                                                                                Colors.black38,
+                                                                            fontSize: 16),
+                                                                        labelStyle:
+                                                                            const TextStyle(fontSize: 12),
+                                                                        constraints: BoxConstraints(
+                                                                            maxHeight:
+                                                                                40,
+                                                                            maxWidth:
+                                                                                100),
+                                                                        border:
+                                                                            OutlineInputBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                          borderSide:
+                                                                              BorderSide(color: Colors.grey.shade200),
+                                                                        ),
+                                                                        errorBorder:
+                                                                            OutlineInputBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(5),
+                                                                          borderSide:
+                                                                              BorderSide(color: Colors.red.shade300),
+                                                                        ),
+                                                                      ),
+                                                                      onChanged:
+                                                                          (value) {
+                                                                        // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                        // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+                                                                        fromMinutes = shiftEndtTime
+                                                                            .difference(shiftStartTime)
+                                                                            .inMinutes;
 
-            final enteredMinutes = int.tryParse(value) ?? -1;
-      
-            setState(() {
-              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-                errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
-              } else {
-                errorMessages[index] = null; // Clear error message if valid
-              }
-            });
-          },
-          onEditingComplete: () {
-            final value = empTimingTextEditingControllers[index].text;
-            final enteredMinutes = int.tryParse(value) ?? -1;
-      
-            setState(() {
-              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-                errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
-              } else {
-                errorMessages[index] = null; // Clear error message if valid
-              }
-            });
-          },
-        ),
-      ),
-      // This space will display the error message but won't change the TextFormField size
-      if (errorMessages[index] != null) 
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 2.0),
-          child: Text(
-            errorMessages[index]!,
-            style: TextStyle(
-              fontSize: 9.0, // Adjust the font size as needed
-              color: Colors.red,
-              height: 1.0, // Adjust the height to control spacing
-            ),
-          ),
-        ),
-    ],
-  ),
-),
+                                                                        final enteredMinutes =
+                                                                            int.tryParse(value) ??
+                                                                                -1;
 
+                                                                        setState(
+                                                                            () {
+                                                                          if (enteredMinutes < 0 ||
+                                                                              enteredMinutes > fromMinutes!) {
+                                                                            errorMessages[index] =
+                                                                                'Value b/w 0 to $fromMinutes minutes.';
+                                                                          } else {
+                                                                            errorMessages[index] =
+                                                                                null; // Clear error message if valid
+                                                                          }
+                                                                        });
+                                                                      },
+                                                                      // onEditingComplete: () {
+                                                                      //   final value = empTimingTextEditingControllers[index].text;
+                                                                      //   final enteredMinutes = int.tryParse(value) ?? -1;
 
-
-
+                                                                      //   setState(() {
+                                                                      //     if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                                                                      //       errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+                                                                      //     } else {
+                                                                      //       errorMessages[index] = null; // Clear error message if valid
+                                                                      //     }
+                                                                      //   });
+                                                                      // },
+                                                                    ),
+                                                                  ),
+                                                                  // This space will display the error message but won't change the TextFormField size
+                                                                  if (errorMessages[
+                                                                          index] !=
+                                                                      null)
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8.0,
+                                                                          top:
+                                                                              2.0),
+                                                                      child:
+                                                                          Text(
+                                                                        errorMessages[
+                                                                            index]!,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              9.0, // Adjust the font size as needed
+                                                                          color:
+                                                                              Colors.red,
+                                                                          height:
+                                                                              1.0, // Adjust the height to control spacing
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                ],
+                                                              ),
+                                                            ),
                                                             Container(
                                                               alignment:
                                                                   Alignment
@@ -3031,7 +3667,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                 alignment:
                                                                     Alignment
                                                                         .center,
-                                                                width: 180.w,
+                                                                width: 130.w,
                                                                 child:
                                                                     CustomButton(
                                                                   width: 120.w,
@@ -3041,7 +3677,8 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                     _EmpOpenandCloseShiftPop(
                                                                         context,
                                                                         ' ${data?.attendanceid ?? ''}  ',
-                                                                        "${data?.flattstatus ?? ""}",1);
+                                                                        "${data?.flattstatus ?? ""}",
+                                                                        1);
                                                                   },
                                                                   child: Text(
                                                                       'Reopen',
@@ -3098,7 +3735,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                       .circular(
                                                                           8))),
                                                   width: double.infinity,
-                                                   height: 240.h,
+                                                  height: 240.h,
                                                   child: Center(
                                                     child: Text(
                                                         "No data available"),
@@ -3153,11 +3790,13 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                 deptid: widget
                                                                         .deptid ??
                                                                     1057,
-                                                                    
-                                                                        assetid: int.parse(assetCotroller.text)  );
-                                            
+                                                                assetid: int.parse(
+                                                                    assetCotroller
+                                                                        .text));
 
-                                                        _problemEntrywidget(fromtime,lastUpdatedTime);
+                                                        _problemEntrywidget(
+                                                            fromtime,
+                                                            lastUpdatedTime);
                                                       });
 
                                                       // Update time after each change
@@ -3201,7 +3840,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                 Container(
                                                   alignment: Alignment.center,
                                                   width: 250.w,
-                                                  child: Text('Problem',
+                                                  child: Text('Problems',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontFamily: "lexend",
@@ -3211,21 +3850,21 @@ void empTimingUpdation(String startTime, String endTime) {
                                                   alignment: Alignment.center,
                                                   width: 210.w,
                                                   child: Text(
-                                                      'Problem Catagory',
+                                                      'Problems Category',
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontFamily: "lexend",
                                                           fontSize: 16.sp)),
                                                 ),
-                                                Container(
-                                                  alignment: Alignment.center,
-                                                  width: 100.w,
-                                                  child: Text('Delete',
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontFamily: "lexend",
-                                                          fontSize: 16.sp)),
-                                                ),
+                                                // Container(
+                                                //   alignment: Alignment.center,
+                                                //   width: 100.w,
+                                                //   child: Text('Delete',
+                                                //       style: TextStyle(
+                                                //           color: Colors.white,
+                                                //           fontFamily: "lexend",
+                                                //           fontSize: 16.sp)),
+                                                // ),
                                               ],
                                             ),
                                           ),
@@ -3243,7 +3882,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                       .circular(
                                                                           8))),
                                                   width: double.infinity,
-                                               height: 240.h,
+                                                  height: 240.h,
                                                   child: ListView.builder(
                                                     shrinkWrap: true,
                                                     itemCount:
@@ -3256,33 +3895,36 @@ void empTimingUpdation(String startTime, String endTime) {
                                                               index];
                                                       return GestureDetector(
                                                         onTap: () {
-                                                           listofproblemservice
-                                                            .getListofProblem(
-                                                                context:
-                                                                    context,
-                                                                processid: widget
-                                                                        .processid ??
-                                                                    0,
-                                                                deptid: widget
-                                                                        .deptid ??
-                                                                    1057,
-                                                                    
-                                                                        assetid: int.parse(assetCotroller.text)  );
+                                                          listofproblemservice.getListofProblem(
+                                                              context: context,
+                                                              processid: widget
+                                                                      .processid ??
+                                                                  0,
+                                                              deptid: widget
+                                                                      .deptid ??
+                                                                  1057,
+                                                              assetid: int.parse(
+                                                                  assetCotroller
+                                                                      .text));
                                                           _problemEntrywidget(
-                                                             item.fromtime,
-                                                             lastUpdatedTime,
+                                                              item.fromtime,
+                                                              lastUpdatedTime,
                                                               item.problemId,
-                                                              item.problemcatagoryId,
+                                                              item
+                                                                  .problemCategoryId,
                                                               item.rootCauseId,
                                                               item.reasons,
                                                               item.solutionId,
-                                                              item.problemstatusId,
-                                                              item.productionStoppageId,
+                                                              item
+                                                                  .problemstatusId,
+                                                              item
+                                                                  .productionStoppageId,
                                                               item.ipdId ?? 0,
-                                                              item.ipdIncId ?? 0,
+                                                              item.ipdIncId ??
+                                                                  0,
                                                               true,
-                                                              fromtime
-                                                              );
+                                                              fromtime,
+                                                              widget.pwsid);
                                                         },
                                                         child: Container(
                                                           decoration:
@@ -3325,10 +3967,8 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                           .black54),
                                                                 ),
                                                               ),
-                                                              Container(
-                                                                alignment: Alignment
-                                                                    .centerLeft,
-                                                                width: 280.w,
+                                                              SizedBox(
+                                                                width: 180.w,
                                                                 child: Text(
                                                                   item!.problemName![
                                                                               0]
@@ -3339,9 +3979,13 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                               1,
                                                                               item!.problemName?.length)
                                                                           .toLowerCase(),
+                                                                  maxLines: 2,
                                                                   style: TextStyle(
                                                                       fontFamily:
                                                                           "lexend",
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
                                                                       fontSize:
                                                                           16.sp,
                                                                       color: Colors
@@ -3353,14 +3997,14 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                     .centerLeft,
                                                                 width: 170.w,
                                                                 child: Text(
-                                                                  item.problemCatagoryname![
+                                                                  item.problemCategoryname![
                                                                               0]
                                                                           .toUpperCase() +
                                                                       item!
-                                                                          .problemCatagoryname!
+                                                                          .problemCategoryname!
                                                                           .substring(
                                                                               1,
-                                                                              item.problemCatagoryname!.length)
+                                                                              item.problemCategoryname!.length)
                                                                           .toLowerCase(),
                                                                   style: TextStyle(
                                                                       fontFamily:
@@ -3394,7 +4038,6 @@ void empTimingUpdation(String startTime, String endTime) {
                                                           ),
                                                         ),
                                                       );
-
                                                     },
                                                   ),
                                                 )
@@ -3411,7 +4054,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                                       .circular(
                                                                           8))),
                                                   width: double.infinity,
-                                                   height: 240.h,
+                                                  height: 240.h,
                                                   child: Center(
                                                     child: Text(
                                                         "No data available"),

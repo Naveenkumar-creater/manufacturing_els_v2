@@ -2,23 +2,23 @@
 
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 
-class ListOfProbleCatagorymModel extends ListOfProblemCatagoryEntity {
-    ListOfProbleCatagorymModel({
-        required this.listOfIncidentcatagory,
-    }):super(listOfIncidentcatagory: listOfIncidentcatagory);
+class ListOfProbleCategorymModel extends ListOfProblemCategoryEntity {
+    ListOfProbleCategorymModel({
+        required this.listOfIncidentCategory,
+    }):super(listOfIncidentCategory: listOfIncidentCategory);
 
-    final List<ListOfIncidentCatagory>? listOfIncidentcatagory;
+    final List<ListOfIncidentCategory>? listOfIncidentCategory;
 
-    factory ListOfProbleCatagorymModel.fromJson(Map<String, dynamic> json){ 
-        return ListOfProbleCatagorymModel(
-            listOfIncidentcatagory: json["response_data"]["list_of_incident_category"] == null ? [] : List<ListOfIncidentCatagory>.from(json["response_data"]["list_of_incident_category"]!.map((x) => ListOfIncidentCatagory.fromJson(x))),
+    factory ListOfProbleCategorymModel.fromJson(Map<String, dynamic> json){ 
+        return ListOfProbleCategorymModel(
+            listOfIncidentCategory: json["response_data"]["list_of_incident_category"] == null ? [] : List<ListOfIncidentCategory>.from(json["response_data"]["list_of_incident_category"]!.map((x) => ListOfIncidentCategory.fromJson(x))),
         );
     }
 
 }
 
-class ListOfIncidentCatagory extends ListOfIncidentCatagoryEntity {
-    ListOfIncidentCatagory({
+class ListOfIncidentCategory extends ListOfIncidentCategoryEntity {
+    ListOfIncidentCategory({
      required this.incmassettype,required this.incmassetid,required this.incmparentid, 
         required this.incmMpmId,
         required this.incmName,
@@ -37,8 +37,8 @@ class ListOfIncidentCatagory extends ListOfIncidentCatagoryEntity {
     final int?incmparentid;
 
 
-    factory ListOfIncidentCatagory.fromJson(Map<String, dynamic> json){ 
-        return ListOfIncidentCatagory(
+    factory ListOfIncidentCategory.fromJson(Map<String, dynamic> json){ 
+        return ListOfIncidentCategory(
             incmMpmId: json["incm_mpm_id"],
             incmName: json["incm_name"],
             incmId: json["incm_id"],

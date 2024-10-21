@@ -26,7 +26,7 @@ class RecentActivitiesModel extends RecentActivitiesEntity{
 
 class RecentActivitiesList extends RecentActivitiesEntityList{
 
-    final int? ipdCardNo;
+    final String? ipdCardNo;
     final int? ipdRejQty;
     final int? ipdGoodQty;
     final int? ipdEmpId;

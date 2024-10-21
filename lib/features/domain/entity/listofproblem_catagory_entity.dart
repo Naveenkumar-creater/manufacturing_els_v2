@@ -1,19 +1,19 @@
 import 'package:equatable/equatable.dart';
 
-class ListOfProblemCatagoryEntity extends Equatable{
-    ListOfProblemCatagoryEntity({
-      this.listOfIncidentcatagory,
+class ListOfProblemCategoryEntity extends Equatable{
+    ListOfProblemCategoryEntity({
+      this.listOfIncidentCategory,
     });
-    final List<ListOfIncidentCatagoryEntity>? listOfIncidentcatagory;
+    final List<ListOfIncidentCategoryEntity>? listOfIncidentCategory;
     
       @override
-      List<Object?> get props => [listOfIncidentcatagory];
+      List<Object?> get props => [listOfIncidentCategory];
 
 }
 
 
-class ListOfIncidentCatagoryEntity extends Equatable  {
-    ListOfIncidentCatagoryEntity({
+class ListOfIncidentCategoryEntity extends Equatable  {
+    ListOfIncidentCategoryEntity({
       this.incmMpmId,
       this.incmName,
       this.incmId,

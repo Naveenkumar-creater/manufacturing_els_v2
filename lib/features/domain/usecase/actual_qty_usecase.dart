@@ -9,4 +9,5 @@ class ActualQtyUsecase{
   Future<ActualQtyEntity>execute(int id,int psid, String token)async{
 return actualQtyRepository.getActualQty(id,psid, token);
   }
+  
 }

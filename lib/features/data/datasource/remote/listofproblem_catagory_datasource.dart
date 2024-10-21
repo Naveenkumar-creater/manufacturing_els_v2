@@ -4,20 +4,20 @@ import 'package:prominous/features/data/core/api_constant.dart';
 import 'package:prominous/features/data/model/listof_problem_category_model.dart';
 import 'package:prominous/features/data/model/listof_problem_model.dart';
 
-abstract class ListofProblemCatagoryDatasource{
+abstract class ListofProblemCategoryDatasource{
 
-Future<ListOfProbleCatagorymModel> getListofProblemCatagory(String token,int deptid,int incidentId);
+Future<ListOfProbleCategorymModel> getListofProblemCategory(String token,int deptid,int incidentId);
  
 }
 
 
-class ListofProblemCatagoryDatasourceImpl implements ListofProblemCatagoryDatasource{
+class ListofProblemCategoryDatasourceImpl implements ListofProblemCategoryDatasource{
 
   @override
-  Future<ListOfProbleCatagorymModel> getListofProblemCatagory(String token, int deptid, int incidentId) async{
+  Future<ListOfProbleCategorymModel> getListofProblemCategory(String token, int deptid, int incidentId) async{
    ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_category_v1",clientAuthToken:token,deptId:deptid,incidentid: incidentId);
    final response = await ApiConstant.makeApiRequest(requestBody:requestbody );
-  final result= ListOfProbleCatagorymModel.fromJson(response);
+  final result= ListOfProbleCategorymModel.fromJson(response);
  return result;
 
   }

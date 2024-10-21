@@ -41,7 +41,7 @@ class ResolveProblemList extends ResolveProblemsEntity {
     
     ipdincIncrcmId: ipdincIncrcmId, ipdincNotes: ipdincNotes, problemStatus: problemStatus, problemStatusId: problemStatusId,productionStopageId: productionStopageId,solDesc: solDesc,solId: solId,subincidentId: subincidentId,subincidentName: subincidentName,ipdincid: ipdincid,ipdincipdid:ipdincipdid );
 
-      final String? subincidentName;
+    final String? subincidentName;
     final int? problemStatusId;
     final int? solId;
     final int? ipdPwsId;

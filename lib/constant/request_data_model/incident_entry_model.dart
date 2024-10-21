@@ -1,6 +1,6 @@
 
 class ListOfWorkStationIncident {
-  ListOfWorkStationIncident({  this.ipdId,this.ipdIncId,this.fromtime, this.endtime,this.solutionName, this.problemsolvedName, this.solutionId, this.problemstatusId, this.productionStoppageId, this.problemName, this.problemCatagoryname, this.rootCausename, this.problemId, this.problemcatagoryId, this.rootCauseId, this.reasons}
+  ListOfWorkStationIncident({  this.ipdId,this.ipdIncId,this.fromtime, this.endtime,this.solutionName, this.problemsolvedName, this.solutionId, this.problemstatusId, this.productionStoppageId, this.problemName, this.problemCategoryname, this.rootCausename, this.problemId, this.problemCategoryId, this.rootCauseId, this.reasons}
       );
 
 final String?fromtime;
@@ -8,10 +8,10 @@ final String?endtime;
 final String?solutionName;
 final String? problemsolvedName;
   final String? problemName;
-  final String? problemCatagoryname;
+  final String? problemCategoryname;
   final String? rootCausename;
   final int? problemId;
-  final int?problemcatagoryId;
+  final int?problemCategoryId;
   final int? rootCauseId;
   final int?solutionId;
 final int?problemstatusId;
@@ -30,10 +30,10 @@ Map<String, dynamic> toJson() => {
 "problem_solved_Id":problemstatusId,
 "production_stoppage_id":productionStoppageId,
  "problemname":problemName,
-"problemcatagoryname": problemCatagoryname,
+"problemCategoryname": problemCategoryname,
 "rootcausename": rootCausename,
 "incident_id": problemId,
-"subincident_id": problemcatagoryId,
+"subincident_id": problemCategoryId,
 "rootcause_id": rootCauseId,
 "reason":reasons,
 "ipdid":ipdId,

@@ -50,7 +50,8 @@ class EmpProductionModel extends EmpProductionEntity {
 }
 
 class ListProductionEntry extends ListOfEmpProductionEntity {
-  final int? ipdcardno;
+  final String? ipdcardno;
+  
   final int? ipdmpmid;
   final int? rejqty;
   final int ? goodqty;

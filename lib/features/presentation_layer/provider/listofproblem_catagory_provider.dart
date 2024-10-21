@@ -1,13 +1,12 @@
 import 'package:flutter/cupertino.dart';
-import 'package:prominous/features/domain/entity/listof_problem_entity.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 
-class ListofproblemCatagoryProvider extends ChangeNotifier{
-  ListOfProblemCatagoryEntity ? _user;
+class ListofproblemCategoryProvider extends ChangeNotifier{
+  ListOfProblemCategoryEntity ? _user;
 
- ListOfProblemCatagoryEntity? get user => _user;
+ ListOfProblemCategoryEntity? get user => _user;
 
- void setUser(ListOfProblemCatagoryEntity user ){
+ void setUser(ListOfProblemCategoryEntity user ){
    _user=user;
    notifyListeners();   
 

@@ -15,10 +15,10 @@ class UpdateFromTime extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<UpdateFromTime> createState() => _UpdateTimeState();
+  State<UpdateFromTime> createState() => _UpdateFromTimeState();
 }
 
-class _UpdateTimeState extends State<UpdateFromTime> {
+class _UpdateFromTimeState extends State<UpdateFromTime> {
   late DateTime selectedTime;
 
   @override
@@ -34,8 +34,8 @@ class _UpdateTimeState extends State<UpdateFromTime> {
     return Row(
       children: [
         SizedBox(
-          width: screenSize.width < 572 ? 85.w : 100.w,
-          height: 40.h,
+          width: screenSize.width < 572 ? 90.w : 100.w,
+          height: 30.h,
           child: ElevatedButton(
             onPressed: () async {
               // Open time picker with initial selectedTime
@@ -81,28 +81,24 @@ class _UpdateTimeState extends State<UpdateFromTime> {
     final shiftFromTime = DateTime.parse(widget.shiftFromTime);
     final shiftToTime = DateTime.parse(widget.shiftToTime);
 
-    // Adjust if shiftToTime is before shiftFromTime
-    DateTime adjustedShiftFromTime = shiftFromTime;
+    // Adjust for midnight crossing
     DateTime adjustedShiftToTime = shiftToTime;
 
-    if (shiftToTime.isBefore(shiftFromTime)) {
-      if (selectedTime.isBefore(shiftFromTime)) {
-        adjustedShiftFromTime = shiftFromTime.subtract(Duration(days: 1));
-      } else {
-        adjustedShiftToTime = shiftToTime.add(Duration(days: 1));
-      }
+    // If shiftToTime is before or equal to shiftFromTime, it means the shift crosses midnight
+    if (shiftToTime.isBefore(shiftFromTime) || shiftToTime == shiftFromTime) {
+      adjustedShiftToTime = shiftToTime.add(Duration(days: 1));
     }
 
     // Validate selectedTime to be within the range of shiftFromTime and shiftToTime
-    if (selectedTime.isBefore(adjustedShiftFromTime)) {
-      selectedTime = adjustedShiftFromTime;
-      ShowError.showAlert(context, "Timing entry should be within the current time window", "Alert");
+    if (selectedTime.isBefore(shiftFromTime)) {
+      selectedTime = shiftFromTime;
+      ShowError.showAlert(context, "Timing entry should be within the current shift time window.", "Alert");
     } else if (selectedTime.isAfter(adjustedShiftToTime)) {
       selectedTime = adjustedShiftToTime;
-      ShowError.showAlert(context, "Timing entry should be within the current time window.", "Alert");
+      ShowError.showAlert(context, "Timing entry should be within the current shift time window.", "Alert");
     }
 
-    // Update the current time in the correct format
+    // Format the selectedTime into the correct format and pass it back
     String formattedTime = '${selectedTime.year.toString().padLeft(4, '0')}-'
         '${selectedTime.month.toString().padLeft(2, '0')}-'
         '${selectedTime.day.toString().padLeft(2, '0')} '

@@ -16,8 +16,6 @@ class ActivityService {
       SharedPreferences pref = await SharedPreferences.getInstance();
       String token = pref.getString("client_token") ?? "";
 
-
-
          final recentActivityUseCase = ActivityUsecase(
         ActivityRepositoryImpl(
           ActivityDatasourceImpl(),

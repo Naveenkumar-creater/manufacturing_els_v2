@@ -28,9 +28,6 @@ class ScanAssetId extends ScanAseetBarcode{
         required this.pwsaPwssId,
     }) : super(pwsaAssetId:pwsaAssetId, pwsaId: pwsaId,pwsaPwssId: pwsaPwssId );
 
-    
-
-
     final int? pwsaId;
     final int? pwsaAssetId;
     final int? pwsaPwssId;

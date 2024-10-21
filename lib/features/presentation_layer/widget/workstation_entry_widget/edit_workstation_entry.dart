@@ -8,18 +8,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
-import 'package:prominous/constant/request_data_model/delete_production_entry.dart';
 import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
 import 'package:prominous/constant/request_data_model/non_production_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_emp_list_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_nonproduction_lis_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/edit_product_avilability_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/non_production_activity_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/product_avilable_qty_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/product_location_di.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_emp_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_nonproduction_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/edit_product_avilability_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
@@ -28,6 +30,8 @@ import 'package:prominous/features/presentation_layer/api_services/edit_entry_di
 import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_entry_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/problem_entry_popup.dart';
@@ -48,10 +52,7 @@ import 'package:prominous/features/presentation_layer/provider/product_provider.
 import 'package:prominous/features/presentation_layer/provider/recent_activity_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/shift_status_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/target_qty_provider.dart';
-import 'package:prominous/features/presentation_layer/widget/barcode_widget/asset_barcode_scanner.dart';
-import 'package:prominous/features/presentation_layer/widget/barcode_widget/cardno_barcode_scanner.dart';
 import '../../api_services/product_di.dart';
-import '../timing_widget/set_timing_widget.dart';
 import 'package:intl/intl.dart';
 import '../../../../constant/utilities/exception_handle/show_pop_error.dart';
 import '../../../data/core/api_constant.dart';
@@ -112,8 +113,13 @@ class _EditEmpProductionEntryPageState extends State<EditEmpProductionEntryPage>
     EditEmpListApiservice editEmpListApiservice=EditEmpListApiservice();
    final NonProductionActivityService nonProductionActivityService =NonProductionActivityService();
      final Listofproblemservice listofproblemservice = Listofproblemservice();
-  final ListofEmpworkstationService listofEmpworkstationService =
-      ListofEmpworkstationService();
+  final ListofEmpworkstationService listofEmpworkstationService = ListofEmpworkstationService();
+
+      ProductLocationService productLocationService=ProductLocationService();
+        EditProductAvilableQtyService editProductAvilableQtyService=EditProductAvilableQtyService();
+  FocusNode goodQtyFocusNode = FocusNode();
+  FocusNode rejectedQtyFocusNode = FocusNode();
+  FocusNode reworkFocusNode = FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -133,8 +139,9 @@ class _EditEmpProductionEntryPageState extends State<EditEmpProductionEntryPage>
   late DateTime currentDateTime;
   // Initialized to avoid null check
 
-  List<Map<String, dynamic>> submittedDataList = [];
 
+   String? fromtime;
+   String? totime;
   String? dropdownProduct;
   String? activityDropdown;
   // String? lastUpdatedTime;
@@ -147,8 +154,25 @@ class _EditEmpProductionEntryPageState extends State<EditEmpProductionEntryPage>
   String? productName;
   String? assetID;
   String? achivedTargetQty;
+  late DateTime StartfromTime;
+  late DateTime endTime;
   int? fromMinutes; 
-   List<TextEditingController> empTimingTextEditingControllers = [];
+
+  int ? overallqty ;
+  int? avilableqty;
+  int ?seqNo;
+  int ?pcid;
+
+  int?previousGoodValue; // Variable to store the previous value entered for Good Quantity
+  int? previousRejectedValue;
+  int?previousReworkValue; // Total minutes// Variable to track the error message
+  String? errorMessage;
+  String? rejectederrorMessage;
+  String? reworkerrorMessage;
+    String? locationDropdown;
+  String?locationName;
+    int? locationid;
+  List<TextEditingController> empTimingTextEditingControllers = [];
 
   final List<String?> errorMessages = [];
 
@@ -224,7 +248,7 @@ ipdReworkFlag: reworkValue ?? empproduction.ipdReworkFlag ,
 ipdreworkableqty: double.tryParse(reworkQtyController.text),
 targetqty: double.tryParse(targetQtyController.text),
 
-        ipdCardNo: int.tryParse(cardNoController.text.toString()),
+        ipdCardNo: cardNoController.text,
 
         ipdpaid: activityid ?? 0,
 
@@ -248,6 +272,7 @@ targetqty: double.tryParse(targetQtyController.text),
         ipdpsid: widget.psid,
         ppid: ppId ?? 0,
         shiftid: Shiftid,
+        ipdareaid: 0,
         listOfEmployeesForWorkStation: [],
         listOfWorkstationIncident: [],
         nonProductionList: [],
@@ -281,7 +306,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
             incidenid: incident.problemId,
             notes: incident.reasons,
             rootcauseid: incident.rootCauseId,
-            subincidentid: incident.problemcatagoryId,
+            subincidentid: incident.problemCategoryId,
         incfromtime: incident.fromtime, 
         incendtime:incident.endtime,
         problemStatusId:incident.problemstatusId,
@@ -423,11 +448,11 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
       '${currentHour.toString().padLeft(2, '0')}:'
         '${currentMinute.toString().padLeft(2, '0')}:'
         '${currentSecond.toString().padLeft(2, '0')}';
+     
 
-
-         SchedulerBinding.instance.addPostFrameCallback((_) {
-      _storedNonProductionList();
-    });
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   _storedNonProductionList();
+    // });
    // Using addPostFrameCallback to ensure this runs after the initial build
 
 
@@ -452,6 +477,9 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     targetQtyController.dispose();
     goodQController.dispose();
     rejectedQController.dispose();
+      for (var controller in empTimingTextEditingControllers) {
+      controller.dispose();
+    }
 
     // Use the stored reference
     storedListOfProblem.reset(notify: false);
@@ -469,7 +497,14 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
 
   Future<void> _fetchARecentActivity() async {
     try {
-
+      await editEntryApiservice.getEntryValues(
+        context: context,
+        psId:widget.psid ?? 0,
+        ipdid:  widget.ipdid ?? 0,
+        pwsId:  widget.pwsId?? 0,
+        deptid: widget.deptid ?? 0,
+      );
+           
       await editIncidentListService.getIncidentList(
         context: context,
         ipdid: widget.ipdid ?? 0,
@@ -488,39 +523,57 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsId ?? 0);
-                _storeIncidentList();
-                      final productionEntry =
+
+                    await productLocationService.getAreaList(context: context);
+                           final editEntry =
           Provider.of<EditEntryProvider>(context, listen: false)
               .editEntry
               ?.editEntry;
-                    final fromtime = productionEntry?.ipdFromTime ;
-    final totime = productionEntry?.ipdToTime ;
-    DateTime StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-  DateTime endTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
-   fromMinutes = endTime.difference(StartfromTime).inMinutes;
+
+             fromtime = editEntry?.ipdFromTime ;
+     totime = editEntry?.ipdToTime ;
+    
+              empTimingUpdation(fromtime! , totime!);
+                _storeIncidentList();
+                _storedNonProductionList();
+     
+  
+ StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+ endTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
+  fromMinutes = endTime.difference(StartfromTime).inMinutes ??0;
+    // Initialize controllers and error messages based on list length
+ 
+        final listofeditempworkstation =Provider.of<EditEmpListProvider>(context, listen: false)
+            .user
+            ?.editEmplistEntity;
+
+      if(listofeditempworkstation !=null){
+      for (int i = 0; i < listofeditempworkstation.length; i++) {
+      empTimingTextEditingControllers.add(TextEditingController());
+      errorMessages.add(null); // Initially no error
+    }
+      }
+
 
    
-
-
-
       // Access fetched data and set initial values
-      final initialValue = productionEntry?.ipdReworkFlag;
+      final initialValue = editEntry?.ipdReworkFlag;
 
       if (initialValue != null) {
         setState(() {
           isChecked = initialValue == 1;
-          goodQController.text = productionEntry?.ipdGoodQty?.toString() ?? "";
+          goodQController.text = editEntry?.ipdGoodQty?.toString() ?? "";
           rejectedQController.text =
-              productionEntry?.ipdRejQty?.toString() ?? "";
+              editEntry?.ipdRejQty?.toString() ?? "";
           reworkQtyController.text =
-              productionEntry?.ipdReworkableQty.toString() ??
+              editEntry?.ipdReworkableQty.toString() ??
                   ""
                       ""; // Set isChecked based on initialValue
         });
       }
       // Update cardNo with the retrieved cardNumber
       // setState(() {
-      //   cardNo = productionEntry?.ipdcardno?.toString() ??"0"; // Set cardNo with the retrieved value
+      //   cardNo = editEntry?.ipdcardno?.toString() ??"0"; // Set cardNo with the retrieved value
       // });
 
       setState(() {
@@ -533,6 +586,85 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
         isLoading = false; // Set isLoading to false even if there's an error
       });
     }
+  }
+
+   void submitGoodQuantity() {
+    final value = goodQController.text;
+    final currentValue = int.tryParse(value) ?? 0;
+
+    setState(() {
+     if (currentValue > (overallqty ?? 0)) {
+        errorMessage = 'Value must be between 0 and $overallqty.';
+      } else {
+        errorMessage = null;
+        overallqty = (overallqty ?? 0) - currentValue;
+        previousGoodValue = currentValue;
+      }
+    });
+  }
+
+  void submitRejectedQuantity() {
+    final value = rejectedQController.text;
+    final currentValue = int.tryParse(value) ?? 0;
+
+    setState(() {
+      if (currentValue > (overallqty ?? 0)) {
+        rejectederrorMessage = 'Value must be between 0 and $overallqty.';
+      } else {
+        rejectederrorMessage = null;
+        overallqty = (overallqty ?? 0) - currentValue;
+        previousRejectedValue = currentValue;
+      }
+    });
+  }
+
+  void submitReworkQuantity() {
+    final value = reworkQtyController.text;
+    final currentValue = int.tryParse(value) ?? 0;
+
+    setState(() {
+ if (currentValue > (overallqty ?? 0)) {
+        reworkerrorMessage = 'Value must be between 0 and $overallqty.';
+      } else {
+        reworkerrorMessage = null;
+        overallqty = (overallqty ?? 0) - currentValue;
+        previousReworkValue = currentValue;
+      }
+    });
+  }
+
+void addFocusListeners() {
+  goodQtyFocusNode.addListener(() {
+    if (!goodQtyFocusNode.hasFocus) {
+      submitGoodQuantity();
+    }
+  });
+
+  rejectedQtyFocusNode.addListener(() {
+    if (!rejectedQtyFocusNode.hasFocus) {
+      submitRejectedQuantity();
+    }
+  });
+
+  reworkFocusNode.addListener(() {
+    if (!reworkFocusNode.hasFocus) {
+      submitReworkQuantity();
+    }
+  });
+}
+
+void clearTextFields() {
+  goodQController.clear();
+  rejectedQController.clear();
+  reworkQtyController.clear();
+  overallqty = null;
+  seqNo = null;
+}
+
+
+  void updateProductName(String name) {
+    productName = name;
+    productNameController.text = name; // Sync the controller text
   }
 
 
@@ -645,7 +777,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
       String ? shiftToTime,
       [
       int? selectproblemid,
-      int? problemcatagoryId,
+      int? problemCategoryId,
       int? rootcauseid,
       String? reason,
       int?solutionid,
@@ -681,7 +813,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
                       .height, // Set the height to full screen height
                   child: ProblemEntryPopup(
                     SelectProblemId: selectproblemid,
-                    problemcatagoryId: problemcatagoryId,
+                    problemCategoryId: problemCategoryId,
                     reason: reason,
                     rootcauseid: rootcauseid,
                     showButton: showButton,
@@ -874,8 +1006,8 @@ Future<void> _nonProductionActivityPopup(
         ListOfWorkStationIncident data = ListOfWorkStationIncident(
           problemId: editIncidentList[i].incidentId,
             problemName: editIncidentList[i].incmName,
-          problemcatagoryId: editIncidentList[i].subincidentId,
-          problemCatagoryname: editIncidentList[i].subincidentName,
+          problemCategoryId: editIncidentList[i].subincidentId,
+          problemCategoryname: editIncidentList[i].subincidentName,
           reasons: editIncidentList[i].ipdincNotes,
           rootCauseId: editIncidentList[i].ipdincIncrcmId,
           rootCausename: editIncidentList[i].rootcauseName,
@@ -895,44 +1027,72 @@ Future<void> _nonProductionActivityPopup(
   }
 
 
-
 void empTimingUpdation(String startTime, String endTime) {
-  DateTime fromDate =(startTime != null && startTime.isNotEmpty)
-    ? DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime)
-    : DateTime.now();
-  DateTime toDate = (endTime != null && endTime.isNotEmpty)
-    ? DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime)
-    : DateTime.now();
+  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
 
   Duration timeoutDuration = toDate.difference(fromDate);
   int minutes = timeoutDuration.inMinutes;
 
-  final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+  final listofempworkstation = Provider.of<EditEmpListProvider>(context, listen: false)
       .user
-      ?.empWorkstationEntity;
+      ?.editEmplistEntity;
 
-  if (listofempworkstation != null && listofempworkstation.isNotEmpty) {
+  if (listofempworkstation != null) {
     setState(() {
       // Ensure empTimingTextEditingControllers has the correct number of controllers
       empTimingTextEditingControllers.clear();  // Clear previous controllers
 
-      // Add controllers based on the length of listofempworkstation
-      for (int i = 0; i < listofempworkstation.length; i++) {
+      for (int i = 0; i <=listofempworkstation.length; i++) {
         TextEditingController controller = TextEditingController();
         controller.text = minutes.toString();
         empTimingTextEditingControllers.add(controller);
       }
     });
   } else {
-    print("listofempworkstation is null or empty");
+    print("listofempworkstation is null");
   }
 }
+
+
+// void empTimingUpdation(String startTime, String endTime) {
+//   DateTime fromDate =(startTime != null && startTime.isNotEmpty)
+//     ? DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime)
+//     : DateTime.now();
+//   DateTime toDate = (endTime != null && endTime.isNotEmpty)
+//     ? DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime)
+//     : DateTime.now();
+
+//   Duration timeoutDuration = toDate.difference(fromDate);
+//   int minutes = timeoutDuration.inMinutes;
+
+//   final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+//       .user
+//       ?.empWorkstationEntity;
+
+//   if (listofempworkstation != null && listofempworkstation.isNotEmpty) {
+//     setState(() {
+//       // Ensure empTimingTextEditingControllers has the correct number of controllers
+//       empTimingTextEditingControllers.clear();  // Clear previous controllers
+
+//       // Add controllers based on the length of listofempworkstation
+//       for (int i = 0; i < listofempworkstation.length; i++) {
+//         TextEditingController controller = TextEditingController();
+//         controller.text = minutes.toString();
+//         empTimingTextEditingControllers.add(controller);
+//       }
+//     });
+//   } else {
+//     print("listofempworkstation is null or empty");
+//   }
+// }
 
 
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
+
 
     final editEntry = Provider.of<EditEntryProvider>(context, listen: false)
         .editEntry
@@ -956,12 +1116,7 @@ final storedListOfProblem =
     final shiftStartDateTiming =
         '$currentYear-$currentMonth-$currentDay $shiftFromtime';
 
-    final fromtime = editEntry?.ipdFromTime ;
-    final totime = editEntry?.ipdToTime ;
                                     
-    
-    empTimingUpdation(fromtime ?? shiftStartDateTiming , totime ?? "");
-
     final totalGoodQty = editEntry?.totalGoodqty;
     final totalRejQty = editEntry?.totalRejqty;
 
@@ -992,6 +1147,10 @@ final storedListOfProblem =
             ?.first
             .processName ??
         "";
+        
+     final location = Provider.of<ProductLocationProvider>(context, listen: false)
+        .user
+        ?.itemProductionArea;
     // Set cardNo with the retrieved value
 
     // Update cardNo with the retrieved cardNumber
@@ -999,18 +1158,15 @@ final storedListOfProblem =
     // Assuming 1 means true // Assuming ipdid is an int
 
 // final matchingProduct = productname?.firstWhere(
-//   (product) => product.productid == (productionEntry?.ipdid ?? 0),
+//   (product) => product.productid == (editEntry?.ipdid ?? 0),
 
 // );
 // if (matchingProduct != null) {
 //   dropdownProduct = matchingProduct.productName;
 // }
 
- 
- DateTime shiftStartTime=DateTime.parse(fromtime!);
-    DateTime shiftEndtTime=DateTime.parse(totime!);
-
-   final startTime = DateFormat('HH:mm:ss').format(shiftStartTime);
+//  DateTime shiftStartTime=DateTime.parse(fromtime!);
+//     DateTime shiftEndtTime=DateTime.parse(totime!);
  
 
     return isLoading
@@ -1083,7 +1239,7 @@ final storedListOfProblem =
                                                 width: 20,
                                               ),
                                               Text(
-                                                  '${fromtime?.substring(0, fromtime.length - 3) ?? ""}',
+                                                  '${fromtime?.substring(0, fromtime!.length - 3) ?? ""}',
                                                   style: TextStyle(
                                                       fontFamily: "lexend",
                                                       fontSize: 18.sp,
@@ -1160,7 +1316,7 @@ final storedListOfProblem =
                                       child: Container(
                                         padding: EdgeInsets.only(left: 8.w),
                                         width: 506.w,
-                                        height: 270.h,
+                                        height: 290.h,
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -1441,156 +1597,136 @@ final storedListOfProblem =
                                                               height: 40.h),
                                                         ],
                                                       ),
-                                                      Container(
-                                                          width: 170.w,
-                                                          height: 45.h,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            border: Border.all(
-                                                                width: 1,
-                                                                color: Colors
-                                                                    .grey),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            5)),
-                                                          ),
-                                                          child:
-                                                              DropdownButtonFormField<
-                                                                  String>(
-                                                            value:
-                                                                activityDropdown,
-                                                            decoration:
-                                                                InputDecoration(
-                                                              contentPadding:
-                                                                  EdgeInsets.symmetric(
-                                                                      horizontal:
-                                                                          5.w,
-                                                                      vertical:
-                                                                          2.h),
-                                                              border:
-                                                                  InputBorder
-                                                                      .none,
-                                                            ),
-                                                            hint: Text(
-                                                                "Select"),
-                                                            isExpanded: true,
-                                                            onChanged: (String?
-                                                                newvalue) async {
-                                                              if (newvalue !=
-                                                                  null) {
-                                                                setState(() {
-                                                                  activityDropdown =
-                                                                      newvalue;
-                                                                });
-                        
-                                                                final selectedActivity =
-                                                                    activity
-                                                                        ?.firstWhere(
-                                                                  (activity) =>
-                                                                      activity
-                                                                          .paActivityName ==
-                                                                      newvalue,
-                                                                  orElse: () => ProcessActivity(
-                                                                      paActivityName:
-                                                                          "",
-                                                                      mpmName:
-                                                                          "",
-                                                                      pwsName:
-                                                                          "",
-                                                                      paId: 0,
-                                                                      paMpmId:
-                                                                          0),
-                                                                );
-                        
-                                                                if (selectedActivity !=
-                                                                        null &&
-                                                                    selectedActivity
-                                                                            .paId !=
-                                                                        null) {
-                                                                  activityid =
-                                                                      selectedActivity.paId ??
-                                                                          0;
-                        
-                                                                  await targetQtyApiService
-                                                                      .getTargetQty(
-                                                                    context:
-                                                                        context,
-                                                                    paId:
-                                                                        activityid ??
-                                                                            0,
-                                                                    deptid:
-                                                                        widget.deptid ??
-                                                                            1,
-                                                                    psid:
-                                                                        widget.psid ??
-                                                                            0,
-                                                                    pwsid:
-                                                                        widget.pwsId ??
-                                                                            0,
-                                                                  );
-                        
-                                                                  final targetqty = Provider.of<TargetQtyProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.targetQty;
-                        
-                                                                  setState(
-                                                                      () {
-                                                                    targetQtyController
-                                                                        .text = targetqty
-                                                                            ?.targetqty
-                                                                            ?.toString() ??
-                                                                        '';
-                                                                    achivedTargetQty =
-                                                                        targetqty?.achivedtargetqty?.toString() ??
-                                                                            "";
-                                                                  });
-                                                                }
-                                                              } else {
-                                                                setState(() {
-                                                                  activityDropdown =
-                                                                      null;
-                                                                  activityid =
-                                                                      0;
-                                                                });
-                                                              }
-                                                            },
-                                                            items: activity
-                                                                    ?.map(
-                                                                      (activityName) {
-                                                                        return DropdownMenuItem<
-                                                                            String>(
-                                                                          onTap:
-                                                                              () {
-                                                                            setState(() {
-                                                                              selectedName = activityName.paActivityName;
-                                                                            });
-                                                                          },
-                                                                          value:
-                                                                              '${activityName.paActivityName}', // Append index to ensure uniqueness
-                                                                          child:
-                                                                              Text(
-                                                                            activityName.paActivityName ?? "",
-                                                                            style: TextStyle(
-                                                                              color: Colors.black87,
-                                                                              fontFamily: "lexend",
-                                                                              fontSize: 16.sp,
-                                                                            ),
-                                                                          ),
-                                                                        );
-                                                                      },
-                                                                    )
-                                                                    ?.toSet()
-                                                                    .toList() ??
-                                                                [],
-                                                          )),
+                                                   Container(
+  width: 170.w,
+  height: 45.h,
+  decoration: BoxDecoration(
+    border: Border.all(width: 1, color: Colors.grey),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  child: DropdownButtonFormField<String>(
+    value: activityDropdown,
+    decoration: InputDecoration(
+      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      border: InputBorder.none,
+    ),
+    hint: Text("Select"),
+    isExpanded: true,
+    onChanged: (cardNoController.text == "0" || cardNoController.text.isEmpty || reworkValue == 1)
+        ? null
+        : (String? newvalue) async {
+            if (newvalue != null) {
+              setState(() {
+                activityDropdown = newvalue;
+                clearTextFields();
+              });
+
+              final selectedActivity = activity?.firstWhere(
+                (activity) => activity.paActivityName == newvalue,
+                orElse: () => ProcessActivity(
+                    paActivityName: "", mpmName: "", pwsName: "", paId: 0, paMpmId: 0),
+              );
+
+              if (selectedActivity != null && selectedActivity.paId != null) {
+                activityid = selectedActivity.paId ?? 0;
+
+                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+
+                await editProductAvilableQtyService.getEditAvilableQty(
+                  context: context,
+                  reworkflag: reworkValue ?? 0,
+                  processid: widget.processid ?? 0,
+                  paid: activityid ?? 0,
+                  cardno: cardNoController.text,
+                  ipdid:widget.ipdid ?? 0
+                );
+
+                await targetQtyApiService.getTargetQty(
+                  context: context,
+                  paId: activityid ?? 0,
+                  deptid: widget.deptid ?? 1,
+                  psid: widget.psid ?? 0,
+                  pwsid: widget.pwsId ?? 0,
+                );
+
+                final targetqty = Provider.of<TargetQtyProvider>(context, listen: false)
+                    .user
+                    ?.targetQty;
+      final overallgoodQty =Provider.of<EditProductAvilableQtyProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.editproductqty;
+                if (overallgoodQty != null) {
+
+                  print('overallgoodQty list state: $overallgoodQty');
+                  avilableqty = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
+                          .user
+                          ?.editproductqty
+                          ?.ipcwGoodQtyAvl ??
+                      0;
+
+                  final processSeq = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
+                      .user
+                      ?.editproductqty
+                      ?.imfgpProcessSeq;
+
+                  setState(() {
+                    overallqty = avilableqty;
+                    seqNo = processSeq;
+
+                    if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) && overallqty != 0) {
+                      addFocusListeners();
+                    }else if((seqNo == 1 && overallqty == 0)){
+                      return null;
+                    }
+                    else{
+            
+ShowError.showAlert(context, "Production Quantity is 0");                
+
+                    }
+                  });
+                } else {
+                  ShowError.showAlert(context, "Please check the previous value");
+                }
+
+                setState(() {
+                  targetQtyController.text = targetqty?.targetqty?.toString() ?? '';
+                  achivedTargetQty = targetqty?.achivedtargetqty?.toString() ?? "";
+                });
+              }
+            } else {
+              setState(() {
+                activityDropdown = null;
+                activityid = 0;
+              });
+            }
+          },
+    items: activity?.map((activityName) {
+          return DropdownMenuItem<String>(
+            onTap: () {
+              setState(() {
+                selectedName = activityName.paActivityName;
+              });
+            },
+            value: activityName.paActivityName,
+            child: Text(
+              activityName.paActivityName ?? "",
+              style: TextStyle(
+                color: Colors.black87,
+                fontFamily: "lexend",
+                fontSize: 16.sp,
+              ),
+            ),
+          );
+        }).toList() ??
+        [],
+  ),
+),
                                                     ],
                                                   ),
-                                                  SizedBox(width: 40.w),
+                                                  SizedBox(width: 50.w),
                                                   Column(
                                                     crossAxisAlignment:
                                                         CrossAxisAlignment
@@ -1655,52 +1791,107 @@ final storedListOfProblem =
                                                         height: 40.h,
                                                       ),
                                                       Row(
-                                                        children: [
-                                                          Text('Rework',
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize:
-                                                                      16.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          SizedBox(
-                                                            width: 2.w,
-                                                          ),
-                                                          SizedBox(
-                                                            width: 100.w,
-                                                            height: 40.h,
-                                                            child: Checkbox(
-                                                              value:
-                                                                  isChecked,
-                                                              activeColor:
-                                                                  Colors
-                                                                      .green,
-                                                              onChanged:
-                                                                  (newValue) {
-                                                                setState(() {
-                                                                  isChecked =
-                                                                      newValue ??
-                                                                          false;
-                                                                  reworkValue =
-                                                                      isChecked
-                                                                          ? 1
-                                                                          : 0;
-                                                                });
-                                                                print(
-                                                                    "reworkvalue  ${reworkValue}");
-                                                                // Perform any additional actions here, such as updating the database
-                                                              },
+                                                          children: [
+                                                            Text('Rework',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize:
+                                                                        16.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            SizedBox(
+                                                              width: 2.w,
                                                             ),
-                                                          ),
-                                                        ],
-                                                      ),
+                                                           SizedBox(
+  width: 100.w,
+  height: 40.h,
+  child: Checkbox(
+    value: isChecked,
+    activeColor: Colors.green,
+    onChanged: (selectedName == null)
+        ? null
+        : (newValue) async{
+            setState(() {
+              isChecked = newValue ?? false;
+              reworkValue = isChecked ? 1 : 0;
+              clearTextFields();
+  });
+
+              if (reworkValue == 1) {
+
+                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+
+             await editProductAvilableQtyService.getEditAvilableQty(
+                  context: context,
+                  reworkflag: reworkValue ?? 0,
+                  processid: widget.processid ?? 0,
+                  paid: activityid ?? 0,
+                  cardno: cardNoController.text,
+                  ipdid:widget.ipdid ?? 0
+                );
+
+                final overallgoodQty =Provider.of<EditProductAvilableQtyProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.editproductqty;
+
+                if (overallgoodQty != null) {
+                  print('overallgoodQty list state: $overallgoodQty');
+                  avilableqty = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
+                          .user
+                          ?.editproductqty
+                          ?.ipcwGoodQtyAvl ??
+                      0;
+
+                  final processSeq = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
+                      .user
+                      ?.editproductqty
+                      ?.imfgpProcessSeq;
+
+                  setState(() {
+                    overallqty = avilableqty;
+                    seqNo = processSeq;
+                    if (( seqNo != 1 || (seqNo == 1 && reworkValue == 1)) && overallqty != 0) {
+                      addFocusListeners();
+                    }else if((seqNo == 1 && overallqty == 0)){
+                      return null;
+                    }
+                    else{
+            
+ShowError.showAlert(context, "Production Quantity is 0");                
+
+                    }
+                  });
+                } 
+                
+                
+                else {
+                  ShowError.showAlert(context, "Please check the previous value");
+                }
+              }
+          
+            print("reworkvalue $reworkValue");
+          },
+  ),
+),
+
+
+                                                          ],
+                                                        ),
                                                     ],
                                                   ),
                                                 ],
                                               ),
  SizedBox(
-                                                  height: 20.h,
+                                                  height: 2.h,
+                                                ),
+                                                Row(
+                                                  children: [
+                                       
+                                                  ],
                                                 ),
                                                
                                             
@@ -1720,7 +1911,7 @@ final storedListOfProblem =
                                           BorderRadius.circular(5.r),
                                       child: Container(
                                         width: 506.w,
-                                        height: 270.h,
+                                        height: 290.h,
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5.r),
@@ -1769,33 +1960,64 @@ final storedListOfProblem =
                                                           )
                                                         ],
                                                       ),
-                                                      SizedBox(
-                                                        width: 170.w,
-                                                        height: 45.h,
-                                                        child: CustomNumField(
-                                                          validation:
-                                                              (value) {
-                                                            if (value ==
-                                                                    null ||
-                                                                value
-                                                                    .isEmpty) {
-                                                              return 'Enter good qty';
-                                                            } else if (RegExp(
-                                                                    r'^0+$')
-                                                                .hasMatch(
-                                                                    value)) {
-                                                              return 'Cannot contain zeros';
-                                                            }
-                                                            return null;
-                                                          },
-                                                          controller:
-                                                              goodQController,
-                                                          isAlphanumeric:
-                                                              true,
-                                                          hintText:
-                                                              'Good Quantity',
-                                                        ),
-                                                      ),
+                                                       SizedBox(
+                                                                width: 170.w, // Take full width
+                                                                height: 45.h,
+                                                                child: CustomNumField(
+                                                                  validation: (value) {
+                                                                    if (value == null || value.isEmpty) {
+                                                                      return 'Enter good qty';
+                                                                    } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                                      return 'Cannot contain zeros';
+                                                                    }
+                                                                    return null; // Return null if no validation errors
+                                                                  },
+                                                                  controller: goodQController,
+                                                                  focusNode: goodQtyFocusNode,
+                                                                  isAlphanumeric: false,
+                                                                  hintText: 'Good Quantity',
+                                                  enabled: (selectedName != null && 
+ cardNoController.text.isNotEmpty && (seqNo == 1 || (avilableqty != 0))
+
+) ? true : false,
+                      
+                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))?  (value) {
+                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                                  
+                                                                    setState(() {
+                                                                      // Restore previous good value to overallqty if it was already subtracted
+                                                                      if (previousGoodValue != null) {
+                                                                        overallqty = (overallqty ?? 0) + previousGoodValue!;
+                                                                        previousGoodValue = null; // Reset the previous value after restoring
+                                                                      }
+                                                  
+                                                                      // Validate the entered value against overallqty
+                                                                       if (currentValue < 0) {
+                                                                        errorMessage = 'Value must be greater than 0.';
+                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
+                                                                        errorMessage = 'Value must be between 1 and $overallqty.';
+                                                                      }else if ((overallqty ?? 0)==0) {
+                                                                        errorMessage = 'Overallqty is 0 so enter 0';
+                                                                      }  else {
+                                                                        errorMessage = null; // Clear the error message if valid
+                                                                      }
+                                                                    });
+                                                                  }:null
+                                                                ),
+                                                              ),
+                                                              if (errorMessage != null)
+                                                                Padding(
+                                                                  padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+                                                                  child: Text(
+                                                                    errorMessage ?? "",
+                                                                    style: TextStyle(
+                                                                      fontSize: 9.0, // Adjust the font size as needed
+                                                                      color: Colors.red,
+                                                                      height: 1.0, // Adjust the height to control spacing
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                  
                                                     ],
                                                   ),
                                                   SizedBox(
@@ -1831,28 +2053,60 @@ final storedListOfProblem =
                                                           )
                                                         ],
                                                       ),
-                                                      SizedBox(
-                                                        width: 170.w,
-                                                        height: 45.h,
-                                                        child: CustomNumField(
-                                                          validation:
-                                                              (value) {
-                                                            if (value ==
-                                                                    null ||
-                                                                value
-                                                                    .isEmpty) {
-                                                              return 'Enter Rejected qty';
-                                                            }
-                                                            return null;
-                                                          },
-                                                          controller:
-                                                              rejectedQController,
-                                                          isAlphanumeric:
-                                                              true,
-                                                          hintText:
-                                                              'Rejected Quantity',
-                                                        ),
-                                                      ),
+                                                           SizedBox(
+                                                                width: 170.h, // Take full width
+                                                                height: 45.h,
+                                                                child: CustomNumField(
+                                                                  validation: (value) {
+                                                                    if (value == null || value.isEmpty) {
+                                                                      return 'Enter Rejected qty';
+                                                                    }
+                                                                    return null; // Return null if no validation errors
+                                                                  },
+                                                                  focusNode: rejectedQtyFocusNode,
+                                                                  controller: rejectedQController,
+                                                                  isAlphanumeric: false,
+                                                                  hintText: 'Rejected Quantity',
+                                                                  enabled: (selectedName != null && 
+ cardNoController.text.isNotEmpty && (seqNo == 1 || (overallqty != null && avilableqty != 0))
+) ? true : false,
+                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
+                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                                  
+                                                                    setState(() {
+                                                                      // Restore previous rejected value to overallqty if it was already subtracted
+                                                                      if (previousRejectedValue != null) {
+                                                                        overallqty = (overallqty ?? 0) + previousRejectedValue!;
+                                                                        previousRejectedValue = null; // Reset the previous value after restoring
+                                                                      }
+                                                  
+                                                                      // Validate the entered value against overallqty
+                                                                         if (currentValue < 0) {
+                                                                        rejectederrorMessage = 'Value must be greater than 0.';
+                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
+                                                                        rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                      }else if ((overallqty ?? 0)==0) {
+                                                                        rejectederrorMessage = 'Overallqty is 0 so enter 0';
+                                                                      } else {
+                                                                        rejectederrorMessage = null; // Clear the error message if valid
+                                                                      }
+                                                                    });
+                                                                  }:null
+                                                                ),
+                                                              ),
+                                                              if (rejectederrorMessage != null)
+                                                                Padding(
+                                                                  padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+                                                                  child: Text(
+                                                                    rejectederrorMessage ?? "",
+                                                                    style: TextStyle(
+                                                                      fontSize: 9.0, // Adjust the font size as needed
+                                                                      color: Colors.red,
+                                                                      height: 1.0, // Adjust the height to control spacing
+                                                                    ),
+                                                                  ),
+                                                                ),
+
                                                     ],
                                                   ),
                                                   SizedBox(
@@ -1889,27 +2143,81 @@ final storedListOfProblem =
                                                         ],
                                                       ),
                                                       SizedBox(
-                                                        width: 170.w,
-                                                        height: 45.h,
-                                                        child: CustomNumField(
-                                                          validation:
-                                                              (value) {
-                                                            if (value ==
-                                                                    null ||
-                                                                value
-                                                                    .isEmpty) {
-                                                              return ' Enter rework qty';
-                                                            }
-                                                            return null;
-                                                          },
-                                                          controller:
-                                                              reworkQtyController,
-                                                          isAlphanumeric:
-                                                              true,
-                                                          hintText:
-                                                              'rework qty  ',
-                                                        ),
-                                                      ),
+                                                                width:170.h ,
+                                                                height: 45.h,
+                                                                child: CustomNumField(
+                                                                  validation:
+                                                                      (value) {
+                                                                    if (value ==
+                                                                            null ||
+                                                                        value
+                                                                            .isEmpty) {
+                                                                      return ' Enter rework qty';
+                                                                    }
+                                                                    return null;
+                                                                  },
+                                                                  focusNode:
+                                                                      reworkFocusNode,
+                                                                  controller:
+                                                                      reworkQtyController,
+                                                                  isAlphanumeric:
+                                                                      true,
+                                                                  hintText:
+                                                                      'rework qty  ',
+                                                                      enabled:(selectedName != null && 
+ cardNoController.text.isNotEmpty && (seqNo == 1 || (overallqty != null && avilableqty != 0))
+) ? true : false,
+                                                                  onChanged:  (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
+                                                                 final currentValue = int.tryParse(value) ?? 0;
+                                                          
+                                                                    setState(() {
+                                                                      // Restore previous rejected value to overallqty if it was already subtracted
+                                                                      if (previousReworkValue !=
+                                                                          null) {
+                                                                        overallqty =
+                                                                            (overallqty ??
+                                                                                    0) +
+                                                                                previousReworkValue!;
+                                                                        previousReworkValue =
+                                                                            null; // Reset the previous value after restoring
+                                                                      }
+                                                          
+                                                                      // Validate the entered value against overallqty
+                                                                         if (currentValue < 0) {
+                                                                        reworkerrorMessage = 'Value must be greater than 0.';
+                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
+                                                                        reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                      }else if ((overallqty ?? 0)==0) {
+                                                                        reworkerrorMessage = 'Overallqty is 0 so enter 0';
+                                                                      } else {
+                                                                        reworkerrorMessage =
+                                                                            null; // Clear the error message if valid
+                                                                      }
+                                                                    });
+                                                                  }: null
+                                                                ),
+                                                              ),
+                                                              if (reworkerrorMessage !=
+                                                                  null)
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .only(
+                                                                          left: 8.0,
+                                                                          top: 1.0),
+                                                                  child: Text(
+                                                                    reworkerrorMessage ??
+                                                                        "",
+                                                                    style: TextStyle(
+                                                                      fontSize:
+                                                                          9.0, // Adjust the font size as needed
+                                                                      color:
+                                                                          Colors.red,
+                                                                      height:
+                                                                          1.0, // Adjust the height to control spacing
+                                                                    ),
+                                                                  ),
+                                                                ),
                                                     ],
                                                   ),
                                                 ],
@@ -2016,40 +2324,136 @@ final storedListOfProblem =
                                                 ],
                                               ),
 
-                                              SizedBox(height: 10,),
+                                              SizedBox(height: 2.h,),
                                                Row(
                                                         children: [
+
+                                                                              Column     (
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                                'Location',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize:
+                                                                        16.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color:
+                                                                    Colors.red,
+                                                              ),
+                                                            ),
+                                                      
+                                                          ],
+                                                        ),
+                                                        SizedBox(height: 5.h,),
+                                   Container(
+  width: 170.w,
+  height: 45.h,
+  decoration: BoxDecoration(
+    border: Border.all(width: 1, color: Colors.grey),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  child: DropdownButtonFormField<String>(
+    value: locationDropdown,
+    decoration: InputDecoration(
+      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+      border: InputBorder.none,
+    ),
+    hint: Text("Select"),
+    isExpanded: true,
+    onChanged: 
+         (String? newvalue) async {
+            if (newvalue != null) {
+              setState(() {
+                locationDropdown = newvalue;
+              });
+
+              final selectedlocation = location?.firstWhere(
+                (location) => location.ipaName == newvalue
+              );
+
+              if (selectedlocation != null && selectedlocation.ipaId != null) {
+                locationid = selectedlocation.ipaId ?? 0;
+              
+              }
+            } else {
+              setState(() {
+                locationDropdown = null;
+                locationid = 0;
+              });
+            }
+          },
+    items: location?.map((location) {
+          return DropdownMenuItem<String>(
+            onTap: () {
+              setState(() {
+                locationName = location.ipaName;
+              });
+            },
+            value: location.ipaName,
+            child: Text(
+              location.ipaName ?? "",
+              style: TextStyle(
+                color: Colors.black87,
+                fontFamily: "lexend",
+                fontSize: 16.sp,
+              ),
+            ),
+          );
+        }).toList() ??
+        [],
+  ),
+),
+                                                      ],
+                                                    ),
+
+                                                    SizedBox(width: 45,),
                                                         
                                                           SizedBox(
-                                                                height: 50.h,
+                                                                height: 70.h,
                                                                 width: 170.w,
-                                                                child: FloatingActionButton(
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                                mini: true,
-                                                                shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            5.r)),
-                                                                onPressed:
-                                                                    () async {
-                                                                  setState(() {
-                                                                    nonProductionActivityService
-                                                                        .getNonProductionList(
-                                                                      context:
-                                                                          context,
-                                                                    );
-                                                                    _nonProductionActivityPopup(
-                                                                        fromtime,
-                                                                        totime
-                                                                        );
-                                                                  });
-
-                                                                  // Update time after each change
-                                                                },
-                                                                child: Text("Non Productive Time")
-                                                              )),
+                                                                child: Padding(
+                                                                  padding: const EdgeInsets.only(top: 20.0),
+                                                                  child: FloatingActionButton(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  mini: true,
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              5.r)),
+                                                                  onPressed:
+                                                                      () async {
+                                                                    setState(() {
+                                                                      nonProductionActivityService
+                                                                          .getNonProductionList(
+                                                                        context:
+                                                                            context,
+                                                                      );
+                                                                      _nonProductionActivityPopup(
+                                                                          fromtime,
+                                                                          totime
+                                                                          );
+                                                                    });
+                                                                  
+                                                                    // Update time after each change
+                                                                  },
+                                                                  child: Text("Non Productive Time")
+                                                                                                                                ),
+                                                                )),
                                                         ],
                                                       ),
                                             ],
@@ -2148,7 +2552,7 @@ final storedListOfProblem =
                                               ],
                                             ),
                                           ),
-                                          (listofempworkstation != null &&
+                                            (listofempworkstation != null &&
                                                   listofempworkstation
                                                       .isNotEmpty)
                                               ? Container(
@@ -2164,7 +2568,7 @@ final storedListOfProblem =
                                                                       .circular(
                                                                           5))),
                                                   width: double.infinity,
-                                                  height: 215.h,
+                                                  height: 240.h,
                                                   child: ListView.builder(
                                                     shrinkWrap: true,
                                                     itemCount:
@@ -2175,7 +2579,7 @@ final storedListOfProblem =
                                                       final data =
                                                           listofempworkstation?[
                                                               index];
-                                                      
+                                                       
                                                       return Container(
                                                         decoration:
                                                             BoxDecoration(
@@ -2244,7 +2648,7 @@ final storedListOfProblem =
                                                                         .black54),
                                                               ),
                                                             ),
-  Container(
+Container(
   alignment: Alignment.center,
   width: 150,
   height: 50, // Container height remains fixed
@@ -2278,7 +2682,7 @@ final storedListOfProblem =
           onChanged: (value) {
   // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
   // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
- fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
+//  fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
 
             final enteredMinutes = int.tryParse(value) ?? -1;
       
@@ -2406,8 +2810,7 @@ final storedListOfProblem =
                                                                       style: TextStyle(
                                                                           fontFamily:
                                                                               "lexend",
-                                                                          fontSize: 16
-                                                                              .sp,
+                                                                          fontSize: 16  .sp,
                                                                           color:
                                                                               Colors.white)),
                                                                   backgroundColor:
@@ -2560,7 +2963,7 @@ final storedListOfProblem =
                                                 width: 250.w,
                                                 alignment: Alignment.center,
                                                 child: Text(
-                                                  "Problem",
+                                                  "Problems",
                                                   style: TextStyle(
                                                       fontSize: 16.sp,
                                                       fontFamily: "Lexend",
@@ -2571,7 +2974,7 @@ final storedListOfProblem =
                                                 width: 250.w,
                                                 alignment: Alignment.center,
                                                 child: Text(
-                                                  "Problem Area",
+                                                  "Problems Category",
                                                   style: TextStyle(
                                                       fontSize: 16.sp,
                                                       fontFamily: "Lexend",
@@ -2584,7 +2987,7 @@ final storedListOfProblem =
                                         (storedListOfProblem != null &&
                                                 storedListOfProblem.isNotEmpty)
                                             ? Container(
-                                                height:210  .h,
+                                               height:240.h,
                                                 width: 635.w,
                                                 decoration: BoxDecoration(
                                                     color: Color.fromARGB(
@@ -2599,7 +3002,7 @@ final storedListOfProblem =
                                                             index];
                         
                                                     final problemname=incidentlist?.problemName;
-                                                    final problemcatagoryname=incidentlist?.problemCatagoryname;
+                                                    final problemCategoryname=incidentlist?.problemCategoryname;
                         
                                                     return GestureDetector(
                                                         onTap: () {
@@ -2607,7 +3010,7 @@ final storedListOfProblem =
                                                             incidentlist?.fromtime,
                                                               incidentlist?.endtime,
                                                               incidentlist?.problemId,
-                                                              incidentlist?.problemcatagoryId,
+                                                              incidentlist?.problemCategoryId,
                                                               incidentlist?.rootCauseId,
                                                               incidentlist?.reasons,
                                                               incidentlist?.solutionId,
@@ -2672,7 +3075,7 @@ final storedListOfProblem =
                                                                   Alignment
                                                                       .center,
                                                               child: Text(
-                                                             problemcatagoryname![0].toUpperCase() + problemcatagoryname.substring(1,problemcatagoryname.length).toLowerCase(),
+                                                             problemCategoryname![0].toUpperCase() + problemCategoryname.substring(1,problemCategoryname.length).toLowerCase(),
                                                                 style: TextStyle(
                                                                     fontSize:
                                                                         16.sp,
@@ -2719,7 +3122,7 @@ final storedListOfProblem =
                                                                 Radius
                                                                     .circular(
                                                                         8))),
-                                                height: 215.h,
+                                                height: 240.h,
                                                 width: 635.w,
                                                 child: Center(
                                                   child: Text(

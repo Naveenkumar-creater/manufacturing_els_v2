@@ -10,6 +10,7 @@ import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dar
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
+
 import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
 
 import 'package:prominous/features/presentation_layer/provider/non_production_activity_provider.dart';
@@ -40,8 +41,8 @@ class NonProductionActivityPopup extends StatefulWidget {
 
 class _NonProductionActivityPopupState
     extends State<NonProductionActivityPopup> {
-  final ListofproblemCatagoryservice listofproblemCatagoryservice =
-      ListofproblemCatagoryservice();
+  final ListofproblemCategoryservice listofproblemCategoryservice =
+      ListofproblemCategoryservice();
   final ListofRootCauseService listofRootCauseService =
       ListofRootCauseService();
   final TextEditingController reasonController = TextEditingController();
@@ -52,16 +53,16 @@ class _NonProductionActivityPopupState
   String? lastupdatedTime;
   String? selectedName;
   String? selectNonProduction;
-  String? selectproblemcatagoryname;
+  String? NonProductionDropdown;
+  String? selectproblemCategoryname;
   String? selectrootcausename;
   String? dropdownProduct;
   String? activityDropdown;
-  String? NonProductionDropdown;
   String? npamname;
   int? npamid;
-  String? problemCatagoryDropdown;
+  String? problemCategoryDropdown;
 
-  List<ListOfIncidentCatagoryEntity>? problemcatagory;
+  List<ListOfIncidentCategoryEntity>? problemCategory;
   List<ListrootcauseEntity>? listofrootcause;
 
   late DateTime now;
@@ -171,13 +172,15 @@ class _NonProductionActivityPopupState
 
   @override
   Widget build(BuildContext context) {
+
     final listofNonProduction =
         Provider.of<NonProductionActivityProvider>(context, listen: false)
             ?.user
             ?.nonProductionActivity;
+
     final nonProductionlist =
         Provider.of<NonProductionStoredListProvider>(context, listen: false)
-            ?.getNonProductionList;
+            .getNonProductionList;
 
 
             print(nonProductionlist);
@@ -217,7 +220,7 @@ class _NonProductionActivityPopupState
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(left: 16.w),
+                padding: screenSize.width < 572 ? EdgeInsets.only(left: 8.w,):EdgeInsets.only(left: 16.w,),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -243,7 +246,7 @@ class _NonProductionActivityPopupState
                               style: TextStyle(
                                 fontFamily: "lexend",
                                 fontSize:
-                                    screenSize.width < 572 ? 14.sp : 16.sp,
+                              screenSize.width < 572 ? 12.sp : 16.sp,
                                 color: Colors.black54,
                               ),
                             ),
@@ -255,7 +258,7 @@ class _NonProductionActivityPopupState
                               style: TextStyle(
                                 fontFamily: "lexend",
                                 fontSize:
-                                    screenSize.width < 572 ? 12.sp : 16.sp,
+                                       screenSize.width < 572 ? 11.sp : 16.sp,
                                 color: Colors.black54,
                               ),
                             ),
@@ -279,7 +282,7 @@ class _NonProductionActivityPopupState
                               style: TextStyle(
                                 fontFamily: "lexend",
                                 fontSize:
-                                    screenSize.width < 572 ? 14.sp : 16.sp,
+                                    screenSize.width < 572 ? 12.sp : 16.sp,
                                 color: Colors.black54,
                               ),
                             ),
@@ -292,7 +295,7 @@ class _NonProductionActivityPopupState
                               style: TextStyle(
                                 fontFamily: "lexend",
                                 fontSize:
-                                    screenSize.width < 572 ? 12.sp : 16.sp,
+                                    screenSize.width < 572 ? 11.sp : 16.sp,
                                 color: Colors.black54,
                               ),
                             ),
@@ -318,7 +321,7 @@ class _NonProductionActivityPopupState
                               style: TextStyle(
                                 fontFamily: "lexend",
                                 fontSize:
-                                    screenSize.width < 572 ? 14.sp : 16.sp,
+                                    screenSize.width < 572 ? 12.sp : 16.sp,
                                 color: Colors.black54,
                               ),
                             ),
@@ -334,7 +337,7 @@ class _NonProductionActivityPopupState
                           ],
                         ),
                         Container(  
-                          width: screenSize.width < 572 ? 300.w : 360.w,
+                          width: screenSize.width < 572 ? 280.w : 360.w,
                           height: 50.h,
                           decoration: BoxDecoration(
                             border: Border.all(width: 1, color: Colors.grey),
@@ -401,7 +404,7 @@ class _NonProductionActivityPopupState
                         ),
                         SizedBox(height: 20),
                         SizedBox(
-                          width: screenSize.width < 572 ? 300.w : 360.w,
+                          width: screenSize.width < 572 ? 280.w : 360.w,
                           height: 100.h,
                           child: CustomTextFormfield(
                             maxline: 5,
@@ -592,23 +595,23 @@ class _NonProductionActivityPopupState
                                   fontFamily: "Lexend",
                                   color: Colors.white),
                             )),
-                        Container(
-                            width: screenSize.width < 572 ? 70.w : 90.w,
-                            alignment: Alignment.center,
-                            child: Text(
-                              "Delete",
-                              style: TextStyle(
-                                  fontSize:
-                                      screenSize.width < 572 ? 14.sp : 16.sp,
-                                  fontFamily: "Lexend",
-                                  color: Colors.white),
-                            ))
+                        // Container(
+                        //     width: screenSize.width < 572 ? 70.w : 90.w,
+                        //     alignment: Alignment.center,
+                        //     child: Text(
+                        //       "Delete",
+                        //       style: TextStyle(
+                        //           fontSize:
+                        //               screenSize.width < 572 ? 14.sp : 16.sp,
+                        //           fontFamily: "Lexend",
+                        //           color: Colors.white),
+                        //     ))
                       ],
                     ),
                   ),
                 ),
               ),
-                  (widget.showList ==true) ? Text(""):
+              (widget.showList ==true) ? Text(""):
               
               Container(
                 decoration: const BoxDecoration(
@@ -661,7 +664,7 @@ class _NonProductionActivityPopupState
                             ),
                             Container(
                               alignment: Alignment.centerLeft,
-                              width: screenSize.width < 572 ? 100.w : 170.w,
+                              width: screenSize.width < 572 ? 110.w : 170.w,
                               child: Text(
                                 ' ${item?.npamName}  ',
                                 style: TextStyle(
@@ -673,7 +676,7 @@ class _NonProductionActivityPopupState
                             ),
                             Container(
                               alignment: Alignment.center,
-                              width: screenSize.width < 572 ? 80.w : 80.w,
+                              width: screenSize.width < 572 ? 60.w : 80.w,
                               child: Text(
                                 ' ${seconsdifference} m ',
                                 style: TextStyle(
@@ -685,7 +688,7 @@ class _NonProductionActivityPopupState
                             ),
                             Container(
                                 alignment: Alignment.center,
-                                width: screenSize.width < 572 ? 70.w : 95.w,
+                                width: screenSize.width < 572 ? 60.w : 95.w,
                                 child: IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -696,7 +699,7 @@ class _NonProductionActivityPopupState
                                       Icons.delete,
                                       color: Colors.red,
                                       size: screenSize.width < 572
-                                          ? 16.sp
+                                          ? 20.sp
                                           : 25.sp,
                                     ))),
                           ],

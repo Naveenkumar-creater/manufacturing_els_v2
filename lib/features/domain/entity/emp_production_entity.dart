@@ -12,7 +12,7 @@ class EmpProductionEntity extends Equatable {
 }
 
 class ListOfEmpProductionEntity extends Equatable {
-  final int? ipdcardno;
+  final String? ipdcardno;
   final int? ipdmpmid;
   final int? rejqty;
   final int? goodqty;

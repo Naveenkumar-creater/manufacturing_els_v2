@@ -29,8 +29,9 @@ class CardNoApiService {
 
       Provider.of<CardNoProvider>(context, listen: false).setUser(user);
     } catch (e) {
-      ShowError.showAlert(context, e.toString());
-      rethrow;
+     
+      ShowError.showAlert(context, e.toString(),"Alert");
+  
     }
   }
 }

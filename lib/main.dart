@@ -9,6 +9,7 @@ import 'package:prominous/features/presentation_layer/provider/edit_emp_list_pro
 import 'package:prominous/features/presentation_layer/provider/edit_entry_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_nonproduction_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/edit_product_avilability_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofproblem_catagory_provider.dart';
@@ -18,6 +19,8 @@ import 'package:prominous/features/presentation_layer/provider/listofworkstation
 import 'package:prominous/features/presentation_layer/provider/non_production_activity_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/problem_status_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/rootcause_solution_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/scanforworkstation_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
@@ -125,8 +128,8 @@ class MyApp extends StatelessWidget {
           create: (_) => ScanforworkstationProvider(),),
               ChangeNotifierProvider<ListofproblemProvider>(
           create: (_) => ListofproblemProvider(),),
-             ChangeNotifierProvider<ListofproblemCatagoryProvider>(
-          create: (_) => ListofproblemCatagoryProvider(),),
+             ChangeNotifierProvider<ListofproblemCategoryProvider>(
+          create: (_) => ListofproblemCategoryProvider(),),
            ChangeNotifierProvider<ListofRootcauseProvider>(
           create: (_) => ListofRootcauseProvider(),),
       ChangeNotifierProvider<EditIncidentListProvider>(
@@ -139,6 +142,10 @@ ChangeNotifierProvider<EditEmpListProvider>(create: (_)=>EditEmpListProvider()),
 ChangeNotifierProvider<RootcauseSolutionProvider>(create: (_)=>RootcauseSolutionProvider()),
 ChangeNotifierProvider<ProblemStatusProvider>(create: (_)=>ProblemStatusProvider()),
 ChangeNotifierProvider<WorkstationProblemProvider>(create: (_)=>WorkstationProblemProvider()),
+ChangeNotifierProvider<ProductAvilableQtyProvider>(create: (_)=>ProductAvilableQtyProvider()),
+ChangeNotifierProvider<EditProductAvilableQtyProvider>(create: (_)=>EditProductAvilableQtyProvider()),
+ChangeNotifierProvider<ProductLocationProvider>(create: (_)=>ProductLocationProvider()),
+
 
 
 

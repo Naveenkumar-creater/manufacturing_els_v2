@@ -1,44 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class UpdateTime extends StatefulWidget {
-  final void Function(String) onTimeChanged; // Made onTimeChanged required
-  final String shiftFromTime; // Shift from time in "HH:mm:ss" format
-  final String shiftToTime;   // Shift to time in "HH:mm:ss" format
+  final void Function(String) onTimeChanged;
+  final String shiftFromTime;  // Expected format: "HH:mm:ss"
+  final String shiftToTime;    // Expected format: "HH:mm:ss"
+  final DateTime shiftDate;    // Date on which the shift starts
 
-  UpdateTime({Key? key, required this.onTimeChanged, required this.shiftFromTime, required this.shiftToTime}) : super(key: key);
+  UpdateTime({
+    Key? key,
+    required this.onTimeChanged,
+    required this.shiftFromTime,
+    required this.shiftToTime,
+    required this.shiftDate,
+  }) : super(key: key);
 
   @override
   State<UpdateTime> createState() => _UpdateTimeState();
 }
 
 class _UpdateTimeState extends State<UpdateTime> {
-  late DateTime now;
-  late int currentYear;
-  late int currentMonth;
-  late int currentDay;
-  late int currentHour;
-  late int currentMinute;
-  late int currentSecond;
-  late String currentTime; // Initialized to avoid null check
+  late DateTime selectedDateTime;
+  late DateTime shiftFromDateTime;
+  late DateTime shiftToDateTime;
+  late String formattedTime;
 
   @override
   void initState() {
     super.initState();
-    now = DateTime.now();
-    currentYear = now.year;
-    currentMonth = now.month;
-    currentDay = now.day;
-    currentHour = now.hour;
-    currentMinute = now.minute;
-    currentSecond = now.second;
-    currentTime =
-        '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay ${currentHour}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}'; // Initial time display
+    _initializeTimes();
+  }
+
+  void _initializeTimes() {
+    // Parse shiftFromTime and shiftToTime
+    final shiftFromParts = widget.shiftFromTime.split(':');
+    final shiftToParts = widget.shiftToTime.split(':');
+
+    // Set the shiftFromDateTime and shiftToDateTime using the provided shift date
+    shiftFromDateTime = DateTime(
+      widget.shiftDate.year,
+      widget.shiftDate.month,
+      widget.shiftDate.day,
+      int.parse(shiftFromParts[0]),
+      int.parse(shiftFromParts[1]),
+      int.parse(shiftFromParts[2]),
+    );
+
+    shiftToDateTime = DateTime(
+      widget.shiftDate.year,
+      widget.shiftDate.month,
+      widget.shiftDate.day,
+      int.parse(shiftToParts[0]),
+      int.parse(shiftToParts[1]),
+      int.parse(shiftToParts[2]),
+    );
+
+    // If shiftToTime is before shiftFromTime, it means the shift crosses midnight
+    if (shiftToDateTime.isBefore(shiftFromDateTime)) {
+      shiftToDateTime = shiftToDateTime.add(Duration(days: 1));  // Move to the next day
+    }
+
+    // Set selectedDateTime to the shiftFromDateTime initially
+    selectedDateTime = shiftFromDateTime;
+    formattedTime = _formatDateTime(selectedDateTime);
   }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
+        // Decrement Button
         SizedBox(
           width: 30,
           height: 30,
@@ -50,70 +81,52 @@ class _UpdateTimeState extends State<UpdateTime> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             onPressed: () {
               setState(() {
-                if (currentMinute >= 30) {
-                  currentMinute -= 30;
-                } else {
-                  if (currentHour == 00) {
-                    currentHour = 23;
-                    currentMinute = 30;
-                  } else {
-                    currentHour -= 01;
-                    currentMinute = 30;
-                  }
-                }
+                _decrementTime();
               });
-              updateTime();
+              _updateTime();
             },
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 15),
-              child: const Icon(Icons.minimize, color: Colors.black, size: 20),
-            ),
+            child: Icon(Icons.remove, color: Colors.black, size: 20),
           ),
         ),
         SizedBox(width: 16),
-        Text("30",style: TextStyle(fontSize: 18,
-                                                    color: Colors.black54),),
-          SizedBox(width: 16),
+        Text(
+          "30",
+          style: TextStyle(fontSize: 18, color: Colors.black54),
+        ),
+        SizedBox(width: 16),
+        // Increment Button
         SizedBox(
           width: 30,
           height: 30,
           child: FloatingActionButton(
-            heroTag: 'IncrementButton',
+            heroTag: 'incrementButton',
             backgroundColor: Colors.white,
             tooltip: 'Increment',
             mini: true,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             onPressed: () {
               setState(() {
-                if (currentMinute < 30) {
-                  currentMinute += 30;
-                } else {
-                  if (currentHour == 23) {
-                    currentHour = 00;
-                    currentMinute = 00;
-                  } else {
-                    currentHour += 01;
-                    currentMinute = 0;
-                  }
-                }
+                _incrementTime();
               });
-              updateTime(); // Update time after each change
+              _updateTime();
             },
-            child: const Icon(Icons.add, color: Colors.black, size: 20),
+            child: Icon(Icons.add, color: Colors.black, size: 20),
           ),
         ),
         SizedBox(width: 16),
+        // Set Time Button
         ElevatedButton(
           onPressed: () async {
             final TimeOfDay? result = await showTimePicker(
               context: context,
-              initialTime: TimeOfDay(hour: currentHour, minute: currentMinute),
+              initialTime: TimeOfDay(
+                hour: selectedDateTime.hour,
+                minute: selectedDateTime.minute,
+              ),
               initialEntryMode: TimePickerEntryMode.input,
               builder: (BuildContext context, Widget? child) {
                 return MediaQuery(
-                  data: MediaQuery.of(context).copyWith(
-                    alwaysUse24HourFormat: true,
-                  ),
+                  data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
                   child: child!,
                 );
               },
@@ -121,12 +134,29 @@ class _UpdateTimeState extends State<UpdateTime> {
 
             if (result != null) {
               setState(() {
-                // Update only the time part, keeping the date part fixed
-                currentHour = result.hour;
-                currentMinute = result.minute;
-                currentSecond = 0; // reset seconds to 0
+                // Update selectedDateTime with the new time while keeping the date
+                selectedDateTime = DateTime(
+                  widget.shiftDate.year,
+                  widget.shiftDate.month,
+                  widget.shiftDate.day,
+                  result.hour,
+                  result.minute,
+                );
+
+                // Handle midnight crossing
+                if (selectedDateTime.isBefore(shiftFromDateTime) && result.hour < shiftFromDateTime.hour) {
+                  selectedDateTime = selectedDateTime.add(Duration(days: 1));
+                }
+
+                // Validate: Ensure selected time is within the shift time range
+                if (selectedDateTime.isBefore(shiftFromDateTime)) {
+                  selectedDateTime = shiftFromDateTime;
+                } else if (selectedDateTime.isAfter(shiftToDateTime)) {
+                  selectedDateTime = shiftToDateTime;
+                }
               });
-              updateTime();
+
+              _updateTime(); // Call the update function to handle the new time
             }
           },
           child: Text("Set Time"),
@@ -134,67 +164,33 @@ class _UpdateTimeState extends State<UpdateTime> {
       ],
     );
   }
+  
 
-  void updateTime() {
-    setState(() {
-      final selectedTime = DateTime(
-        currentYear,
-        currentMonth,
-        currentDay,
-        currentHour,
-        currentMinute,
-        currentSecond,
-      );
+    // Decrement time by 30 minutes
+  void _decrementTime() {
+    selectedDateTime = selectedDateTime.subtract(Duration(minutes: 30));
+    if (selectedDateTime.isBefore(shiftFromDateTime)) {
+      selectedDateTime = shiftFromDateTime;
+    }
+  }
 
-      final shiftFromTimeParts = widget.shiftFromTime.split(':');
-      var shiftFromTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftFromTimeParts[0]),
-        int.parse(shiftFromTimeParts[1]),
-        int.parse(shiftFromTimeParts[2]),
-      );
+  // Increment time by 30 minutes
+  void _incrementTime() {
+    selectedDateTime = selectedDateTime.add(Duration(minutes: 30));
+    if (selectedDateTime.isAfter(shiftToDateTime)) {
+      selectedDateTime = shiftToDateTime;
+    }
+  }
 
-      final shiftToTimeParts = widget.shiftToTime.split(':');
-      var shiftToTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftToTimeParts[0]),
-        int.parse(shiftToTimeParts[1]),
-        int.parse(shiftToTimeParts[2]),
-      );
+  // Update the time and call the callback function
+  void _updateTime() {
+    formattedTime = _formatDateTime(selectedDateTime);
+    widget.onTimeChanged(formattedTime);
+  }
 
-      if (shiftToTime.isBefore(shiftFromTime)) {
-        // Shift period crosses midnight
-        if (selectedTime.isBefore(shiftFromTime)) {
-          shiftFromTime = shiftFromTime.subtract(Duration(days: 1));
-        } else {
-          shiftToTime = shiftToTime.add(Duration(days: 1));
-        }
-      }
-
-      if (selectedTime.isBefore(shiftFromTime)) {
-        currentHour = shiftFromTime.hour;
-        currentMinute = shiftFromTime.minute;
-        currentSecond = shiftFromTime.second;
-      } else if (selectedTime.isAfter(shiftToTime)) {
-        currentHour = shiftToTime.hour;
-        currentMinute = shiftToTime.minute;
-        currentSecond = shiftToTime.second;
-      }
-
-    currentTime =
-   '${currentYear.toString().padLeft(4, '0')}-'
-          '${currentMonth.toString().padLeft(2, '0')}-'
-          '${currentDay.toString().padLeft(2, '0')} '
-          '${currentHour.toString().padLeft(2, '0')}:'
-          '${currentMinute.toString().padLeft(2, '0')}:'
-          '${currentSecond.toString().padLeft(2, '0')}';
-
-    });
-
-    widget.onTimeChanged(currentTime); // Call the callback with the updated time
+  // Format the date and time as a string
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year.toString().padLeft(4, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')} '
+        '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
   }
 }

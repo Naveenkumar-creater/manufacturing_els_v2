@@ -9,7 +9,7 @@ import 'package:prominous/constant/request_data_model/workstation_change_model.d
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
-import 'package:prominous/features/presentation_layer/mobile_page/mobile%20widget/mob_workstation_entry.dart';
+import 'package:prominous/features/presentation_layer/mobile_page/mobile_workstation_widget/mob_workstation_entry.dart';
 
 import 'package:prominous/features/presentation_layer/provider/listofworkstation_provider.dart';
 

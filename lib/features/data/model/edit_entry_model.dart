@@ -63,7 +63,7 @@ class EditEntry extends EditEntrySubEntity {
     final int? ipdReworkFlag;
     final int? ipdAssetId;
     final int? ipdBatchNo;
-    final int? ipdCardNo;
+    final String? ipdCardNo;
     final int? ipdRejQty;
     final int? ipdDeptId;
     final String? ipdDate;

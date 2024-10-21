@@ -21,7 +21,7 @@ class ScanCardForItemEntity extends Equatable {
   });
 
  final int? pcItemId;
- final int? pcCardNo;
+ final String? pcCardNo;
  final String? itemName;
 final  int? pcId;
 

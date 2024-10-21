@@ -1842,7 +1842,7 @@
 //                                                             index];
                         
 //                                                     final problemname=incidentlist?.incmName;
-//                                                     final problemcatagoryname=incidentlist?.subincidentName;
+//                                                     final problemCategoryname=incidentlist?.subincidentName;
                         
 //                                                     return Container(
 //                                                       height: 86,
@@ -1897,7 +1897,7 @@
 //                                                                 Alignment
 //                                                                     .center,
 //                                                             child: Text(
-//                                                            problemcatagoryname![0].toUpperCase() + problemcatagoryname.substring(1,problemcatagoryname.length).toLowerCase(),
+//                                                            problemCategoryname![0].toUpperCase() + problemCategoryname.substring(1,problemCategoryname.length).toLowerCase(),
 //                                                               style: TextStyle(
 //                                                                   fontSize:
 //                                                                       16.sp,

@@ -16,11 +16,13 @@ import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
+
 import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
+
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
@@ -33,6 +35,7 @@ import 'package:prominous/features/presentation_layer/provider/listofempworkstat
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/scanforworkstation_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
+import 'package:prominous/features/presentation_layer/widget/timing_widget/set_timing_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/barcode_widget/workstation_barcode_Scanner.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
@@ -125,8 +128,8 @@ class _EmpProductionEntryPageState
  EmployeeApiService employeeApiService = EmployeeApiService();
 final Listofproblemservice listofproblemservice = Listofproblemservice();
 final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
-  final ListofproblemCatagoryservice listofproblemCatagoryservice =
-      ListofproblemCatagoryservice();
+  final ListofproblemCategoryservice listofproblemCategoryservice =
+      ListofproblemCategoryservice();
   final NonProductionActivityService nonProductionActivityService =
       NonProductionActivityService();
   List<Map<String, dynamic>> incidentList = [];
@@ -150,11 +153,11 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
   bool visible = true;
   String? selectedName;
   String? selectproblemname;
-  String? selectproblemcatagoryname;
+  String? selectproblemCategoryname;
   String? selectrootcausename;
   int? product_Id;
   String? workstationBarcode;
-  List<ListOfIncidentCatagoryEntity>? problemcatagory;
+  List<ListOfIncidentCategoryEntity>? problemCategory;
   List<ListrootcauseEntity>? listofrootcause;
       List<TextEditingController> empTimingTextEditingControllers = [];
   final List<String?> errorMessages = [];
@@ -169,8 +172,8 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
   String? activityDropdown;
   String? problemDropdown;
   int? problemid;
-  String? problemCatagoryDropdown;
-  int? problemcatagoryid;
+  String? problemCategoryDropdown;
+  int? problemCategoryid;
   String? rootCauseDropdown;
   int? rootCauseid;
   String?fromtime;
@@ -185,11 +188,6 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
   String? assetID;
   String? achivedTargetQty;
     int? fromMinutes;
-
-
-
-
-
 
 
 
@@ -267,7 +265,7 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
         targetqty: double.tryParse(targetQtyController.text),
         ipdreworkableqty: double.tryParse(reworkQtyController.text),
 
-        ipdCardNo: int.tryParse(cardNoController.text.toString()),
+        ipdCardNo: cardNoController.text,
 
         ipdpaid: activityid ?? 0,
         ipdFromTime: fromtime,
@@ -286,6 +284,7 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
         ipdpsid: widget.psid,
         ppid: ppId ?? 0,
         shiftid: Shiftid,
+        ipdareaid: 0,
         listOfEmployeesForWorkStation: [],
         pwsid: widget.pwsid,
         listOfWorkstationIncident: [],
@@ -307,7 +306,7 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
             incidenid: incident.problemId,
             notes: incident.reasons,
             rootcauseid: incident.rootCauseId,
-            subincidentid: incident.problemcatagoryId,
+            subincidentid: incident.problemCategoryId,
         incfromtime: incident.fromtime,incendtime:incident.endtime,problemStatusId:incident.problemstatusId ,productionstopageId:incident.productionStoppageId ,solutionId:incident.solutionId );
         workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
       }
@@ -763,100 +762,129 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
 
-    _fetchARecentActivity().then((_) {
-      updateinitial();
-    });
+ @override
+    void initState() {
+      super.initState();
 
-    currentDateTime = DateTime.now();
-    now = DateTime.now();
-    currentYear = now.year;
-    currentMonth = now.month;
-    currentDay = now.day;
-    currentHour = now.hour;
-    currentMinute = now.minute;
-    currentSecond = now.second;
-    final shiftid = Provider.of<ShiftStatusProvider>(context, listen: false)
+      _fetchARecentActivity().then((_) {
+        updateinitial();
+      });
+
+  currentDateTime = DateTime.now();
+now = DateTime.now();
+currentYear = now.year;
+
+currentMonth = now.month;
+currentDay = now.day;
+currentHour = now.hour;
+currentMinute = now.minute;
+currentSecond = now.second;
+
+String? shiftTime;
+
+final shiftToTimeString =
+    Provider.of<ShiftStatusProvider>(context, listen: false)
         .user
         ?.shiftStatusdetailEntity
-        ?.psShiftId;
-    String? shiftTime;
+        ?.shiftToTime;
 
-    final shiftToTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftToTime;
+if (shiftToTimeString != null) {
+  DateTime? shiftToTime;
+  // Parse the shiftToTime
+  final shiftToTimeParts = shiftToTimeString.split(':');
+  final now = DateTime.now();
+  shiftToTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(shiftToTimeParts[0]),
+    int.parse(shiftToTimeParts[1]),
+    int.parse(shiftToTimeParts[2]),
+  );
 
-    if (shiftToTimeString != null) {
-      DateTime? shiftToTime;
-      // Parse the shiftToTime
-      final shiftToTimeParts = shiftToTimeString.split(':');
-      final now = DateTime.now();
-      shiftToTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftToTimeParts[0]),
-        int.parse(shiftToTimeParts[1]),
-        int.parse(shiftToTimeParts[2]),
-      );
+  // Get the current time
+  final currentTime = DateTime.now();
 
-      // Get the current time
-      final currentTime = DateTime.now();
+  final shiftFromTimeString =
+      Provider.of<ShiftStatusProvider>(context, listen: false)
+          .user
+          ?.shiftStatusdetailEntity
+          ?.shiftFromTime;
 
-      final shiftFromTimeString =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
-              .user
-              ?.shiftStatusdetailEntity
-              ?.shiftFromTime;
+  if (shiftFromTimeString != null) {
+    // Parse the shiftFromTime
+    final shiftFromTimeParts = shiftFromTimeString.split(':');
+    final shiftFromTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      int.parse(shiftFromTimeParts[0]),
+      int.parse(shiftFromTimeParts[1]),
+      int.parse(shiftFromTimeParts[2]),
+    );
 
-      if (shiftFromTimeString != null) {
-        // Parse the shiftFromTime
-        final shiftFromTimeParts = shiftFromTimeString.split(':');
-        final shiftFromTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(shiftFromTimeParts[0]),
-          int.parse(shiftFromTimeParts[1]),
-          int.parse(shiftFromTimeParts[2]),
-        );
-// Check if shiftToTime is on the next day
-        if (shiftToTime.isBefore(shiftFromTime)) {
-          shiftToTime = shiftToTime.add(Duration(days: 1));
-        }
 
-        if (currentTime.isAfter(shiftFromTime) &&
-            currentTime.isBefore(shiftToTime)) {
-          // Current time is within the shift time
-          final timeString =
-              '$currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
-          shiftTime = timeString;
-        } else {
-          // Current time exceeds the shift time
-          print("Current time exceeds the shift time.");
-          shiftTime = shiftToTimeString;
-        }
-      } else {
-        print("shiftToTime is not available.");
-        // Handle the case where shiftToTime is not available
-      }
+
+    if (currentTime.isAfter(shiftFromTime) &&
+        currentTime.isBefore(shiftToTime)) {
+      // Current time is within the shift time
+      final timeString =
+          '${currentHour.toString().padLeft(2, '0')}:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
+      shiftTime = timeString;
+    } else {
+      // Current time exceeds the shift time
+      print("Current time exceeds the shift time.");
+      shiftTime = shiftToTimeString;
     }
-// Assuming currentYear, currentMonth, and currentDay are defined earlier in your code
 
-
+    if (shiftToTime.isBefore(shiftFromTime)) {
+      shiftToTime = shiftToTime.add(Duration(days: 1));
+         // Shift ends on the next day
       lastUpdatedTime =
+          '${shiftToTime.year.toString().padLeft(4, '0')}-'
+          '${shiftToTime.month.toString().padLeft(2, '0')}-'
+          '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime'; // Shift ends next day
+    }else{
+            // Shift ends on the same day
+      lastUpdatedTime =
+          '${currentYear.toString().padLeft(4, '0')}-'
+          '${currentMonth.toString().padLeft(2, '0')}-'
+          '${currentDay.toString().padLeft(2, '0')} $shiftTime';
+    }
+
+
+  } else {
+    print("shiftToTime is not available.");
+    // Handle the case where shiftToTime is not available
+  }
+}
+
+
+  final productionEntry =
+      Provider.of<EmpProductionEntryProvider>(context, listen: false)
+          .user
+          ?.empProductionEntity;
+
+  final shiftFromtime =
+      Provider.of<ShiftStatusProvider>(context, listen: false)
+          .user
+          ?.shiftStatusdetailEntity
+          ?.shiftFromTime;
+
+  final shiftStartDateTiming =
       '${currentYear.toString().padLeft(4, '0')}-'
       '${currentMonth.toString().padLeft(2, '0')}-'
-      '${currentDay.toString().padLeft(2, '0')} $shiftTime';
+      '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
 
-    // currentDate =
-    //     '$currentYear-$currentMonth-$currentDay $currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
-  }
+  fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+      ? shiftStartDateTiming
+      : productionEntry?.ipdtotime;
+
+    }
+
+
+  
 
   @override
   void didChangeDependencies() {
@@ -1059,10 +1087,22 @@ await productApiService.productList(
   }
 
   Future<void> _problemEntrywidget(
-      [int? selectproblemid,
-      int? problemcatagoryId,
+     String ? shiftFromTime,
+      String ? shiftToTime,
+      [
+      int? selectproblemid,
+      int? problemCategoryId,
       int? rootcauseid,
-      String? reason]) async {
+      String? reason,
+      int?solutionid,
+      int? problemStatusId,
+      int? productionStopageid,
+      int?ipdId,
+      int?ipdincId,
+      bool? showButton,
+      String? closeStartTime,
+      int ? pwsid
+     ]) async {
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -1082,15 +1122,26 @@ await productApiService.productList(
               child: Container(
                   color: Colors.white,
                   width: MediaQuery.of(context).size.width *
-                      0.7, // Set the width to half of the screen
+                      0.75.w, // Set the width to half of the screen
                   height: MediaQuery.of(context)
                       .size
                       .height, // Set the height to full screen height
                   child: ProblemEntryPopup(
                     SelectProblemId: selectproblemid,
-                    problemcatagoryId: problemcatagoryId,
+                    problemCategoryId: problemCategoryId,
                     reason: reason,
                     rootcauseid: rootcauseid,
+                    showButton: showButton,
+                    shiftFromTime: shiftFromTime,
+                    shiftToTime: shiftToTime,
+                    problemStatusId:problemStatusId ,
+                    solutionId: solutionid,
+                    productionStopageId:productionStopageid,
+                    ipdid: ipdId,
+                    ipdincid:ipdincId ,
+                  closestartTime: closeStartTime,
+                  pwsId:pwsid
+
                   )),
             ),
           ),
@@ -1168,7 +1219,7 @@ await productApiService.productList(
   }
 
 
- Future<void> _nonProductionActivityPopup(
+  Future<void> _nonProductionActivityPopup(
       String? shiftfromtime, String? shiftTotime) async {
     showGeneralDialog(
       barrierDismissible: true,
@@ -1189,10 +1240,10 @@ await productApiService.productList(
               child: Container(
                   color: Colors.white,
                   width: MediaQuery.of(context).size.width *
-                      0.9, // Set the width to half of the screen
+                      0.75.w, // Set the width to half of the screen
                   height: MediaQuery.of(context)
                       .size
-                      .height,  // Set the height to full screen height
+                      .height, // Set the height to full screen height
                   child: NonProductionActivityPopup(
                       shiftFromTime: shiftfromtime, shiftToTime: shiftTotime)),
             ),
@@ -1220,11 +1271,11 @@ await productApiService.productList(
                                                   workstationProblem[i].problemStatus,
                                               solutionId: workstationProblem[i].solId,
                                               solutionName: workstationProblem[i].solDesc,
-                                              problemCatagoryname:
+                                              problemCategoryname:
                                                  workstationProblem[i].subincidentName,
                                               problemId: workstationProblem[i].incidentId,
                                               problemName: workstationProblem[i].incidentName,
-                                              problemcatagoryId:
+                                              problemCategoryId:
                                                   workstationProblem[i].subincidentId,
                                               reasons:
                                                   workstationProblem[i].ipdincNotes,
@@ -1326,9 +1377,13 @@ void empTimingUpdation(String startTime, String endTime) {
       '${currentMonth.toString().padLeft(2, '0')}-'
       '${currentDay.toString().padLeft(2, '0')}  $shiftTotime';
 
- fromtime = productionEntry?.ipdfromtime == ""
-        ? shiftStartDateTiming
-        : productionEntry?.ipdtotime;
+    
+
+    DateTime shiftStartTime=DateTime.parse(fromtime!);
+  
+    DateTime shiftEndtTime=DateTime.parse(lastUpdatedTime!);
+
+   final startTime = DateFormat('HH:mm:ss').format(shiftStartTime);
 
     // final productname = Provider.of<ProductProvider>(context, listen: false)
     //     .user
@@ -1337,6 +1392,7 @@ void empTimingUpdation(String startTime, String endTime) {
     final activity = Provider.of<ActivityProvider>(context, listen: false)
         .user
         ?.activityEntity;
+
 
     final listofProblem =
         Provider.of<ListProblemStoringProvider>(context, listen: true)
@@ -1560,17 +1616,22 @@ void empTimingUpdation(String startTime, String endTime) {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                              MobileUpdateTime(
-                                                onTimeChanged: (time) {
-                                                  setState(() {
-                                                    lastUpdatedTime = time
-                                                        .toString(); // Update the manually set time
-                                                  });
-                                                },
-                                                shiftFromTime:
-                                                    shiftFromtime ?? "",
-                                                shiftToTime: shiftTotime ?? "",
-                                              ),
+//                                                                                      UpdateTime(
+//   onTimeChanged: (time) {
+//     Future.delayed(Duration.zero, () {
+//       setState(() {
+//         lastUpdatedTime = time.toString();
+
+//         if (fromtime != null && lastUpdatedTime != null) {
+//           empTimingUpdation(fromtime!, lastUpdatedTime!);
+//         }
+//       });
+//     });
+//   },
+//   shiftFromTime: startTime ?? "",
+//   shiftToTime: shiftTotime ?? "",
+// ),
+         
                                               SizedBox(
                                                 width: 10.w,
                                               ),
@@ -1607,7 +1668,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                       elevation: 3,
                                       borderRadius: BorderRadius.circular(5.r),
                                       child: Container(
-                                        height: 525.h,
+                                        height: 550.h,
                                         decoration: BoxDecoration(
                                             color: Color.fromARGB(
                                                 150, 235, 236, 255),
@@ -1657,7 +1718,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                             // processId: widget.processid,
                                                             onCardDataReceived:
                                                                 (scannedCardNo,
-                                                                    scannedProductName) {
+                                                                    scannedProductName,itemid,cardid) {
                                                               setState(() {
                                                                 cardNoController
                                                                         .text =
@@ -1971,7 +2032,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                       ),
                                                       Container(
                                                           width: 150.w,
-                                                          height: 45.h,
+                                                          height: 40.h,
                                                           decoration:
                                                               BoxDecoration(
                                                             border: Border.all(
@@ -2551,69 +2612,51 @@ void empTimingUpdation(String startTime, String endTime) {
                                                     ],
                                                   ),
                                                   SizedBox(
-                                                    width: 20,
+                                                    width: 10.w,
                                                   ),
-                                                  SizedBox(
-                                                      width: 150.w,
-                                                      height: 40.h,
-                                                      child: 
-                                                
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            "Non Production",
-                                                            style: TextStyle(
-                                                                fontSize: 14.sp,
-                                                                fontFamily:
-                                                                    "Lexend",
-                                                                color: Colors
-                                                                    .black54),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 10.w,
-                                                          ),
-                                                          SizedBox(
-                                                            width: 20.w,
-                                                            height: 20.h,
-                                                            child:
-                                                                FloatingActionButton(
-                                                                  
-                                                                    backgroundColor:
-                                                                        Colors
-                                                                            .white,
-                                                                   
-                                                                    mini: true,
-                                                                    shape: RoundedRectangleBorder(
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(5
-                                                                                .r)),
-                                                                    onPressed:
-                                                                        () async {
-                                                                      setState(
-                                                                          () {
-                                                                        nonProductionActivityService
-                                                                            .getNonProductionList(
-                                                                          context:
-                                                                              context,
-                                                                        );
-                                                                        _nonProductionActivityPopup(  
-                                                                            fromtime,
-                                                                            lastUpdatedTime);
-                                                                      });
-                          
-                                                                      // Update time after each change
-                                                                    },
-                                                                    child: Icon(Icons.add,size: 16.sp,),)
-                                                          ),
-                                                        ],
+                                                  Row(
+                                                    children: [
+                                                    
+                                                     
+                                                      SizedBox(
+                                                        width: 150.w,
+                                                        height: 50.h,
+                                                        child:
+                                                            FloatingActionButton(
+                                                              
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                               
+                                                                mini: true,
+                                                                shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(5
+                                                                            .r)),
+                                                                onPressed:
+                                                                    () async {
+                                                                  setState(
+                                                                      () {
+                                                                    nonProductionActivityService
+                                                                        .getNonProductionList(
+                                                                      context:
+                                                                          context,
+                                                                    );
+                                                                    _nonProductionActivityPopup(  
+                                                                        fromtime,
+                                                                        lastUpdatedTime);
+                                                                  });
+                                                                            
+                                                                  // Update time after each change
+                                                                },
+                                                                child: Text("Non Productive Time",style: TextStyle(fontSize: 12.sp,fontFamily: "lexend",),),)
                                                       ),
-                                            
-                                                
-                                                )
+                                                    ],
+                                                  )
                                                 ],
                                               ),
                                               SizedBox(
-                                                height: 20.h,
+                                                height: 25.h,
                                               ),
                                               Row(
                                                 mainAxisAlignment:
@@ -2649,7 +2692,8 @@ void empTimingUpdation(String startTime, String endTime) {
                                                         style: TextStyle(
                                                             fontFamily: "lexend",
                                                             fontSize: 12.sp,
-                                                            color: Colors.white),
+                                                            color: Colors.white
+                                                            ),
                                                       ),
                                                       backgroundColor:
                                                           Colors.green,
@@ -2667,20 +2711,87 @@ void empTimingUpdation(String startTime, String endTime) {
                                  child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                    children: [
-                                     Text("Employee List",style: TextStyle(
+                                     Text("Employees",style: TextStyle(
                                                               fontFamily: "lexend",
                                                               fontSize: 16.sp,
                                                               color: Color.fromARGB(255, 80, 96, 203))),
                                    ],
                                  ), ),
+
+                                 Padding(
+                                  padding:EdgeInsets.only(left: 8.w, right: 8.w),
+                                   child: Container(height: 80.h,
+                                                                  decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.only(
+                                                      topLeft: Radius.circular(5.r),
+                                                      topRight:
+                                                          Radius.circular(5.r)),
+                                                  color: Color.fromARGB(
+                                                      255, 45, 54, 104)),
+                                   child: Padding(
+                                     padding:  EdgeInsets.all(4.sp),
+                                     child: Row(children: [
+                                      SizedBox(
+                                                        width: 40.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'S.No',
+                                                            style: TextStyle(
+                                                              
+                                                                fontFamily: "lexend",
+                                                                                               
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        SizedBox(
+                                                        width: 100.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Employees',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                     
+                                                        SizedBox(
+                                                        width: 120.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Working Minutes',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        SizedBox(
+                                                        width: 70.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Shift',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                     ],),
+                                   ),),
+                                 ),
                                                       
                                 Padding(
                                   padding: EdgeInsets.only(left: 8.w, right: 8.w),
                                   child: Material(
                                     elevation: 3,
-                                    borderRadius: BorderRadius.circular(5.r),
+                                    borderRadius:   BorderRadius.only(
+                                                      bottomLeft: Radius.circular(5.r),
+                                                    bottomRight:
+                                                          Radius.circular(5.r)),
                                     child: Container(
-                                      height: 200.h,
+                                      height: 225.h,
                                       decoration: BoxDecoration(
                                           color:
                                               Color.fromARGB(150, 235, 236, 255),
@@ -2691,7 +2802,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                           final workstaion =
                                               listofempworkstation?[index];
                                           return Container(
-                                            height: 80.h,
+                                            height: 100.h,
                                             decoration: BoxDecoration(
                                                 color: index % 2 == 0
                                                     ? Color.fromARGB(
@@ -2702,59 +2813,164 @@ void empTimingUpdation(String startTime, String endTime) {
                                                     BorderRadius.circular(5.r)),
                                             child: Padding(
                                               padding: EdgeInsets.only(
-                                                  left: 8.w, right: 8.w),
+                                                  left: 2.sp, right: 2.sp),
                                               child: Row(children: [
                                                 SizedBox(
-                                                    width: 20.w,
-                                                    child: Text(
-                                                      '${index + 1} ',
-                                                      style: TextStyle(
-                                                          fontFamily: "lexend",
-                                                          fontSize: 14.sp,
-                                                          color: Colors.black54),
+                                                    width: 30.w,
+                                                    child: Center(
+                                                      child: Text(
+                                                        '${index + 1} ',
+                                                        style: TextStyle(
+                                                            fontFamily: "lexend",
+                                                            fontSize: 14.sp,
+                                                            color: Colors.black54),
+                                                      ),
                                                     )),
                                                 SizedBox(
-                                                    width: 100.w,
+                                                    width: 115.w,
                                                     child: Text(
-                                                        workstaion?.personFname ??
-                                                            "")),
-                                                SizedBox(
-                                                  width: 100.w,
-                                                  child: Text(
-                                                    ' ${workstaion?.flattstatus == 1 ? "Present" : "Absent"}  ',
-                                                    style: TextStyle(
-                                                        fontFamily: "lexend",
-                                                        fontSize: 14.sp,
-                                                        color: Colors.black54),
-                                                  ),
-                                                ),
+
+ workstaion!.personFname![0]
+                                                                            .toUpperCase() +
+                                                                        workstaion
+                                                                            .personFname!
+                                                                            .substring(
+                                                                                1,
+                                                                                workstaion!.personFname!.length -
+                                                                                    1)
+                                                                            .toLowerCase() +
+                                                                        workstaion
+                                                                            .personFname!
+                                                                            .substring(workstaion.personFname!.length -
+                                                                                1)
+                                                                            .toUpperCase() ??
+                                                                    '',
+
+                                                     
+                                                          style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    color: Colors
+                                                                        .black54),)),
+
+                                                              Container(
+                                                                alignment: Alignment.center,
+                                                                width: 105.w,
+                                                                height: 50, // Container height remains fixed
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                                  children: [
+                                                                    SizedBox(
+                                                                      width: 90.w,
+                                                                      height: 35, // Keep the size fixed for the TextFormField
+                                                                      child: TextFormField(
+                                                                        keyboardType: TextInputType.number,
+                                                                        controller: empTimingTextEditingControllers[index],
+                                                                        decoration: InputDecoration(
+                                                                          filled: true,
+                                                                          fillColor: Colors.white,
+                                                                          contentPadding: EdgeInsets.all(5),
+                                                                          hintText: "minutes",
+                                                                          hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
+                                                                          labelStyle: const TextStyle(fontSize: 12),
+                                                                          constraints: BoxConstraints(maxHeight: 40, maxWidth: 100),
+                                                                          border: OutlineInputBorder(
+                                                                            borderRadius: BorderRadius.circular(5),
+                                                                            borderSide: BorderSide(color: Colors.grey.shade200),
+                                                                          ),
+                                                                          errorBorder: OutlineInputBorder(
+                                                                            borderRadius: BorderRadius.circular(5),
+                                                                            borderSide: BorderSide(color: Colors.red.shade300),
+                                                                          ),
+                                                                        ),
+                                                                        onChanged: (value) {
+                                                                // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+                                                               fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
+                                                              
+                                                                          final enteredMinutes = int.tryParse(value) ?? -1;
+                                                                    
+                                                                          setState(() {
+                                                                            if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                                                                              errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
+                                                                              
+                                                                            } else {
+                                                                              errorMessages[index] = null; // Clear error message if valid
+                                                                            }
+                                                                          });
+                                                                        },
+                                                                        onEditingComplete: () {
+                                                                          final value = empTimingTextEditingControllers[index].text;
+                                                                          final enteredMinutes = int.tryParse(value) ?? -1;
+                                                                    
+                                                                          setState(() {
+                                                                            if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                                                                              errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+                                                                            } else {
+                                                                              errorMessages[index] = null; // Clear error message if valid
+                                                                            }
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                    // This space will display the error message but won't change the TextFormField size
+                                                                    if (errorMessages[index] != null) 
+                                                                      Padding(
+                                                                        padding: const EdgeInsets.only(left: 2.0, top: 2.0),
+                                                                        child: Text(
+                                                                          errorMessages[index]!,
+                                                                          style: TextStyle(
+                                                                            fontSize: 7.sp, // Adjust the font size as needed
+                                                                            color: Colors.red,
+                                                                            height: 1.sp, // Adjust the height to control spacing
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                // SizedBox(
+                                                //   width: 100.w,
+                                                //   child: Text(
+                                                //     ' ${workstaion?.flattstatus == 1 ? "Present" : "Absent"}  ',
+                                                //     style: TextStyle(
+                                                //         fontFamily: "lexend",
+                                                //         fontSize: 14.sp,
+                                                //         color: Colors.black54),
+                                                //   ),
+                                                // ),
                                                 if (workstaion
                                                         ?.flattshiftstatus ==
                                                     1)
                                                   SizedBox(
-                                                    width: 100.w,
-                                                    height: 35.h,
-                                                    child: CustomButton(
-                                                      width: 80.w,
-                                                      height: 50.h,
-                                                      onPressed: () {
-                                                        _closeShiftPop(
-                                                            context,
-                                                            ' ${workstaion?.attendanceid ?? ''}  ',
-                                                            "${workstaion?.flattstatus ?? ""}");
-                                                      },
-                                                      child: Text('Close Shift',
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  "Lexend",
-                                                              fontSize: 12.sp,
-                                                              color:
-                                                                  Colors.white)),
-                                                      backgroundColor:
-                                                          Colors.green,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
+                                                         width: 80.w,
+                                                      height: 35.h,
+                                                    child: Center(
+                                                      child: CustomButton(
+                                                             width: 80.w,
+                                                      height: 35.h,
+                                                        onPressed: () {
+                                                          _closeShiftPop(
+                                                              context,
+                                                              ' ${workstaion?.attendanceid ?? ''}  ',
+                                                              "${workstaion?.flattstatus ?? ""}");
+                                                        },
+                                                        child: Text('Close',
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "Lexend",
+                                                                fontSize: 12.sp,
+                                                                color:
+                                                                    Colors.white)),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                50),
+                                                      ),
                                                     ),
                                                       
                                                     // else if (shiftstatus == 2)
@@ -2762,29 +2978,31 @@ void empTimingUpdation(String startTime, String endTime) {
                                                 else if (workstaion
                                                         ?.flattshiftstatus ==
                                                     2)
-                                                  SizedBox(
-                                                    width: 100.w,
-                                                    height: 40.h,
-                                                    child: CustomButton(
-                                                      width: 100.w,
-                                                      height: 50.h,
-                                                      onPressed: () {
-                                                        _EmpOpenShiftPop(
-                                                            context,
-                                                            ' ${workstaion?.attendanceid ?? ''}  ',
-                                                            "${workstaion?.flattstatus ?? ""}");
-                                                      },
-                                                      child: Text('Reopen',
-                                                          style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 14.sp,
-                                                              color:
-                                                                  Colors.white)),
-                                                      backgroundColor: Colors.red,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
+                                                  Center(
+                                                    child: SizedBox(
+                                                      width: 80.w,
+                                                      height: 35.h,
+                                                      child: CustomButton(
+                                                        width: 80.w,
+                                                        height: 35.h,
+                                                        onPressed: () {
+                                                          _EmpOpenShiftPop(
+                                                              context,
+                                                              ' ${workstaion?.attendanceid ?? ''}  ',
+                                                              "${workstaion?.flattstatus ?? ""}");
+                                                        },
+                                                        child: Text('Reopen',
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 12.sp,
+                                                                color:
+                                                                    Colors.white)),
+                                                        backgroundColor: Colors.red,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                50),
+                                                      ),
                                                     ),
                                                   )
                                               ]),
@@ -2796,15 +3014,15 @@ void empTimingUpdation(String startTime, String endTime) {
                                   ),
                                 ),
                                
-                               SizedBox(height:10),
+                             
                                 Padding(
                                   padding:  EdgeInsets.only(left: 8.w,right: 8.w),
                                   child: Container(
-                                    height: 40.h,
+                                    height: 50.h,
                                     child: Row(
                                       children: [
                                         Text(
-                                          "Problem List",
+                                          "Problems",
                                           style: TextStyle(
                                               fontSize: 16.sp,
                                               fontFamily: "Lexend",
@@ -2815,8 +3033,8 @@ void empTimingUpdation(String startTime, String endTime) {
                                           width: 10.w,
                                         ),
                                         SizedBox(
-                                          width: 20.w,
-                                          height: 20.h,
+                                          width: 30.w,
+                                          height: 30.h,
                                           child: FloatingActionButton(
                                             heroTag: 'Add Issue',
                                             backgroundColor: Colors.white,
@@ -2837,7 +3055,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                             
                                                             
                                                                         assetid: int.parse(assetCotroller.text));
-                                                _problemEntrywidget();
+                                                _problemEntrywidget(fromtime,lastUpdatedTime);
                                               });
                                   
                                               // Update time after each change
@@ -2850,11 +3068,74 @@ void empTimingUpdation(String startTime, String endTime) {
                                     ),
                                   ),
                                 ),
+                                 Padding(
+                                  padding:EdgeInsets.only(left: 8.w, right: 8.w),
+                                   child: Container(height: 80.h,
+                                                                  decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.only(
+                                                      topLeft: Radius.circular(5.r),
+                                                      topRight:
+                                                          Radius.circular(5.r)),
+                                                  color: Color.fromARGB(
+                                                      255, 45, 54, 104)),
+                                   child: Padding(
+                                     padding:  EdgeInsets.all(4.sp),
+                                     child: Row(children: [
+                                      SizedBox(
+                                                        width: 40.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'S.No',
+                                                            style: TextStyle(
+                                                              
+                                                                fontFamily: "lexend",
+                                                                                               
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        SizedBox(
+                                                        width: 100.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Problems',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                     
+                                                        SizedBox(
+                                                        width: 140.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Problems Category',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        // SizedBox(
+                                                        // width: 50.w,
+                                                        // child: Center(
+                                                        //   child: Text(
+                                                        //     'Delete',
+                                                        //     style: TextStyle(
+                                                        //         fontFamily: "lexend",
+                                                        //         fontSize: 14.sp,
+                                                        //         color: Colors.white),
+                                                        //   ),
+                                                        // )),
+                                     ],),
+                                   ),),
+                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(left: 8.w, right: 8.w),
                                   child: Material(
                                     elevation: 3,
-                                    borderRadius: BorderRadius.circular(5.r),
+                               
                                     child: 
                                     Container(
                                       height: 200.h,
@@ -2862,7 +3143,10 @@ void empTimingUpdation(String startTime, String endTime) {
                                       decoration: BoxDecoration(
                                           color:
                                               Color.fromARGB(150, 235, 236, 255),
-                                          borderRadius: BorderRadius.circular(5)),
+                                          borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(5.r),
+                                            bottomRight:Radius.circular(5.r),
+                                          )),
                                       child: (listofProblem.isEmpty) ?
                                             Column(
                                               mainAxisAlignment: MainAxisAlignment.center,
@@ -2875,11 +3159,40 @@ void empTimingUpdation(String startTime, String endTime) {
                                       ListView.builder(
                                         itemCount: listofProblem?.length,
                                         itemBuilder: (context, index) {
-                                          final item = listofProblem?[index];
-                                          return GestureDetector(
-                                            onTap: (){
-                                              
-                                            },
+                                         final item =
+                                                          listofProblem[
+                                                              index];
+                                                      return GestureDetector(
+                                                        onTap: () {
+                                                           listofproblemservice
+                                                            .getListofProblem(
+                                                                context:
+                                                                    context,
+                                                                processid: widget
+                                                                        .processid ??
+                                                                    0,
+                                                                deptid: widget
+                                                                        .deptid ??
+                                                                    1057,
+                                                                    
+                                                                        assetid: int.parse(assetCotroller.text)  );
+                                                          _problemEntrywidget(
+                                                              item.fromtime,
+                                                              lastUpdatedTime,
+                                                              item.problemId,
+                                                              item.problemCategoryId,
+                                                              item.rootCauseId,
+                                                              item.reasons,
+                                                              item.solutionId,
+                                                              item.problemstatusId,
+                                                              item.productionStoppageId,
+                                                              item.ipdId ?? 0,
+                                                              item.ipdIncId ?? 0,
+                                                              true,
+                                                              fromtime,
+                                                              widget.pwsid
+                                                              );
+                                                        },
                                             child: Container(
                                               height: 80.h,
                                               decoration: BoxDecoration(
@@ -2917,7 +3230,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                   SizedBox(
                                                       width: 120.w,
                                                       child: Text(
-                                                          item?.problemCatagoryname ??
+                                                          item?.problemCategoryname ??
                                                               "",
                                                           style: TextStyle(
                                                               fontFamily:
@@ -2925,9 +3238,6 @@ void empTimingUpdation(String startTime, String endTime) {
                                                               fontSize: 12.sp,
                                                               color: Colors
                                                                   .black54))),
-                                                      
-                                                                  
-                                                      
                                                                         Container(
                                                                     alignment:
                                                                         Alignment
@@ -2961,16 +3271,16 @@ void empTimingUpdation(String startTime, String endTime) {
                                   ),
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.all(8.w),
+                                  padding: EdgeInsets.all(10.w),
                                   child: Material(
                                     elevation: 3,
-                                    borderRadius: BorderRadius.circular(5.r),
+                                 
                                     child: Container(
                                       height: 60.h,
                                       decoration: BoxDecoration(
                                           color:
                                               Color.fromARGB(150, 235, 236, 255),
-                                          borderRadius: BorderRadius.circular(5)),
+                                          borderRadius: BorderRadius.circular(5.r)),
                                       child: Padding(
                                         padding: EdgeInsets.all(8.w),
                                         child: Row(
@@ -2986,7 +3296,7 @@ void empTimingUpdation(String startTime, String endTime) {
                                                 width: 100.w,
                                                 height: 35.h,
                                                 borderRadius:
-                                                    BorderRadius.circular(50),
+                                                    BorderRadius.circular(50.r),
                                                 backgroundColor: Colors.green,
                                                 onPressed: () {
              

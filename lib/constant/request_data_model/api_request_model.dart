@@ -55,6 +55,10 @@ class ApiRequestDataModel {
  int? problemAssetId;
  int? rootcauseId;
  int?problemStatus;
+ String?Cardno;
+ int?reworkflag;
+ int?ipdId;
+
 
     
 
@@ -116,7 +120,10 @@ class ApiRequestDataModel {
        this.incidentid,
        this.problemAssetId,
        this.rootcauseId,
-       this.problemStatus
+       this.problemStatus,
+       this.Cardno,
+       this.reworkflag,
+       this.ipdId
       });
 
   Map<String, dynamic> toJson() {
@@ -180,7 +187,10 @@ class ApiRequestDataModel {
       "pwss_pws_id":pwsspwsid,
       "incident_id":incidentid,
       "rootcause_id":rootcauseId,
-      "problem_status":problemStatus
+      "problem_status":problemStatus,
+      "card_no":Cardno,
+      "rework_flag":reworkflag,
+    "ipd_Id":ipdId
 
     };
   }

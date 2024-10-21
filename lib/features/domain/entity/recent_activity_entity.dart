@@ -13,7 +13,7 @@ class RecentActivitiesEntity extends Equatable {
 }
 
 class RecentActivitiesEntityList extends Equatable {
-  final int? ipdcardno;
+  final String ? ipdcardno;
   final int? ipdrejqty;
   final int ?ipdgoodqty;
   final int ?ipdempid;

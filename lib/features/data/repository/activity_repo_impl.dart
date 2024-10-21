@@ -10,7 +10,7 @@ class ActivityRepositoryImpl extends ActivityRepository{
   @override
   Future<ActivityModel> getActivity(int id,int deptid, String token,int pwsId) async{
  ActivityModel result= await activityDatasource.getActivity(id, deptid, token, pwsId);
-    return result;
+ return result;
   }
   
 }

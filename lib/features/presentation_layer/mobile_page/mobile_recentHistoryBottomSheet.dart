@@ -11,7 +11,7 @@ import 'package:prominous/features/presentation_layer/api_services/emp_productio
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/product_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/recent_activity.dart';
-import 'package:prominous/features/presentation_layer/mobile_page/mobile%20widget/mob_workstation_edit_entry.dart';
+import 'package:prominous/features/presentation_layer/mobile_page/mobile_workstation_widget/mob_workstation_edit_entry.dart';
 import 'package:prominous/features/presentation_layer/provider/product_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/recent_activity_provider.dart';
 import 'package:provider/provider.dart';

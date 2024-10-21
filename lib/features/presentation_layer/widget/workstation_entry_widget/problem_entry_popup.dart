@@ -16,14 +16,18 @@ import 'package:prominous/features/data/model/listof_problem_model.dart';
 import 'package:prominous/features/data/model/listof_rootcaue_model.dart';
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
+
 import 'package:prominous/features/domain/entity/rootcause_solution_entity.dart';
+import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
+
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/problem_status_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/rootcause_solution_di.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofproblem_catagory_provider.dart';
+
 import 'package:prominous/features/presentation_layer/provider/listofproblem_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofrootcause_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
@@ -40,7 +44,7 @@ class ProblemEntryPopup extends StatefulWidget {
       {super.key,
       this.SelectProblemId,
       this.rootcauseid,
-      this.problemcatagoryId,
+      this.problemCategoryId,
       this.shiftFromTime,
       this.shiftToTime,
       this.reason,
@@ -50,11 +54,12 @@ class ProblemEntryPopup extends StatefulWidget {
       this.productionStopageId,
       this.ipdid,
       this.ipdincid,
-      this.closestartTime});
+      this.closestartTime,
+      this.pwsId});
 
   final int? SelectProblemId;
   final int? rootcauseid;
-  final int? problemcatagoryId;
+  final int? problemCategoryId;
   final String? shiftFromTime;
   final String? shiftToTime;
   final String? reason;
@@ -65,14 +70,15 @@ class ProblemEntryPopup extends StatefulWidget {
   final int? ipdincid;
   final int? ipdid;
   final String? closestartTime;
+  final int? pwsId;
 
   @override
   State<ProblemEntryPopup> createState() => _ProblemEntryPopupState();
 }
 
 class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
-  final ListofproblemCatagoryservice listofproblemCatagoryservice =
-      ListofproblemCatagoryservice();
+  final ListofproblemCategoryservice listofproblemCategoryservice =
+      ListofproblemCategoryservice();
   final ListofRootCauseService listofRootCauseService =
       ListofRootCauseService();
   final RootcauseSolutionService rootcauseSolutionService =
@@ -81,7 +87,8 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
       TextEditingController();
   final ProblemStatusService problemStatusService = ProblemStatusService();
     final Listofproblemservice listofproblemservice = Listofproblemservice();
-
+   final WorkstationProblemService workstationProblemService =
+      WorkstationProblemService();
   bool isChecked = false;
   int? productionStoppageId;
 
@@ -90,7 +97,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
   String? lastupdatedTime;
   String? selectedName;
   String? selectproblemname;
-  String? selectproblemcatagoryname;
+  String? selectproblemCategoryname;
   String? selectrootcausename;
   String? selectProblemStatusDesc;
   String? selectSolution;
@@ -100,14 +107,14 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
   String? problemStatusDropdown;
   int? problemStatusid;
   int? problemid;
-  String? problemCatagoryDropdown;
-  int? problemcatagoryid;
+  String? problemCategoryDropdown;
+  int? problemCategoryid;
   String? rootCauseDropdown;
   String? solutionDropdown;
   int? rootCauseid;
   int? solutionid;
   
-  List<ListOfIncidentCatagoryEntity>? problemcatagory;
+  List<ListOfIncidentCategoryEntity>? problemCategory;
   List<ListrootcauseEntity>? listofrootcause;
   List<SolutionEntity>? listofrootcausesolution;
 
@@ -235,10 +242,10 @@ Future<void> _fetchProblemDetails() async {
         ?.userLoginEntity
         ?.deptId;
 
-    final listproblemcatagory = Provider.of<ListofproblemCatagoryProvider>(
+    final listproblemCategory = Provider.of<ListofproblemCategoryProvider>(
       context,
       listen: false,
-    ).user?.listOfIncidentcatagory;
+    ).user?.listOfIncidentCategory;
 
     final listofsolution = Provider.of<RootcauseSolutionProvider>(
       context,
@@ -257,7 +264,7 @@ Future<void> _fetchProblemDetails() async {
 
     if (widget.SelectProblemId != null) {
 
-  await listofproblemCatagoryservice.getListofProblemCatagory(
+  await listofproblemCategoryservice.getListofProblemCategory(
     context: context,
     deptid: deptid ?? 1,
     incidentid: widget.SelectProblemId ?? 0,
@@ -282,27 +289,27 @@ Future<void> _fetchProblemDetails() async {
     print('No problem found for SelectProblemId: ${widget.SelectProblemId}');
   }
 
-  await listofproblemCatagoryservice.getListofProblemCatagory(
+  await listofproblemCategoryservice.getListofProblemCategory(
     context: context,
     deptid: deptid ?? 1,
     incidentid: widget.SelectProblemId ?? 0,
   );
 
-  problemcatagory = listproblemcatagory;
+  problemCategory = listproblemCategory;
 }
 
 
-    if (widget.problemcatagoryId != null) {
+    if (widget.problemCategoryId != null) {
       await listofRootCauseService.getListofRootcause(
           context: context,
           deptid: deptid ?? 1057,
-          incidentid: widget.problemcatagoryId ?? 0);
+          incidentid: widget.problemCategoryId ?? 0);
 
       listofrootcause = listofroot;
 
-      final selectCatagory = listproblemcatagory?.firstWhere(
-          (catagory) => catagory.incmId == widget.problemcatagoryId,
-          orElse: () => ListOfIncidentCatagory(
+      final selectCategory = listproblemCategory?.firstWhere(
+          (Category) => Category.incmId == widget.problemCategoryId,
+          orElse: () => ListOfIncidentCategory(
               incmDesc: '',
               incmId: 0,
               incmMpmId: 0,
@@ -312,9 +319,9 @@ Future<void> _fetchProblemDetails() async {
               incmassettype: 0,
               incmparentid: 0));
 
-      if (selectCatagory != null) {
-        problemCatagoryDropdown = selectCatagory.incmName;
-        problemcatagoryid = selectCatagory.incmId;
+      if (selectCategory != null) {
+        problemCategoryDropdown = selectCategory.incmName;
+        problemCategoryid = selectCategory.incmId;
       }
     }
 
@@ -353,6 +360,10 @@ Future<void> _fetchProblemDetails() async {
     }
 
     productionStoppageId = widget.productionStopageId;
+
+    if(productionStoppageId!=null){
+      isChecked=productionStoppageId==1;
+    }
 
     incidentReasonController.text = widget?.reason ?? "";
   }
@@ -479,7 +490,7 @@ updateProblemList({
           )
         : SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(left: 16.w, bottom: 20.w),
+          padding: EdgeInsets.only(left: 16.w, bottom: 20.w,top: 16.h),
           child:
           
            Column(
@@ -507,7 +518,7 @@ updateProblemList({
                         ' From Time :',
                         style: TextStyle(
                           fontFamily: "lexend",
-                          fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                          fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                           color: Colors.black54,
                         ),
                       ),
@@ -518,7 +529,7 @@ updateProblemList({
                             : 'No Time Selected',
                         style: TextStyle(
                           fontFamily: "lexend",
-                          fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+                          fontSize: screenSize.width < 572 ? 11.sp : 16.sp,
                           color: Colors.black54,
                         ),
                       ),
@@ -545,7 +556,7 @@ updateProblemList({
                       Text('Problem',
                           style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                               color: Colors.black54)),
                       SizedBox(
                         width: 8,
@@ -561,7 +572,7 @@ updateProblemList({
                     ],
                   ),
                   Container(
-                    width: screenSize.width < 572 ? 200.w : 365.w,
+                    width: screenSize.width < 572 ? 270.w : 365.w,
                     height: 50.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
@@ -581,8 +592,8 @@ updateProblemList({
                           setState(() {
                             problemDropdown = newvalue;
 
-                            problemCatagoryDropdown = null;
-                            problemcatagory = [];
+                            problemCategoryDropdown = null;
+                            problemCategory = [];
                             Provider.of<ListofRootcauseProvider>(context,
                                     listen: false)
                                 .reset();
@@ -603,28 +614,28 @@ updateProblemList({
                               selectedProblem.incmId != null) {
                             problemid = selectedProblem.incmId;
 
-                            await listofproblemCatagoryservice
-                                .getListofProblemCatagory(
+                            await listofproblemCategoryservice
+                                .getListofProblemCategory(
                               context: context,
                               deptid: deptid ?? 1,
                               incidentid: problemid ?? 0,
                             );
 
-                            final listproblemcatagory =
-                                Provider.of<ListofproblemCatagoryProvider>(
+                            final listproblemCategory =
+                                Provider.of<ListofproblemCategoryProvider>(
                               context,
                               listen: false,
-                            ).user?.listOfIncidentcatagory;
+                            ).user?.listOfIncidentCategory;
 
                             setState(() {
-                              problemcatagory = listproblemcatagory;
+                              problemCategory = listproblemCategory;
                             });
                           }
                         } else {
                           setState(() {
                             problemDropdown = null;
-                            problemCatagoryDropdown = null;
-                            problemcatagory = [];
+                            problemCategoryDropdown = null;
+                            problemCategory = [];
                           });
                         }
                       },
@@ -634,7 +645,7 @@ updateProblemList({
                                   onTap: () {
                                     setState(() {
                                       selectproblemname = problemName.incmName;
-                                      selectproblemcatagoryname =
+                                      selectproblemCategoryname =
                                           null; // Reset the problem category name
                                       selectrootcausename =
                                           null; // Reset the root cause name
@@ -647,7 +658,7 @@ updateProblemList({
                                       color: Colors.black87,
                                       fontFamily: "lexend",
                                       fontSize: screenSize.width < 572
-                                          ? 14.sp
+                                          ? 12.sp
                                           : 16.sp,
                                     ),
                                   ),
@@ -665,10 +676,10 @@ updateProblemList({
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Problem Catagory',
+                      Text('Problem Category',
                           style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                               color: Colors.black54)),
                       SizedBox(
                         width: 8,
@@ -684,14 +695,14 @@ updateProblemList({
                     ],
                   ),
                   Container(
-                    width: screenSize.width < 572 ? 200.w : 365.w,
+                    width: screenSize.width < 572 ? 270.w : 365.w,
                     height: 50.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
                     ),
                     child: DropdownButtonFormField<String>(
-                      value: problemCatagoryDropdown,
+                      value: problemCategoryDropdown,
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
                             horizontal: 5.w, vertical: 2.h),
@@ -702,16 +713,16 @@ updateProblemList({
                       onChanged: (String? newvalue) async {
                         if (newvalue != null) {
                           setState(() {
-                            problemCatagoryDropdown = newvalue;
+                            problemCategoryDropdown = newvalue;
                             rootCauseDropdown = null;
                             listofrootcause = [];
                           });
 
-                          final selectproblemCatagory =
-                              problemcatagory?.firstWhere(
-                            (problemcatagory) =>
-                                problemcatagory.incmName == newvalue,
-                            orElse: () => ListOfIncidentCatagory(
+                          final selectproblemCategory =
+                              problemCategory?.firstWhere(
+                            (problemCategory) =>
+                                problemCategory.incmName == newvalue,
+                            orElse: () => ListOfIncidentCategory(
                               incmDesc: '',
                               incmId: 0,
                               incmMpmId: 0,
@@ -723,14 +734,14 @@ updateProblemList({
                             ),
                           );
 
-                          if (selectproblemCatagory?.incmName != null &&
-                              selectproblemCatagory?.incmId != null) {
-                            problemcatagoryid = selectproblemCatagory?.incmId;
+                          if (selectproblemCategory?.incmName != null &&
+                              selectproblemCategory?.incmId != null) {
+                            problemCategoryid = selectproblemCategory?.incmId;
 
                             await listofRootCauseService.getListofRootcause(
                               context: context,
                               deptid: deptid ?? 1057,
-                              incidentid: problemcatagoryid ?? 0,
+                              incidentid: problemCategoryid ?? 0,
                             );
 
                             final listofroot =
@@ -745,32 +756,32 @@ updateProblemList({
                           }
                         } else {
                           setState(() {
-                            problemCatagoryDropdown = null;
-                            problemcatagoryid = 0;
+                            problemCategoryDropdown = null;
+                            problemCategoryid = 0;
                             rootCauseDropdown = null;
                             listofrootcause = [];
                           });
                         }
                       },
-                      items: problemcatagory
-                              ?.map((problemcatagory) {
+                      items: problemCategory
+                              ?.map((problemCategory) {
                                 return DropdownMenuItem<String>(
                                   onTap: () {
                                     setState(() {
-                                      selectproblemcatagoryname =
-                                          problemcatagory.incmName;
+                                      selectproblemCategoryname =
+                                          problemCategory.incmName;
 
                                       selectrootcausename = null;
                                     });
                                   },
-                                  value: problemcatagory.incmName,
+                                  value: problemCategory.incmName,
                                   child: Text(
-                                    problemcatagory.incmName ?? "",
+                                    problemCategory.incmName ?? "",
                                     style: TextStyle(
                                       color: Colors.black87,
                                       fontFamily: "lexend",
                                       fontSize: screenSize.width < 572
-                                          ? 14.sp
+                                          ? 12.sp
                                           : 16.sp,
                                     ),
                                   ),
@@ -791,7 +802,7 @@ updateProblemList({
                       Text('Root Cause',
                           style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                               color: Colors.black54)),
                       SizedBox(
                         width: 8,
@@ -807,7 +818,7 @@ updateProblemList({
                     ],
                   ),
                   Container(
-                    width: screenSize.width < 572 ? 200.w : 365.w,
+                    width: screenSize.width < 572 ? 270.w : 365.w,
                     height: 50.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
@@ -880,7 +891,7 @@ updateProblemList({
                                     color: Colors.black87,
                                     fontFamily: "lexend",
                                     fontSize:
-                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                        screenSize.width < 572 ? 12.sp : 16.sp,
                                   ),
                                 ),
                               );
@@ -898,7 +909,7 @@ updateProblemList({
                       Text('Solution',
                           style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                               color: Colors.black54)),
                       SizedBox(
                         width: 8,
@@ -914,7 +925,7 @@ updateProblemList({
                     ],
                   ),
                   Container(
-                    width: screenSize.width < 572 ? 200.w : 365.w,
+                    width: screenSize.width < 572 ? 270.w : 365.w,
                     height: 50.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
@@ -965,7 +976,7 @@ updateProblemList({
                                     color: Colors.black87,
                                     fontFamily: "lexend",
                                     fontSize:
-                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                        screenSize.width < 572 ? 12.sp : 16.sp,
                                   ),
                                 ),
                               );
@@ -983,7 +994,7 @@ updateProblemList({
                       Text('Problem Status',
                           style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                               color: Colors.black54)),
                       SizedBox(
                         width: 8,
@@ -999,7 +1010,7 @@ updateProblemList({
                     ],
                   ),
                   Container(
-                    width: screenSize.width < 572 ? 200.w : 365.w,
+                    width: screenSize.width < 572 ? 270.w : 365.w,
                     height: 50.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
@@ -1049,7 +1060,7 @@ updateProblemList({
                                     color: Colors.black87,
                                     fontFamily: "lexend",
                                     fontSize:
-                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                        screenSize.width < 572 ? 12.sp : 16.sp,
                                   ),
                                 ),
                               );
@@ -1069,7 +1080,7 @@ updateProblemList({
                             'Closed Time:',
                             style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 14.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
                               color: Colors.black54,
                             ),
                           ),
@@ -1081,7 +1092,7 @@ updateProblemList({
                                 : 'No Time Selected',
                             style: TextStyle(
                               fontFamily: "lexend",
-                              fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+                              fontSize: screenSize.width < 572 ? 11.sp : 16.sp,
                               color: Colors.black54,
                             ),
                           ),
@@ -1092,7 +1103,7 @@ updateProblemList({
                                 lastupdatedTime = time.toString();
                               });
                             },
-                            shiftFromTime: setStartTime ?? "",
+                            shiftFromTime: shiftStarttime ?? "",
                             shiftToTime: shiftEndtime ?? "",
                           ),
                         ],
@@ -1111,14 +1122,13 @@ updateProblemList({
                         Text('Production Stoppage',
                             style: TextStyle(
                                 fontFamily: "lexend",
-                                fontSize: 16.sp,
+                                fontSize:  screenSize.width < 572 ? 12.sp : 16.sp,
                                 color: Colors.black54)),
                         SizedBox(
-                          width: 100.w,
-                        ),
+                                   width:screenSize.width < 572 ?100.w: 150.w),
                         SizedBox(
-                          width: 100.w,
-                          height: 40.h,
+                          width: screenSize.width < 572 ? 30.w : 50.w,
+                          height:screenSize.height < 572 ? 10.w : 40.w,
                           child: Checkbox(
                             value: isChecked,
                             activeColor: Colors.green,
@@ -1139,7 +1149,7 @@ updateProblemList({
                     height: 10,
                   ),
                   SizedBox(
-                    width: screenSize.width < 572 ? 200.w : 365.w,
+                    width: screenSize.width < 572 ? 270.w : 365.w,
                     height: 100.h,
                     child: CustomTextFormfield(
                       maxline: 5,
@@ -1170,11 +1180,11 @@ updateProblemList({
                                         productionstopage: productionStoppageId,
                                         rootcauseid: rootCauseid,
                                         solutionid: solutionid,
-                                        subincidentId: problemcatagoryid,
+                                        subincidentId: problemCategoryid,
                                       );
 
                                       print(updateProblemList);
-                           
+                                     workstationProblemService.getListofSolution(context: context, pwsid: widget.pwsId ?? 0);
                                     Navigator.pop(context);
                                   },
                                 
@@ -1183,7 +1193,7 @@ updateProblemList({
                               style: TextStyle(
                                   fontFamily: "lexend",
                                   fontSize:
-                                      screenSize.width < 572 ? 14.w : 16.w,
+                                      screenSize.width < 572 ? 12.w : 16.w,
                                   color: Colors.white),
                             ),
                             backgroundColor: Colors.green,
@@ -1199,7 +1209,7 @@ updateProblemList({
                             width: screenSize.width < 572 ? 100.w : 130.w,
                             height: 50.h,
                             onPressed: selectproblemname != null &&
-                                    selectproblemcatagoryname != null &&
+                                    selectproblemCategoryname != null &&
                                     selectrootcausename != null
                                 ? () {
                                     setState(() {
@@ -1214,12 +1224,12 @@ updateProblemList({
                                                   selectProblemStatusDesc,
                                               solutionId: solutionid,
                                               solutionName: selectSolution,
-                                              problemCatagoryname:
-                                                  selectproblemcatagoryname,
+                                              problemCategoryname:
+                                                  selectproblemCategoryname,
                                               problemId: problemid,
                                               problemName: selectproblemname,
-                                              problemcatagoryId:
-                                                  problemcatagoryid,
+                                              problemCategoryId:
+                                                  problemCategoryid,
                                               reasons:
                                                   incidentReasonController.text,
                                               rootCauseId: rootCauseid,
@@ -1230,13 +1240,13 @@ updateProblemList({
                                       // final data = {
                                       //   "problemname":
                                       //       selectproblemname,
-                                      //   "problemcatagoryname":
-                                      //       selectproblemcatagoryname,
+                                      //   "problemCategoryname":
+                                      //       selectproblemCategoryname,
                                       //   "rootcausename":
                                       //       selectrootcausename,
                                       //   "incident_id": problemid,
                                       //   "subincident_id":
-                                      //       problemcatagoryid,
+                                      //       problemCategoryid,
                                       //   "rootcause_id": rootCauseid,
                                       //   "reason":
                                       //       incidentReasonController
@@ -1258,7 +1268,7 @@ updateProblemList({
                               style: TextStyle(
                                   fontFamily: "lexend",
                                   fontSize:
-                                      screenSize.width < 572 ? 14.w : 16.w,
+                                      screenSize.width < 572 ? 12.w : 16.w,
                                   color: Colors.white),
                             ),
                             backgroundColor: Colors.green,

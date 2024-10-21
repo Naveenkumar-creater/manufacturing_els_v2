@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'mobile widget/mobile_login_widget.dart';
+import 'mobile_workstation_widget/mobile_login_widget.dart';
 
 
 

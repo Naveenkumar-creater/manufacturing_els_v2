@@ -27,7 +27,8 @@ class WorkStationEntryReqModel {
       required this.listOfEmployeesForWorkStation,
       required this.pwsid,
       required this.listOfWorkstationIncident,
-      required this.nonProductionList
+      required this.nonProductionList,
+      required this.ipdareaid
       
       });
   final String? apiFor;
@@ -36,7 +37,7 @@ class WorkStationEntryReqModel {
   final String? ipdToTime;
   final int? ipdReworkFlag;
   final int? ipdAssetId;
-  final int? ipdCardNo;
+  final String? ipdCardNo;
   final double? ipdRejQty;
   final int? ipdDeptId;
   final String? ipdDate;
@@ -52,6 +53,7 @@ class WorkStationEntryReqModel {
   final int? shiftid;
   final double? ipdreworkableqty;
   final int? pwsid;
+  final int?ipdareaid;
 
   final List<ListOfEmployeesForWorkStation> listOfEmployeesForWorkStation;
   final List<ListOfWorkStationIncidents> listOfWorkstationIncident;
@@ -80,6 +82,7 @@ class WorkStationEntryReqModel {
         "pp_shift_id": shiftid,
         "ipd_pws_id": pwsid,
         "ipd_reworkable_qty": ipdreworkableqty,
+        "ipd_area_id":ipdareaid,
         "List_Of_Employees_For_WorkStation": listOfEmployeesForWorkStation
             .map((listOfEmployeesForWorkStation) =>
                 listOfEmployeesForWorkStation?.toJson())

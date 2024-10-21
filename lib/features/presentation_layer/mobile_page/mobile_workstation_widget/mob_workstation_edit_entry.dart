@@ -7,22 +7,32 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
-import 'package:prominous/constant/request_data_model/delete_production_entry.dart';
+import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
+import 'package:prominous/constant/request_data_model/non_production_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/Editincidentlist_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/edit_emp_list_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/edit_nonproduction_lis_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/listofproblem_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/non_production_activity_di.dart';
+import 'package:prominous/features/presentation_layer/provider/edit_emp_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_nonproduction_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
-import 'package:prominous/features/presentation_layer/responsive_screen/tablet_body.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_entry_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofempworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_entry_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/employee_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/change_dateformate.dart';
+import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
+import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
+import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/problem_entry_popup.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prominous/constant/request_data_model/edit_workstation_entry_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/activity_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/emp_production_entry_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
@@ -30,7 +40,6 @@ import 'package:prominous/features/presentation_layer/api_services/recent_activi
 import 'package:prominous/features/presentation_layer/api_services/target_qty_di.dart';
 import 'package:prominous/features/presentation_layer/provider/activity_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/card_no_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/employee_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/recent_activity_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/shift_status_provider.dart';
@@ -92,8 +101,13 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
   final TargetQtyApiService targetQtyApiService = TargetQtyApiService();
   EditEntryApiservice editEntryApiservice = EditEntryApiservice();
     EditIncidentListService editIncidentListService = EditIncidentListService();
-  final ListofEmpworkstationService listofEmpworkstationService =
-      ListofEmpworkstationService();
+   ListofEmpworkstationService listofEmpworkstationService = ListofEmpworkstationService();
+      final NonProductionActivityService nonProductionActivityService =NonProductionActivityService();
+  EditNonProductionListService editNonProductionListService=EditNonProductionListService();
+    EditEmpListApiservice editEmpListApiservice=EditEmpListApiservice();
+  
+  final Listofproblemservice listofproblemservice = Listofproblemservice();
+
 
   bool isChecked = false;
 
@@ -128,13 +142,19 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
   String? productName;
   String? assetID;
   String? achivedTargetQty;
+  String? fromtime;
+  String ? totime;
+     late DateTime StartfromTime;
+    late DateTime endTime;
+    int? fromMinutes; 
+    List<TextEditingController> empTimingTextEditingControllers = [];
+      final List<String?> errorMessages = [];
 
-  EmpProductionEntryService empProductionEntryService =
-      EmpProductionEntryService();
+  EmpProductionEntryService empProductionEntryService = EmpProductionEntryService();
 
   EmployeeApiService employeeApiService = EmployeeApiService();
 
-  Future<void> updateproduction(int? processid) async {
+ Future<void> updateproduction(int? processid) async {
     final responsedata = Provider.of<EditEntryProvider>(context, listen: false)
         .editEntry
         ?.editEntry;
@@ -153,6 +173,17 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
         ?.targetQty
         ?.ppid;
 
+                    final EmpWorkstation =
+        Provider.of<EditEmpListProvider>(context, listen: false)
+            .user
+            ?.editEmplistEntity;
+    final StoredListOfProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: false)
+            .getIncidentList;
+
+    final ListofNonProduction =
+        Provider.of<NonProductionStoredListProvider>(context, listen: false)
+            .getNonProductionList;
     // DateTime parsedLastUpdatedTime =
     //     DateFormat('yyyy-MM-dd HH:mm').parse(lastUpdatedTime!);
     final empproduction = responsedata;
@@ -175,7 +206,8 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
       final fromtime = empproduction?.ipdFromTime;
       final totime = empproduction?.ipdToTime;
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-       WorkStationEntryReqModel editworkStationEntryReq = WorkStationEntryReqModel(
+      
+      WorkStationEntryReqModel editworkStationEntryReq = WorkStationEntryReqModel(
         apiFor: "edit_entry_server_v1",
         clientAuthToken: token,
         // emppersonid: empid,
@@ -189,9 +221,7 @@ ipdReworkFlag: reworkValue ?? empproduction.ipdReworkFlag ,
 ipdreworkableqty: double.tryParse(reworkQtyController.text),
 targetqty: double.tryParse(targetQtyController.text),
 
-
-
-        ipdCardNo: int.tryParse(cardNoController.text.toString()),
+        ipdCardNo: cardNoController.text.toString(),
 
         ipdpaid: activityid ?? 0,
 
@@ -215,13 +245,65 @@ targetqty: double.tryParse(targetQtyController.text),
         ipdpsid: widget.psid,
         ppid: ppId ?? 0,
         shiftid: Shiftid,
+        ipdareaid:0,
         listOfEmployeesForWorkStation: [],
         listOfWorkstationIncident: [],
         nonProductionList: [],
         pwsid: widget.pwsId
       );
 
+for (int index = 0; index < EmpWorkstation!.length; index++) {
+  final empid = EmpWorkstation[index];
+  final emptimingController = empTimingTextEditingControllers[index];
+
+  // Parse the timing from the TextEditingController's text
+  final emptiming = int.tryParse(emptimingController.text) ?? 0;
+
+  print(emptiming);
+
+  // Create a ListOfEmployeesForWorkStation object with the timing
+  final listofempworkstation = ListOfEmployeesForWorkStation(
+    empId: empid.empId ?? 0,
+    timing:emptiming, 
+    ipdeId: empid.ipdeId,  // Assign the parsed timing value
+  );
+
+  // Add the object to workStationEntryReq.listOfEmployeesForWorkStation
+  editworkStationEntryReq.listOfEmployeesForWorkStation.add(listofempworkstation);
+}
+
+
+      for (int index = 0; index < StoredListOfProblem.length; index++) {
+        final incident = StoredListOfProblem[index];
+        final lisofincident = ListOfWorkStationIncidents(
+            incidenid: incident.problemId,
+            notes: incident.reasons,
+            rootcauseid: incident.rootCauseId,
+            subincidentid: incident.problemCategoryId,
+        incfromtime: incident.fromtime, 
+        incendtime:incident.endtime,
+        problemStatusId:incident.problemstatusId,
+        productionstopageId:incident.productionStoppageId ,
+        solutionId:incident.solutionId);
+
+
+        editworkStationEntryReq.listOfWorkstationIncident.add(lisofincident);
+      }
+
+      for (int index = 0; index < ListofNonProduction.length; index++) {
+        final nonProduction = ListofNonProduction[index];
+        final nonProductionList = NonProductionList(
+          fromTime: nonProduction.npamFromTime,
+          notes: nonProduction.notes,
+          npamId: nonProduction.npamId,
+          toTime: nonProduction.npamToTime,
+        );
+        editworkStationEntryReq.nonProductionList.add(nonProductionList);
+      }
+
       final requestBodyjson = jsonEncode(editworkStationEntryReq.toJson());
+
+
 
       print(requestBodyjson);
 
@@ -293,6 +375,7 @@ targetqty: double.tryParse(targetQtyController.text),
     }
   }
 
+
   @override
   void initState() {
     super.initState();
@@ -309,17 +392,7 @@ targetqty: double.tryParse(targetQtyController.text),
     currentHour = now.hour;
     currentMinute = now.minute;
     currentSecond = now.second;
-    final shiftid = Provider.of<ShiftStatusProvider>(context, listen: false)
-        .user
-        ?.shiftStatusdetailEntity
-        ?.psShiftId;
-    String? shiftTime;
 
-    final shiftToTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftToTime;
 
     // if (shiftToTimeString != null) {
     //   DateTime? shiftToTime;
@@ -338,15 +411,25 @@ targetqty: double.tryParse(targetQtyController.text),
     //   // Get the current time
     //   final currentTime = DateTime.now();
 
-    final shiftFromTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftFromTime;
 
-    lastUpdatedTime = '$currentYear-$currentMonth-$currentDay $shiftTime';
+    // lastUpdatedTime = '$currentYear-$currentMonth-$currentDay $shiftTime';
     currentDate =
-        '$currentYear-$currentMonth-$currentDay $currentHour:${currentMinute.toString().padLeft(2, '0')}:${currentSecond.toString().padLeft(2, '0')}';
+           '${currentYear.toString().padLeft(4, '0')}-'
+      '${currentMonth.toString().padLeft(2, '0')}-'
+      '${currentDay.toString().padLeft(2, '0')} ' 
+      '${currentHour.toString().padLeft(2, '0')}:'
+        '${currentMinute.toString().padLeft(2, '0')}:'
+        '${currentSecond.toString().padLeft(2, '0')}';
+     
+
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //   _storedNonProductionList();
+    // });
+   // Using addPostFrameCallback to ensure this runs after the initial build
+
+
+
+  
   }
 
   @override
@@ -362,21 +445,24 @@ targetqty: double.tryParse(targetQtyController.text),
     return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   }
 
-  Future<void> _fetchARecentActivity() async {
+   Future<void> _fetchARecentActivity() async {
     try {
-      // Fetch data
       await editEntryApiservice.getEntryValues(
         context: context,
-        psId: widget.psid ?? 0,
-        ipdid: widget.ipdid ?? 0,
-        pwsId: widget.pwsId ?? 0,
+        psId:widget.psid ?? 0,
+        ipdid:  widget.ipdid ?? 0,
+        pwsId:  widget.pwsId?? 0,
         deptid: widget.deptid ?? 0,
       );
-await editIncidentListService.getIncidentList(
+           
+      await editIncidentListService.getIncidentList(
         context: context,
         ipdid: widget.ipdid ?? 0,
         deptid: widget.deptid ?? 0,
       );
+      await editNonProductionListService.getNonProductionList(context:context , ipdid: widget.ipdid ?? 0);
+     await editEmpListApiservice.getEditEmplist(context:context , ipdid: widget.ipdid ?? 0);
+
       await productApiService.productList(
           context: context,
           id: widget.processid ?? 1,
@@ -387,30 +473,55 @@ await editIncidentListService.getIncidentList(
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsId ?? 0);
-
-      final productionEntry =
+final editEntry =
           Provider.of<EditEntryProvider>(context, listen: false)
               .editEntry
               ?.editEntry;
 
+  fromtime = editEntry?.ipdFromTime ;
+     totime = editEntry?.ipdToTime ;
+    
+              empTimingUpdation(fromtime! , totime!);
+                _storeIncidentList();
+                _storedNonProductionList();
+     
+  
+ StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+ endTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
+  fromMinutes = endTime.difference(StartfromTime).inMinutes ??0;
+    // Initialize controllers and error messages based on list length
+ 
+        final listofeditempworkstation =Provider.of<EditEmpListProvider>(context, listen: false)
+            .user
+            ?.editEmplistEntity;
+
+      if(listofeditempworkstation !=null){
+      for (int i = 0; i < listofeditempworkstation.length; i++) {
+      empTimingTextEditingControllers.add(TextEditingController());
+      errorMessages.add(null); // Initially no error
+    }
+      }
+
+
+   
       // Access fetched data and set initial values
-      final initialValue = productionEntry?.ipdReworkFlag;
+      final initialValue = editEntry?.ipdReworkFlag;
 
       if (initialValue != null) {
         setState(() {
           isChecked = initialValue == 1;
-          goodQController.text = productionEntry?.ipdGoodQty?.toString() ?? "";
+          goodQController.text = editEntry?.ipdGoodQty?.toString() ?? "";
           rejectedQController.text =
-              productionEntry?.ipdRejQty?.toString() ?? "";
+              editEntry?.ipdRejQty?.toString() ?? "";
           reworkQtyController.text =
-              productionEntry?.ipdReworkableQty.toString() ??
+              editEntry?.ipdReworkableQty.toString() ??
                   ""
                       ""; // Set isChecked based on initialValue
         });
       }
       // Update cardNo with the retrieved cardNumber
       // setState(() {
-      //   cardNo = productionEntry?.ipdcardno?.toString() ??"0"; // Set cardNo with the retrieved value
+      //   cardNo = editEntry?.ipdcardno?.toString() ??"0"; // Set cardNo with the retrieved value
       // });
 
       setState(() {
@@ -425,6 +536,109 @@ await editIncidentListService.getIncidentList(
     }
   }
 
+
+  void _EmpOpenandCloseShiftPop(BuildContext context, String attid, String attstatus,int shiftstatus) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Dialog(
+            backgroundColor: Colors.white,
+            child: WillPopScope(
+              onWillPop: () async {
+                return false;
+              },
+              child: Container(
+                width: 200,
+                height: 150,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8)),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                    top: 32,
+                  ),
+                  child: Column(children: [
+                    const Text("Confirm you submission"),
+                    const SizedBox(
+                      height: 32,
+                    ),
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              try {
+                                await EmpClosesShift.empCloseShift(
+                                    'emp_close_shift',
+                                    widget.psid ?? 0,
+                                    shiftstatus,
+                                    attid,
+                                    int.tryParse(attstatus) ?? 0);
+
+                                await _fetchARecentActivity();
+                                await employeeApiService.employeeList(
+                                    context: context,
+                                    deptid: widget.deptid ?? 1,
+                                    processid: widget.processid ?? 0,
+                                    psid: widget.psid ?? 0);
+
+                                Navigator.pop(context);
+                              } catch (error) {
+                                // Handle and show the error message here
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(error.toString()),
+                                    backgroundColor: Colors.amber,
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Text("Submit"),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Go back")),
+                        ],
+                      ),
+                    )
+                  ]),
+                ),
+              ),
+            ),
+          );
+        });
+  }
+  
+
+   void _storedNonProductionList() {
+    final editNonProduction =
+        Provider.of<EditNonproductionProvider>(context, listen: false)
+            .listOfNonproduction
+            ?.listOfNonProductionEntity;
+           
+
+    if (editNonProduction != null) {
+      for (int i = 0; i < editNonProduction.length; i++) {
+         NonProductionEntryModel data = NonProductionEntryModel(
+                                                  notes: editNonProduction[i].inpaNotes,
+                                                  npamFromTime: editNonProduction[i].inpaFromTime,
+                                                  npamId: editNonProduction[i].inpaNpamId,
+                                                  npamToTime: editNonProduction[i].inpaToTime,
+                                                  npamName: editNonProduction[i].npamName);
+
+       Provider.of<NonProductionStoredListProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .addNonProductionList(data);
+      }
+    }
+  }
   void _submitPop(BuildContext context) {
     showDialog(
         context: context,
@@ -547,12 +761,178 @@ await editIncidentListService.getIncidentList(
         });
   }
 
+Future<void> _problemEntrywidget(
+     String ? shiftFromTime,
+      String ? shiftToTime,
+      [
+      int? selectproblemid,
+      int? problemCategoryId,
+      int? rootcauseid,
+      String? reason,
+      int?solutionid,
+      int? problemStatusId,
+      int? productionStopageid,
+      int?ipdId,
+      int?ipdincId,
+      bool? showButton,
+      String?closeStartTime
+     ]) async {
+    showGeneralDialog(
+      barrierDismissible: true,
+      barrierLabel: '',
+      transitionDuration: const Duration(milliseconds: 800),
+      context: context,
+      pageBuilder: (context, animation1, animation2) {
+        return Container();
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+              .animate(animation),
+          child: FadeTransition(
+            opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+            child: Align(
+              alignment: Alignment.centerRight, // Align the drawer to the right
+              child: Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width *
+                      0.75.w, // Set the width to half of the screen
+                  height: MediaQuery.of(context)
+                      .size
+                      .height, // Set the height to full screen height
+                  child: ProblemEntryPopup(
+                    SelectProblemId: selectproblemid,
+                    problemCategoryId: problemCategoryId,
+                    reason: reason,
+                    rootcauseid: rootcauseid,
+                    showButton: showButton,
+                    shiftFromTime: shiftFromTime,
+                    shiftToTime: shiftToTime,
+                    problemStatusId: problemStatusId,
+                    solutionId: solutionid,
+                    productionStopageId:productionStopageid,
+                    ipdid: ipdId,
+                    ipdincid:ipdincId ,
+                    closestartTime: closeStartTime,
+
+                  )),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _nonProductionActivityPopup(
+      String? shiftfromtime, String? shiftTotime) async {
+    showGeneralDialog(
+      barrierDismissible: true,
+      barrierLabel: '',
+      transitionDuration: const Duration(milliseconds: 800),
+      context: context,
+      pageBuilder: (context, animation1, animation2) {
+        return Container();
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return SlideTransition(
+          position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+              .animate(animation),
+          child: FadeTransition(
+            opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+            child: Align(
+              alignment: Alignment.centerRight, // Align the drawer to the right
+              child: Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width *
+                      0.75.w, // Set the width to half of the screen
+                  height: MediaQuery.of(context)
+                      .size
+                      .height, // Set the height to full screen height
+                  child: NonProductionActivityPopup(
+                      shiftFromTime: shiftfromtime, shiftToTime: shiftTotime,showList: false,)),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _storeIncidentList() {
+    final editIncidentList =
+        Provider.of<EditIncidentListProvider>(context, listen: false)
+            .user
+            ?.editIncidentList;
+
+    if (editIncidentList != null) {
+      for (int i = 0; i < editIncidentList.length; i++) {
+        ListOfWorkStationIncident data = ListOfWorkStationIncident(
+          problemId: editIncidentList[i].incidentId,
+            problemName: editIncidentList[i].incmName,
+          problemCategoryId: editIncidentList[i].subincidentId,
+          problemCategoryname: editIncidentList[i].subincidentName,
+          reasons: editIncidentList[i].ipdincNotes,
+          rootCauseId: editIncidentList[i].ipdincIncrcmId,
+          rootCausename: editIncidentList[i].rootcauseName,
+          endtime:editIncidentList[i].ipdincProblemEndTime ,
+          fromtime: editIncidentList[i].fromTime,
+          problemstatusId: editIncidentList[i].problemStatusId,
+          productionStoppageId: editIncidentList[i].ipdincProductionStoppage,
+          solutionId: editIncidentList[i].solId,
+          ipdId: editIncidentList[i].ipdincIpdId,
+          ipdIncId: editIncidentList[i].ipdincId
+        );
+
+        Provider.of<ListProblemStoringProvider>(context, listen: false)
+            .addIncidentList(data);
+      }
+    }
+  }
+
+
+void empTimingUpdation(String startTime, String endTime) {
+  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+
+  Duration timeoutDuration = toDate.difference(fromDate);
+  int minutes = timeoutDuration.inMinutes;
+
+  final listofempworkstation = Provider.of<EditEmpListProvider>(context, listen: false)
+      .user
+      ?.editEmplistEntity;
+
+  if (listofempworkstation != null) {
+    setState(() {
+      // Ensure empTimingTextEditingControllers has the correct number of controllers
+      empTimingTextEditingControllers.clear();  // Clear previous controllers
+
+      for (int i = 0; i <=listofempworkstation.length; i++) {
+        TextEditingController controller = TextEditingController();
+        controller.text = minutes.toString();
+        empTimingTextEditingControllers.add(controller);
+      }
+    });
+  } else {
+    print("listofempworkstation is null");
+  }
+}
+
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+     final Size size = MediaQuery.of(context).size;
+
     final editEntry = Provider.of<EditEntryProvider>(context, listen: false)
         .editEntry
         ?.editEntry;
+
+        // final nonProductionlist =
+        // Provider.of<NonProductionStoredListProvider>(context, listen: true)
+        //     ?.getNonProductionList;
+
+
+// Access stored data and use it
+final storedListOfProblem =
+    Provider.of<ListProblemStoringProvider>(context, listen: true)
+        .getIncidentList;
 
     final shiftFromtime =
         Provider.of<ShiftStatusProvider>(context, listen: false)
@@ -563,33 +943,40 @@ await editIncidentListService.getIncidentList(
     final shiftStartDateTiming =
         '$currentYear-$currentMonth-$currentDay $shiftFromtime';
 
-    final fromtime = editEntry?.ipdFromTime == ""
-        ? shiftStartDateTiming
-        : editEntry?.ipdFromTime;
-    final totime = editEntry?.ipdToTime;
+                                    
+    
+
 
     final totalGoodQty = editEntry?.totalGoodqty;
     final totalRejQty = editEntry?.totalRejqty;
+
+        final listofempworkstation =
+        Provider.of<EditEmpListProvider>(context, listen: false)
+            .user
+            ?.editEmplistEntity;
 
     final recentActivity =
         Provider.of<RecentActivityProvider>(context, listen: false)
             .user
             ?.recentActivitesEntityList;
+
     print(editEntry);
 
     final activity = Provider.of<ActivityProvider>(context, listen: false)
         .user
         ?.activityEntity;
 
-    final editIncidentList =
-        Provider.of<EditIncidentListProvider>(context, listen: false)
-            .user
-            ?.editIncidentList;
+    final activityName =
+        activity?.map((process) => process.paActivityName)?.toSet()?.toList() ??
+            [];
+    "";
 
-              final nonProductionList =
-        Provider.of<EditNonproductionProvider>(context, listen: false)
-            .listOfNonproduction
-            ?.listOfNonProductionEntity;
+    final processName = Provider.of<EmployeeProvider>(context, listen: false)
+            .user
+            ?.listofEmployeeEntity
+            ?.first
+            .processName ??
+        "";
 
     // final activityName =
     //     activity?.map((process) => process.paActivityName)?.toSet()?.toList() ??
@@ -661,7 +1048,7 @@ await editIncidentListService.getIncidentList(
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                              '${fromtime?.substring(0, fromtime.length - 3)}',
+                                              '${fromtime?.substring(0, fromtime!.length - 3)}',
                                               style: TextStyle(
                                                   fontFamily: "lexend",
                                                   fontSize: 16.sp,
@@ -745,7 +1132,7 @@ await editIncidentListService.getIncidentList(
                                                             // processId: widget.processid,
                                                             onCardDataReceived:
                                                                 (scannedCardNo,
-                                                                    scannedProductName) {
+                                                                    scannedProductName,itemd,cardid) {
                                                               setState(() {
                                                                 cardNoController
                                                                         .text =
@@ -1582,6 +1969,7 @@ await editIncidentListService.getIncidentList(
                                                       ),
                                                     ],
                                                   ),
+                                                  
                                                 ],
                                               ),
                                               SizedBox(
@@ -1647,10 +2035,43 @@ await editIncidentListService.getIncidentList(
                                                   SizedBox(
                                                     width: 10,
                                                   ),
-                                                  SizedBox(
-                                                      width: 140.w,
-                                                      height: 40.h,
-                                                      child: Text(""))
+                                                  Row(
+                                                    children: [
+                                                     SizedBox(
+                                                        width: 150.w,
+                                                        height: 50.h,
+                                                        child:
+                                                            FloatingActionButton(
+                                                              
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                               
+                                                                mini: true,
+                                                                shape: RoundedRectangleBorder(
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(5
+                                                                            .r)),
+                                                                onPressed:
+                                                                    () async {
+                                                                setState(() {
+                                                                    nonProductionActivityService
+                                                                        .getNonProductionList(
+                                                                      context:
+                                                                          context,
+                                                                    );
+                                                                    _nonProductionActivityPopup(
+                                                                        fromtime,
+                                                                        totime
+                                                                        );
+                                                                  });
+                                                                            
+                                                                  // Update time after each change
+                                                                },
+                                                                child: Text("Non Productive Time",style: TextStyle(fontSize: 12.sp,fontFamily: "lexend")),)
+                                                      ),
+                                                    ],
+                                                  )
                                                 ],
                                               ),
                                               SizedBox(
@@ -1704,8 +2125,9 @@ await editIncidentListService.getIncidentList(
                                             ]),
                                       ),
                                     )),
-                                    Padding(
-                                      padding:  EdgeInsets.only(left: 8.w,right: 8.w),
+
+                                     Padding(
+                                        padding:  EdgeInsets.only(top:5.sp,left:8.w,right: 8.w),
                                       child: Container(
                                         height: 30.h,
                                         child:   Row(
@@ -1713,7 +2135,7 @@ await editIncidentListService.getIncidentList(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              "Problem List",
+                                              "Employees",
                                               style: TextStyle(
                                                   fontSize: 16.sp,
                                                   fontFamily: "Lexend",
@@ -1724,6 +2146,69 @@ await editIncidentListService.getIncidentList(
                                         ),
                                       ),
                                     ),
+                                      Padding(
+                                  padding:EdgeInsets.only(left: 8.w, right: 8.w),
+                                   child: Container(height: 80.h,
+                                                                  decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.only(
+                                                      topLeft: Radius.circular(5.r),
+                                                      topRight:
+                                                          Radius.circular(5.r)),
+                                                  color: Color.fromARGB(
+                                                      255, 45, 54, 104)),
+                                   child: Padding(
+                                     padding:  EdgeInsets.all(4.sp),
+                                     child: Row(children: [
+                                      SizedBox(
+                                                        width: 40.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'S.No',
+                                                            style: TextStyle(
+                                                              
+                                                                fontFamily: "lexend",
+                                                                                               
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        SizedBox(
+                                                        width: 100.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Employees',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                     
+                                                        SizedBox(
+                                                        width: 120.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Working Minutes',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        SizedBox(
+                                                        width: 70.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Shift',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                     ],),
+                                   ),),
+                                 ),
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 8.w, vertical: 2.h),
@@ -1734,8 +2219,11 @@ await editIncidentListService.getIncidentList(
                                       width: 500,
                                       decoration: BoxDecoration(
                                           color: Color.fromARGB(150, 235, 236, 255),
-                                          borderRadius: BorderRadius.circular(5)),
-                                      child: (editIncidentList!.isEmpty) ? Column(
+                                     borderRadius:   BorderRadius.only(
+                                                      bottomLeft: Radius.circular(5.r),
+                                                    bottomRight:
+                                                          Radius.circular(5.r)),),
+                                      child: (listofempworkstation == null || listofempworkstation.isEmpty) ? Column(
                                               mainAxisAlignment: MainAxisAlignment.center,
                                               crossAxisAlignment: CrossAxisAlignment.center,
                                               children: [
@@ -1746,54 +2234,518 @@ await editIncidentListService.getIncidentList(
                                       
                                       
                                        ListView.builder(
-                                          itemCount: editIncidentList?.length,
+                               shrinkWrap: true,
+                                                    itemCount:
+                                                        listofempworkstation
+                                                            ?.length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      final data =
+                                                          listofempworkstation?[
+                                                              index];
+                        
+                                            return  Container(
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border(
+                                                            bottom: BorderSide(
+                                                                width: 1,
+                                                                color: Colors
+                                                                    .grey
+                                                                    .shade300),
+                                                          ),
+                                                     color:  index % 2 == 0
+                                                          ? Color.fromARGB(
+                                                              250, 235, 236, 255)
+                                                          : Color.fromARGB(
+                                                              10, 235, 236, 255),
+                                                        ),
+                                                        height: 84.w,
+                                                        width: double.infinity,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          children: [
+                                                            Container(
+                                                              alignment:
+                                                                  Alignment
+                                                                      .center,
+                                                              width: 20.w,
+                                                              child: Text(
+                                                                ' ${index + 1}  ',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    color: Colors
+                                                                        .black54),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              width: 100.w,
+                                                              child: Text(
+                                                                data!.empName![0]!
+                                                                            .toUpperCase() +
+                                                                        data!
+                                                                            .empName!
+                                                                            .substring(
+                                                                                1,
+                                                                                data!.empName!.length -
+                                                                                    1)
+                                                                            .toLowerCase() +
+                                                                        data!
+                                                                            .empName!
+                                                                            .substring(data!.empName!.length -
+                                                                                1)
+                                                                            .toUpperCase() ??
+                                                                    '',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize:
+                                                                        12.sp,
+                                                                    color: Colors
+                                                                        .black54),
+                                                              ),
+                                                            ),
+Container(
+  alignment: Alignment.center,
+  width: 120.w,
+  height: 50.h, // Container height remains fixed
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      SizedBox(
+        width: 100.w,
+        height: 35.h, // Keep the size fixed for the TextFormField
+        child: TextFormField(
+          keyboardType: TextInputType.number,
+          controller: empTimingTextEditingControllers[index],
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.all(5),
+            hintText: "minutes",
+            hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
+            labelStyle: const TextStyle(fontSize: 12),
+            constraints: BoxConstraints(maxHeight: 40, maxWidth: 100),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(color: Colors.grey.shade200),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5),
+              borderSide: BorderSide(color: Colors.red.shade300),
+            ),
+          ),
+          onChanged: (value) {
+  // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+  // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+//  fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
+
+            final enteredMinutes = int.tryParse(value) ?? -1;
+      
+            setState(() {
+              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
+              } else {
+                errorMessages[index] = null; // Clear error message if valid
+              }
+            });
+          },
+          onEditingComplete: () {
+            final value = empTimingTextEditingControllers[index].text;
+            final enteredMinutes = int.tryParse(value) ?? -1;
+      
+            setState(() {
+              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+              } else {
+                errorMessages[index] = null; // Clear error message if valid
+              }
+            });
+          },
+        ),
+      ),
+      // This space will display the error message but won't change the TextFormField size
+      if (errorMessages[index] != null) 
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+          child: Text(
+            errorMessages[index]!,
+            style: TextStyle(
+              fontSize: 9.0, // Adjust the font size as needed
+              color: Colors.red,
+              height: 1.0, // Adjust the height to control spacing
+            ),
+          ),
+        ),
+    ],
+  ),
+),
+
+
+
+
+
+
+                                                            // Container(
+                                                            //   alignment:
+                                                            //       Alignment
+                                                            //           .center,
+                                                            //   width: 100.w,
+                                                            //   child: Text(
+                                                            //     ' ${data?.flAttStatus == 1 ? "Present" : "Absent"}  ',
+                                                            //     style: TextStyle(
+                                                            //         fontFamily:
+                                                            //             "lexend",
+                                                            //         fontSize:
+                                                            //             16.sp,
+                                                            //         color: Colors
+                                                            //             .black54),
+                                                            //   ),
+                                                            // ),
+                                                            if (data?.flAttShiftStatus ==
+                                                                1)
+                                                              Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+
+                                                                width: 100.w,
+                                                                child:
+                                                                    CustomButton(
+                                                                  width: 90.w,
+                                                                  height: 35.h,
+                                                                  onPressed:
+                                                                      () {
+                                                                    _EmpOpenandCloseShiftPop(
+                                                                        context,
+                                                                        ' ${data?.flAttId ?? ''}  ',
+                                                                        "${data?.flAttStatus ?? ""}",
+                                                                        2);
+                                                                  },
+                                                                  child: Text(
+                                                                      'Close',
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "lexend",
+                                                                          fontSize: 12
+                                                                              .sp,
+                                                                          color:
+                                                                              Colors.white)),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .green,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              50),
+                                                                ),
+
+                                                                // else if (shiftstatus == 2)
+                                                              )
+                                                            else if (data
+                                                                    ?.flAttShiftStatus ==
+                                                                2)
+                                                              Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                width: 100.w,
+                                                                child:
+                                                                    CustomButton(
+                                                                  width: 80.w,
+                                                                  height: 40.h,
+                                                                  onPressed:
+                                                                      () {
+                                                                    _EmpOpenandCloseShiftPop(
+                                                                        context,
+                                                                        ' ${data?.flAttId ?? ''}  ',
+                                                                        "${data?.flAttStatus ?? ""}",1);
+                                                                  },
+                                                                  child: Text(
+                                                                      'Reopen',
+                                                                      style: TextStyle(
+                                                                          fontFamily:
+                                                                              "lexend",
+                                                                          fontSize: 12
+                                                                              .sp,
+                                                                          color:
+                                                                              Colors.white)),
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .red,
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              50),
+                                                                ),
+
+                                                                // else if (shiftstatus == 2)
+                                                              )
+                                                            else
+                                                              Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                width: 100.w,
+                                                                child: Text('',
+                                                                    style: TextStyle(
+                                                                        fontFamily:
+                                                                            "lexend",
+                                                                        fontSize: 16
+                                                                            .sp,
+                                                                        color: Colors
+                                                                            .white)),
+                                                                // else if (shiftstatus == 2)
+                                                              ),
+                                                          ],
+                                                        ),
+                                                      );
+
+
+
+                                          }),
+                                    ),
+                                  ),
+                                ),
+
+
+                                    Padding(
+                                      padding:  EdgeInsets.only(top:10.sp,left:8.w,right: 8.w,bottom: 5.sp),
+                                      child: Container(
+                                        height: 30.h,
+                                        child:   Row(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Problems",
+                                              style: TextStyle(
+                                                  fontSize: 16.sp,
+                                                  fontFamily: "Lexend",
+                                                  color:
+                                                      Color.fromARGB(255, 80, 96, 203)),
+                                            ),
+                                             SizedBox(
+                                                  width: 10.w,
+                                                ),
+                                               SizedBox(
+                                          width: 30.w,
+                                          height: 30.h,
+                                          child: FloatingActionButton(
+                                            heroTag: 'Add Issue',
+                                            backgroundColor: Colors.white,
+                                            tooltip: 'Add Issue',
+                                            mini: true,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(4)),
+                                            onPressed: () async {
+                                              setState(() {
+                                                listofproblemservice
+                                                    .getListofProblem(
+                                                        context: context,
+                                                        processid:
+                                                            widget.processid ?? 0,
+                                                        deptid:
+                                                            widget.deptid ?? 1057,
+                                                            
+                                                            
+                                                                        assetid: int.parse(assetCotroller.text));
+                                                _problemEntrywidget(fromtime,totime);
+                                              });
+                                  
+                                              // Update time after each change
+                                            },
+                                            child: const Icon(Icons.add,
+                                                color: Colors.black, size: 15),
+                                          ),
+                                        ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                  padding:EdgeInsets.only(left: 8.w, right: 8.w),
+                                   child: Container(height: 80.h,
+                                                                  decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.only(
+                                                      topLeft: Radius.circular(5.r),
+                                                      topRight:
+                                                          Radius.circular(5.r)),
+                                                  color: Color.fromARGB(
+                                                      255, 45, 54, 104)),
+                                   child: Padding(
+                                     padding:  EdgeInsets.all(4.sp),
+                                     child: Row(children: [
+                                      SizedBox(
+                                                        width: 40.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'S.No',
+                                                            style: TextStyle(
+                                                              
+                                                                fontFamily: "lexend",
+                                                                                               
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        SizedBox(
+                                                        width: 100.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Problems',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                     
+                                                        SizedBox(
+                                                        width: 140.w,
+                                                        child: Center(
+                                                          child: Text(
+                                                            'Problems Category',
+                                                            style: TextStyle(
+                                                                fontFamily: "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.white),
+                                                          ),
+                                                        )),
+                                                        // SizedBox(
+                                                        // width: 50.w,
+                                                        // child: Center(
+                                                        //   child: Text(
+                                                        //     'Delete',
+                                                        //     style: TextStyle(
+                                                        //         fontFamily: "lexend",
+                                                        //         fontSize: 14.sp,
+                                                        //         color: Colors.white),
+                                                        //   ),
+                                                        // )),
+                                     ],),
+                                   ),),
+                                 ),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w, vertical: 2.h),
+                                  child: Material(
+                                    elevation: 3,
+                                    child: Container(
+                                      height: 200,
+                                      width: 500,
+                                      decoration: BoxDecoration(
+                                          color: Color.fromARGB(150, 235, 236, 255),
+                                           borderRadius:   BorderRadius.only(
+                                                      bottomLeft: Radius.circular(5.r),
+                                                    bottomRight:
+                                                          Radius.circular(5.r)),),
+                                      child: (storedListOfProblem!.isEmpty) ? Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Text("No Records found",style: TextStyle(fontSize: 14.sp),),
+                                              ],
+                                            ):
+                                      
+                                      
+                                      
+                                       ListView.builder(
+                                          itemCount: storedListOfProblem?.length,
                                           itemBuilder: (context, index) {
-                                            final item = editIncidentList?[index];
-                                            return Container(
-                                              height: 80.h,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                  color:  index % 2 == 0
-                                                        ? Color.fromARGB(
-                                                            250, 235, 236, 255)
-                                                        : Color.fromARGB(
-                                                            10, 235, 236, 255),),
-                                              child:  Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 8.w, right: 8.w),
-                                                child: Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 20,
-                                                      child: Text(
-                                                        '${index + 1}',
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 14.sp,
-                                                            color: Colors.black54),
+                                            final item = storedListOfProblem?[index];
+                                            return GestureDetector(
+                                                        onTap: () {
+                                                          _problemEntrywidget(
+                                                            item?.fromtime,
+                                                              item?.endtime,
+                                                              item?.problemId,
+                                                              item?.problemCategoryId,
+                                                              item?.rootCauseId,
+                                                              item?.reasons,
+                                                              item?.solutionId,
+                                                              item?.problemstatusId,
+                                                              item?.productionStoppageId,
+                                                              item?.ipdId ?? 0,
+                                                              item?.ipdIncId ?? 0,
+                                                               true,
+                                                              item?.fromtime,
+                                                              );
+                                                        },
+                                              child: Container(
+                                                height: 80.h,
+                                                width: double.infinity,
+                                                decoration: BoxDecoration(
+                                                    color:  index % 2 == 0
+                                                          ? Color.fromARGB(
+                                                              250, 235, 236, 255)
+                                                          : Color.fromARGB(
+                                                              10, 235, 236, 255),),
+                                                child:  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 8.w, right: 8.w),
+                                                  child: Row(
+                                                    children: [
+                                                      SizedBox(
+                                                        width: 20,
+                                                        child: Text(
+                                                          '${index + 1}',
+                                                          style: TextStyle(
+                                                              fontFamily: "lexend",
+                                                              fontSize: 14.sp,
+                                                              color: Colors.black54),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 150,
-                                                      child: Text(
-                                                        item?.incmName ?? "",
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 12.sp,
-                                                            color: Colors.black54),
+                                                      SizedBox(
+                                                        width: 150,
+                                                        child: Text(
+                                                          item?.problemName ?? "",
+                                                          style: TextStyle(
+                                                              fontFamily: "lexend",
+                                                              fontSize: 12.sp,
+                                                              color: Colors.black54),
+                                                        ),
                                                       ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 150,
-                                                      child: Text(
-                                                        item?.subincidentName ?? "",
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 12.sp,
-                                                            color: Colors.black54),
+                                                      SizedBox(
+                                                        width: 130,
+                                                        child: Text(
+                                                          item?.problemCategoryname ?? "",
+                                                          style: TextStyle(
+                                                              fontFamily: "lexend",
+                                                              fontSize: 12.sp,
+                                                              color: Colors.black54),
+                                                        ),
                                                       ),
-                                                    )
-                                                  ],
+                                                        Container(
+                                                                      alignment:
+                                                                          Alignment
+                                                                              .center,
+                                                                      width: 50.w,
+                                                                      child:
+                                                                          IconButton(
+                                                                              onPressed:
+                                                                                  () {
+                                                                                setState(() {
+                                                                                   storedListOfProblem.removeAt(index);
+                                                                                });
+                                                                              },
+                                                                              icon:
+                                                                                  Icon(
+                                                                                Icons.delete,
+                                                                                color:
+                                                                                    Colors.red,
+                                                                              ))),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             );
@@ -1802,113 +2754,7 @@ await editIncidentListService.getIncidentList(
                                   ),
                                 ),
 
-                                 Padding(
-                                      padding:  EdgeInsets.only(left: 8.w,right: 8.w),
-                                      child: Container(
-                                        height: 30.h,
-                                        child:   Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              "Non Production List",
-                                              style: TextStyle(
-                                                  fontSize: 16.sp,
-                                                  fontFamily: "Lexend",
-                                                  color:
-                                                      Color.fromARGB(255, 80, 96, 203)),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8.w, vertical: 2.h),
-                                  child: Material(
-                                    elevation: 3,
-                                    child: Container(
-                                      height: 200,
-                                      width: 500,
-                                      decoration: BoxDecoration(
-                                          color: Color.fromARGB(150, 235, 236, 255),
-                                          borderRadius: BorderRadius.circular(5)),
-                                      child: (nonProductionList == null || nonProductionList.isEmpty) ? Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: [
-                                                Text("No Records found",style: TextStyle(fontSize: 14.sp),),
-                                              ],
-                                            ):
-                                      
-                                      
-                                      
-                                       ListView.builder(
-                                          itemCount: nonProductionList?.length,
-                                          itemBuilder: (context, index) {
-                                            final item = nonProductionList ?[index];
-                                                                  String formatFromDate = ChaneDateformate.formatDate('${item?.inpaFromTime}');
-                         String formateToDate=ChaneDateformate.formatDate('${item?.inpaToTime}');
-
-                        DateTime fromtime=DateTime.parse(formatFromDate);
-                         DateTime totime=DateTime.parse(formateToDate);
-
-                         Duration difference=totime.difference(fromtime);
-
-                         int minutesdifference=difference.inMinutes;
-                        
-                                            return Container(
-                                              height: 80.h,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                  color:  index % 2 == 0
-                                                        ? Color.fromARGB(
-                                                            250, 235, 236, 255)
-                                                        : Color.fromARGB(
-                                                            10, 235, 236, 255),),
-                                              child:  Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 8.w, right: 8.w),
-                                                child: Row(
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 20,
-                                                      child: Text(
-                                                        '${index + 1}',
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 14.sp,
-                                                            color: Colors.black54),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 150,
-                                                      child: Text(
-                                                        item?.npamName ?? "",
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 12.sp,
-                                                            color: Colors.black54),
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                      width: 150,
-                                                      child: Text(
-                                                       '${minutesdifference} m',
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 12.sp,
-                                                            color: Colors.black54),
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                            );
-                                          }),
-                                    ),
-                                  ),
-                                )
+                                
                               ],
                             ),
                           )

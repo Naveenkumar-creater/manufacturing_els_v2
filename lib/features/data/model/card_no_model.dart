@@ -32,7 +32,7 @@ class ScanCardForItem extends ScanCardForItemEntity {
             pcId: pcId);
 
   final int? pcItemId;
-  final int? pcCardNo;
+  final String? pcCardNo;
   final String? itemName;
   final int? pcId;
 

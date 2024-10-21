@@ -7,7 +7,6 @@ abstract class EditEntryDatasource {
 }
 
 
-
 class EditEntryDatasourceImpl implements EditEntryDatasource {
   @override
   Future<EditEntryModel> getEditEntry(int ipdId, int pwsId,int psid, int deptid,String token) async{

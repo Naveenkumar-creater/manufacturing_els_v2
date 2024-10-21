@@ -34,8 +34,7 @@ class EditEntrySubEntity extends Equatable {
         // required this.personId, 
         required this.totalGoodqty,
          required this.totalRejqty,
-
-                 required this.ipdPwsEmpCount ,
+         required this.ipdPwsEmpCount ,
 
      required this. ipdReworkableQty,
       required this.ipdScrapQty,
@@ -50,7 +49,7 @@ class EditEntrySubEntity extends Equatable {
     final int? ipdReworkFlag;
     final int? ipdAssetId;
     final int? ipdBatchNo;
-    final int? ipdCardNo;
+    final String ? ipdCardNo;
     final int? ipdRejQty;
     final int? ipdDeptId;
     final String ? ipdDate;

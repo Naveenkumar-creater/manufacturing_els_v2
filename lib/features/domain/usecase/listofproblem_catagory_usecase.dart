@@ -1,14 +1,16 @@
+
+
+
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 import 'package:prominous/features/domain/repository/listofproblem_catagory_repo.dart';
 
+class ListofproblemCategoryUsecase  {
+  final ListofproblemCategoryRepository listofproblemCategoryRepository;
+  ListofproblemCategoryUsecase( this.listofproblemCategoryRepository);
 
-class ListofproblemCatagoryUsecase  {
-  final ListofproblemCatagoryRepository listofproblemCatagoryRepository;
-  ListofproblemCatagoryUsecase( this.listofproblemCatagoryRepository);
+  Future<ListOfProblemCategoryEntity> execute (String token, int deptid, int incidentId) {
 
-  Future<ListOfProblemCatagoryEntity> execute (String token, int deptid, int incidentId) {
-
-   return  listofproblemCatagoryRepository.getListofProblemCatagory(token, deptid, incidentId);
+   return  listofproblemCategoryRepository.getListofProblemCategory(token, deptid, incidentId);
   }
   
 } 

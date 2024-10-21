@@ -9,7 +9,7 @@ class   EditNonProductionLisModel extends EditNonProductionListEntity{
 
     factory EditNonProductionLisModel.fromJson(Map<String, dynamic> json){ 
         return EditNonProductionLisModel(
-            listOfNonProductionEntry: json["response_data"]["Edit_List_OfNon_Production_Activity"] == null ? [] : List<ListOfNonProductionEntry>.from(json["response_data"]["Edit_List_OfNon_Production_Activity"]!.map((x) => ListOfNonProductionEntry.fromJson(x))),
+            listOfNonProductionEntry: json["response_data"]["Edit_List_Of_Non_Production_Activity"] == null ? [] : List<ListOfNonProductionEntry>.from(json["response_data"]["Edit_List_Of_Non_Production_Activity"]!.map((x) => ListOfNonProductionEntry.fromJson(x))),
         );
     }
 
@@ -48,4 +48,5 @@ class ListOfNonProductionEntry extends ListOfNonProductionEntity{
     }
 
 }
+
 
