@@ -560,53 +560,56 @@ class _NonProductionActivityPopupState
                     decoration: BoxDecoration(
                         color: Color.fromARGB(255, 45, 54, 104),
                         borderRadius: BorderRadius.circular(5.r)),
-                    child: Row(
-                      children: [
-                        Container(
-                            width: screenSize.width < 572 ? 40.w : 50.w,
-                            alignment: Alignment.center,
-                            child: Text(
-                              "S.No",
-                              style: TextStyle(
-                                  fontSize:
-                                      screenSize.width < 572 ? 14.sp : 16.sp,
-                                  fontFamily: "Lexend",
-                                  color: Colors.white),
-                            )),
-                        Container(
-                            width: screenSize.width < 572 ? 100.w : 150.w,
-                            alignment: Alignment.center,
-                            child: Text(
-                              "Activity",
-                              style: TextStyle(
-                                  fontSize:
-                                      screenSize.width < 572 ? 14.sp : 16.sp,
-                                  fontFamily: "Lexend",
-                                  color: Colors.white),
-                            )),
-                        Container(
-                            width: screenSize.width < 572 ? 80.w : 105.w,
-                            alignment: Alignment.center,
-                            child: Text(
-                              "Minutes",
-                              style: TextStyle(
-                                  fontSize:
-                                      screenSize.width < 572 ? 14.sp : 16.sp,
-                                  fontFamily: "Lexend",
-                                  color: Colors.white),
-                            )),
-                        // Container(
-                        //     width: screenSize.width < 572 ? 70.w : 90.w,
-                        //     alignment: Alignment.center,
-                        //     child: Text(
-                        //       "Delete",
-                        //       style: TextStyle(
-                        //           fontSize:
-                        //               screenSize.width < 572 ? 14.sp : 16.sp,
-                        //           fontFamily: "Lexend",
-                        //           color: Colors.white),
-                        //     ))
-                      ],
+                    child: Padding(
+                      padding:  EdgeInsets.all(8.sp),
+                      child: Row(
+                        children: [
+                          Container(
+                              width: screenSize.width < 572 ? 40.w : 50.w,
+                              alignment: Alignment.center,
+                              child: Text(
+                                "S.No",
+                                style: TextStyle(
+                                    fontSize:
+                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                    fontFamily: "Lexend",
+                                    color: Colors.white),
+                              )),
+                          Container(
+                              width: screenSize.width < 572 ? 100.w : 150.w,
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Activity",
+                                style: TextStyle(
+                                    fontSize:
+                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                    fontFamily: "Lexend",
+                                    color: Colors.white),
+                              )),
+                          Container(
+                              width: screenSize.width < 572 ? 80.w : 90.w,
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Minutes",
+                                style: TextStyle(
+                                    fontSize:
+                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                    fontFamily: "Lexend",
+                                    color: Colors.white),
+                              )),
+                          Container(
+                              width: screenSize.width < 572 ? 50.w : 90.w,
+                              alignment: Alignment.center,
+                              child: Text(
+                                "Delete",
+                                style: TextStyle(
+                                    fontSize:
+                                        screenSize.width < 572 ? 14.sp : 16.sp,
+                                    fontFamily: "Lexend",
+                                    color: Colors.white),
+                              ))
+                        ],
+                      ),
                     ),
                   ),
                 ),

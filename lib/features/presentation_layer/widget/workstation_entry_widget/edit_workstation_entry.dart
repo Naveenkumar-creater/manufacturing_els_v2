@@ -171,7 +171,7 @@ class _EditEmpProductionEntryPageState extends State<EditEmpProductionEntryPage>
   String? reworkerrorMessage;
     String? locationDropdown;
   String?locationName;
-    int? locationid;
+  int? locationid;
   List<TextEditingController> empTimingTextEditingControllers = [];
 
   final List<String?> errorMessages = [];
@@ -384,6 +384,10 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
       final productname = Provider.of<ProductProvider>(context, listen: false)
           .user
           ?.listofProductEntity;
+          final areaname=Provider.of<ProductLocationProvider>(context, listen: false)
+          .user
+          ?.itemProductionArea;
+
 
       setState(() {
         assetCotroller.text =
@@ -400,6 +404,9 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
                 )
                 .productName
             : "0")!;
+
+
+            locationDropdown=(EditproductionEntry?.ipdareaid!=0 ? areaname?.firstWhere((area)=>EditproductionEntry?.ipdareaid==area.ipaId).ipaName : "");
       });
     }
   }
@@ -1340,7 +1347,7 @@ final storedListOfProblem =
                                                       Row(
                                                         children: [
                                                           Text(
-                                                            'Card No',
+                                                            'Job Card',
                                                             style: TextStyle(
                                                               fontFamily:
                                                                   "lexend",
@@ -2336,7 +2343,7 @@ ShowError.showAlert(context, "Production Quantity is 0");
                                                         Row(
                                                           children: [
                                                             Text(
-                                                                'Location',
+                                                                'Holding Area',
                                                                 style: TextStyle(
                                                                     fontFamily:
                                                                         "lexend",
@@ -2429,12 +2436,12 @@ ShowError.showAlert(context, "Production Quantity is 0");
                                                                   child: FloatingActionButton(
                                                                   backgroundColor:
                                                                       Colors
-                                                                          .white,
+                                                                          .green, 
                                                                   mini: true,
                                                                   shape: RoundedRectangleBorder(
                                                                       borderRadius:
                                                                           BorderRadius.circular(
-                                                                              5.r)),
+                                                                              50.r)),
                                                                   onPressed:
                                                                       () async {
                                                                     setState(() {
@@ -2451,7 +2458,9 @@ ShowError.showAlert(context, "Production Quantity is 0");
                                                                   
                                                                     // Update time after each change
                                                                   },
-                                                                  child: Text("Non Productive Time")
+                                                                  child: Text("Non Productive Time",style: TextStyle(
+                                                                    fontFamily: "lexend",fontSize: 14.sp, color: Colors.white
+                                                                  ),)
                                                                                                                                 ),
                                                                 )),
                                                         ],
@@ -2946,42 +2955,55 @@ Container(
                                               ),
                                               color: Color.fromARGB(
                                                   255, 45, 54, 104)),
-                                          child: Row(
-                                            children: [
-                                              Container(
-                                                width: 100.w,
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  "S.No",
-                                                  style: TextStyle(
-                                                      fontSize: 16.sp,
-                                                      fontFamily: "Lexend",
-                                                      color: Colors.white),
+                                          child: Padding(
+                                            padding:  EdgeInsets.all(8.sp),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 60.w,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "S.No",
+                                                    style: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        fontFamily: "Lexend",
+                                                        color: Colors.white),
+                                                  ),
                                                 ),
-                                              ),
-                                              Container(
-                                                width: 250.w,
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  "Problems",
-                                                  style: TextStyle(
-                                                      fontSize: 16.sp,
-                                                      fontFamily: "Lexend",
-                                                      color: Colors.white),
+                                                Container(
+                                                  width: 240.w,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Problems",
+                                                    style: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        fontFamily: "Lexend",
+                                                        color: Colors.white),
+                                                  ),
                                                 ),
-                                              ),
-                                              Container(
-                                                width: 250.w,
-                                                alignment: Alignment.center,
-                                                child: Text(
-                                                  "Problems Category",
-                                                  style: TextStyle(
-                                                      fontSize: 16.sp,
-                                                      fontFamily: "Lexend",
-                                                      color: Colors.white),
+                                                Container(
+                                                  width: 210.w,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    "Problems Category",
+                                                    style: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        fontFamily: "Lexend",
+                                                        color: Colors.white),
+                                                  ),
                                                 ),
-                                              )
-                                            ],
+                                            
+                                                Container(
+                                                    alignment: Alignment.center,
+                                                    width: 100.w,
+                                                    child: Text('Delete',
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontFamily: "lexend",
+                                                            fontSize: 16.sp)),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                         (storedListOfProblem != null &&
@@ -3035,7 +3057,7 @@ Container(
                                                         child: Row(
                                                           children: [
                                                             Container(
-                                                              width: 100.w,
+                                                              width: 50.w,
                                                               alignment:
                                                                   Alignment
                                                                       .center,
@@ -3050,11 +3072,9 @@ Container(
                                                                         .black54),
                                                               ),
                                                             ),
-                                                            Container(
-                                                              width: 270.w,
-                                                              alignment:
-                                                                  Alignment
-                                                                      .center,
+                                                            SizedBox(
+                                                              width: 250.w,
+                                                      
                                                               child: Text(
                                                                 problemname![0].toUpperCase() + problemname!.substring(1,problemname.length).toLowerCase(),
                                                                 style: TextStyle(
@@ -3070,10 +3090,10 @@ Container(
                                                               width: 10,
                                                             ),
                                                             Container(
-                                                              width: 200.w,
+                                                              width: 210.w,
                                                               alignment:
                                                                   Alignment
-                                                                      .center,
+                                                                      .centerLeft,
                                                               child: Text(
                                                              problemCategoryname![0].toUpperCase() + problemCategoryname.substring(1,problemCategoryname.length).toLowerCase(),
                                                                 style: TextStyle(
@@ -3089,7 +3109,7 @@ Container(
                                                                     alignment:
                                                                         Alignment
                                                                             .center,
-                                                                    width: 50.w,
+                                                                    width: 100.w,
                                                                     child:
                                                                         IconButton(
                                                                             onPressed:

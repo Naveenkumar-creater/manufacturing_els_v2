@@ -31,7 +31,7 @@ class CardNoApiService {
     } catch (e) {
      
       ShowError.showAlert(context, e.toString(),"Alert");
-  
+     rethrow;
     }
   }
 }

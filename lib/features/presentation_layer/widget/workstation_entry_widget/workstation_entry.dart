@@ -14,6 +14,7 @@ import 'package:prominous/constant/request_data_model/delete_production_entry.da
 import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_close_shift_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
 import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.dart';
 import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/card_no_di.dart';
@@ -154,6 +155,8 @@ class _EmpProductionEntryPageState
   FocusNode rejectedQtyFocusNode = FocusNode();
   FocusNode reworkFocusNode = FocusNode();
   FocusNode cardNoFocusNode=FocusNode();
+  // Define the FocusNode for the Item Ref field
+final FocusNode itemRefFocusNode = FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -212,12 +215,16 @@ class _EmpProductionEntryPageState
   int ?seqNo;
   int ?pcid;
 
+   DateTime? shiftStartTime ;
+    DateTime? shiftEndtTime ;
+
   int?previousGoodValue; // Variable to store the previous value entered for Good Quantity
   int? previousRejectedValue;
   int?previousReworkValue; // Total minutes// Variable to track the error message
   String? errorMessage;
   String? rejectederrorMessage;
   String? reworkerrorMessage;
+   String? itemerrorMessage;
 
   // void updateOverallQty(int value) {
   //   setState(() {
@@ -275,6 +282,9 @@ class _EmpProductionEntryPageState
 
       final currentDateTime =
           '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
+
+
+
 
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       WorkStationEntryReqModel workStationEntryReq = WorkStationEntryReqModel(
@@ -336,6 +346,7 @@ class _EmpProductionEntryPageState
 
       for (int index = 0; index < StoredListOfProblem.length; index++) {
         final incident = StoredListOfProblem[index];
+        
         final lisofincident = ListOfWorkStationIncidents(
             incidenid: incident.problemId,
             notes: incident.reasons,
@@ -350,11 +361,13 @@ class _EmpProductionEntryPageState
       }
       for (int index = 0; index < ListofNonProduction.length; index++) {
         final nonProduction = ListofNonProduction[index];
+
+
         final nonProductionList = NonProductionList(
           fromTime: nonProduction.npamFromTime,
           notes: nonProduction.notes,
           npamId: nonProduction.npamId,
-          toTime: nonProduction.npamToTime,
+          toTime:nonProduction.npamToTime
         );
         workStationEntryReq.nonProductionList.add(nonProductionList);
       }
@@ -386,15 +399,15 @@ class _EmpProductionEntryPageState
             print(responseJson);
 
             if(responseMsg=="success"){
-    return  ShowError.showAlert(context,"Saved Successfully","Success");
+    return  ShowSaveError.showAlert(context,"Saved Successfully","Success");
             }else{
-              return ShowError.showAlert(context,responseMsg);
+              return ShowSaveError.showAlert(context,responseMsg);
             }
         
             
           } catch (e) {
             // Handle the case where the response body is not a valid JSON object
-             ShowError.showAlert(context, e.toString());
+             ShowSaveError.showAlert(context, e.toString());
           }
         } else {
           throw ("Server responded with status code ${response.statusCode}");
@@ -422,18 +435,18 @@ class _EmpProductionEntryPageState
           ?.listofProductEntity;
 
       setState(() {
-        assetCotroller.text = productionEntry?.ipdassetid?.toString() ?? "0";
-        cardNoController.text = productionEntry?.ipdcardno?.toString() ?? "0";
-        reworkQtyController.text =
-            productionEntry?.ipdreworkableqty?.toString() ?? "0";
+        // assetCotroller.text = productionEntry?.ipdassetid?.toString() ?? "0";
+        // cardNoController.text = productionEntry?.ipdcardno?.toString() ?? "0";
+        // reworkQtyController.text =
+        //     productionEntry?.ipdreworkableqty?.toString() ?? "0";
         // If itemid is not 0, find the matching product name
-        productNameController.text = (productionEntry?.itemid != 0
-            ? productname
-                ?.firstWhere(
-                  (product) => productionEntry?.itemid == product.productid,
-                )
-                .productName
-            : "0")!;
+        // productNameController.text = (productionEntry?.itemid != 0
+        //     ? productname
+        //         ?.firstWhere(
+        //           (product) => productionEntry?.itemid == product.productid,
+        //         )
+        //         .productName
+        //     : "0")!;
       });
     }
   }
@@ -446,6 +459,12 @@ class _EmpProductionEntryPageState
     _fetchARecentActivity().then((_) {
       updateinitial();
     });
+
+    itemRefFocusNode.addListener(() {
+    if (!itemRefFocusNode.hasFocus) {
+      validateProductName(); // Validate when focus is lost
+    }
+  });
 reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
     // Get the current time details
     currentDateTime = DateTime.now();
@@ -556,25 +575,19 @@ shiftToTime.isBefore(shiftFromTime)) {
     //       }
     }
 
-
-
-
-
-
-
     if (shiftFromTime != null && shiftToTime != null) {
       // No adjustment of shiftToTime date, keeping it as-is
-      if (currentTime.isAfter(shiftFromTime) &&
-          currentTime.isBefore(shiftToTime)) {
-        // Current time is within the shift time
-        final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
-            '${currentTime.minute.toString().padLeft(2, '0')}:'
-            '${currentTime.second.toString().padLeft(2, '0')}';
-        shiftTime = timeString;
-      } else {
+      // if (currentTime.isAfter(shiftFromTime) &&
+      //     currentTime.isBefore(shiftToTime)) {
+      //   // Current time is within the shift time
+      //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+      //       '${currentTime.minute.toString().padLeft(2, '0')}:'
+      //       '${currentTime.second.toString().padLeft(2, '0')}';
+      //   shiftTime = timeString;
+      // } else {
         // Current time is outside the shift time
         shiftTime = shiftToTimeString;
-      }
+      
 
       if (shiftToTime != null) {
         setState(() {
@@ -590,6 +603,9 @@ shiftToTime.isBefore(shiftFromTime)) {
     } else {
       print("Shift From or To time is not available.");
     }
+
+  shiftStartTime = DateTime.parse(fromtime!);
+  shiftEndtTime = DateTime.parse(lastUpdatedTime!);
 
 
   }
@@ -661,6 +677,8 @@ shiftToTime.isBefore(shiftFromTime)) {
     rejectedQController.dispose();
     reworkQtyController.dispose();
     overallqty=null;
+    cardNoController.dispose();
+    
 
 
     for (var controller in empTimingTextEditingControllers) {
@@ -713,7 +731,7 @@ shiftToTime.isBefore(shiftFromTime)) {
           pwsId: widget.pwsid ?? 0);
           await productLocationService.getAreaList(context: context);
 
-          currentDateTime = DateTime.now();
+    currentDateTime = DateTime.now();
     now = DateTime.now();
     currentYear = now.year;
     currentMonth = now.month;
@@ -721,6 +739,7 @@ shiftToTime.isBefore(shiftFromTime)) {
     currentHour = now.hour;
     currentMinute = now.minute;
     currentSecond = now.second;
+    
     String? shiftTime;
     final productionEntry =
         Provider.of<EmpProductionEntryProvider>(context, listen: false)
@@ -822,18 +841,17 @@ shiftToTime.isBefore(shiftFromTime)) {
 
     if (shiftFromTime != null && shiftToTime != null) {
       // No adjustment of shiftToTime date, keeping it as-is
-      if (currentTime.isAfter(shiftFromTime) &&
-          currentTime.isBefore(shiftToTime)) {
-        // Current time is within the shift time
-        final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
-            '${currentTime.minute.toString().padLeft(2, '0')}:'
-            '${currentTime.second.toString().padLeft(2, '0')}';
-        shiftTime = timeString;
-      } else {
-        // Current time is outside the shift time
+      // if (currentTime.isAfter(shiftFromTime) &&
+      //     currentTime.isBefore(shiftToTime)) {
+      //   // Current time is within the shift time
+      //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+      //       '${currentTime.minute.toString().padLeft(2, '0')}:'
+      //       '${currentTime.second.toString().padLeft(2, '0')}';
+      //   shiftTime = timeString;
+      // } else {
+      //   // Current time is outside the shift time
         shiftTime = shiftToTimeString;
-      }
-
+    
       if (shiftToTime != null) {
         setState(() {
           lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
@@ -849,8 +867,11 @@ shiftToTime.isBefore(shiftFromTime)) {
       print("Shift From or To time is not available.");
     }
 
+  shiftStartTime = DateTime.parse(fromtime!);
+  shiftEndtTime = DateTime.parse(lastUpdatedTime!);
   
       empTimingUpdation(fromtime!, lastUpdatedTime!);
+
       Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
       _storedWorkstationProblemList();
 
@@ -879,10 +900,10 @@ shiftToTime.isBefore(shiftFromTime)) {
 
       if (initialValue != null) {
         setState(() {
-          isChecked = initialValue == 1;
-          goodQController.text = productionEntry?.goodqty?.toString() ?? "";
-          rejectedQController.text = productionEntry?.rejqty?.toString() ?? "";
-          batchNOController.text = productionEntry?.ipdbatchno.toString() ??
+          // isChecked = initialValue == 1;
+          // goodQController.text = productionEntry?.goodqty?.toString() ?? "";
+          // rejectedQController.text = productionEntry?.rejqty?.toString() ?? "";
+          // batchNOController.text = productionEntry?.ipdbatchno.toString() ??
               ""; // Set isChecked based on initialValue
         });
       }
@@ -966,8 +987,8 @@ shiftToTime.isBefore(shiftFromTime)) {
                                         final totime = data?.ipdtotime;
 
                                         return Container(
-                                          width: 300,
-                                          height: 110,
+                                          width: 300.w,
+                                          height: 140.h,
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(5),
@@ -1017,23 +1038,29 @@ shiftToTime.isBefore(shiftFromTime)) {
                                                       SizedBox(
                                                         width: 16,
                                                       ),
-                                                      Text(
-                                                          '${(data?.ipditemid != 0 ? productname?.firstWhere(
-                                                                (product) =>
-                                                                    data?.ipditemid ==
-                                                                    product
-                                                                        .productid,
-                                                              ).productName : " ")}',
-                                                          style: TextStyle(
-                                                              fontSize: 16.sp,
-                                                              color: Color
-                                                                  .fromARGB(
-                                                                      255,
-                                                                      80,
-                                                                      96,
-                                                                      203),
-                                                              fontFamily:
-                                                                  'Lexend')),
+                                                       Row(
+                                                         children: [
+                                                          Text("Job Card",style: TextStyle(
+                                                          fontFamily: "lexend",
+                                                          fontSize: 18.sp,
+                                                          color:
+                                                              Colors.black54)),
+                                                              SizedBox(width: 20.w,),
+                                                           Text(
+                                                              '${(data?.ipdcardno )}',
+                                                              style: TextStyle(
+                                                                  fontSize: 17.sp,
+                                                                  color: Colors.black87,
+                                                                  fontFamily:
+                                                                      'Lexend')),
+                                                         ],
+                                                       ),
+                                                                   SizedBox(
+                                                        width: 16,
+                                                      ),
+                                               
+
+                                                                  
                                                     ],
                                                   ),
                                                   IconButton(
@@ -1085,55 +1112,91 @@ shiftToTime.isBefore(shiftFromTime)) {
                                                               203))),
                                                 ],
                                               ),
+                                              Padding(
+                                                padding:  EdgeInsets.only(left: 40.sp),
+                                                child: Row(
+                                                  children: [
+                                                           Row(
+                                                             children: [
+                                                                 Text("Item Ref ",style: TextStyle(
+                                                            fontFamily: "lexend",
+                                                            fontSize: 18.sp,
+                                                            color:
+                                                                Colors.black54)),
+                                                                SizedBox(width: 20.w,),
+                                                               Text(
+                                                                '${(data?.ipditemid != 0 ? productname?.firstWhere(
+                                                                      (product) =>
+                                                                          data?.ipditemid ==
+                                                                          product
+                                                                              .productid,
+                                                                    ).productName : " ")}',
+                                                                style: TextStyle(
+                                                                    fontSize: 16.sp,
+                                                                    color: Colors.black87,
+                                                                    fontFamily:
+                                                                        'Lexend')),
+                                                             ],
+                                                           ),
+                                                  ],
+                                                ),
+                                              ),
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                      '${totime?.toString().substring(0, totime.toString().length - 7)}',
-                                                      style: TextStyle(
-                                                          fontFamily: "lexend",
-                                                          fontSize: 15.sp,
-                                                          color:
-                                                              Colors.black54)),
-                                                  if (index == 0)
-                                                    Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      children: [
-                                                        SizedBox(
-                                                          height: 40,
-                                                          child: IconButton(
-                                                            onPressed:
-                                                                () async {
-                                                              // updateproduction(widget.processid);
-                                                              deletePop(
-                                                                  context,
-                                                                  data?.ipdid ??
-                                                                      0,
-                                                                  data?.ipdpsid ??
-                                                                      0);
-                                                            },
-                                                            icon: SvgPicture
-                                                                .asset(
-                                                              'assets/svg/trash.svg',
-                                                              color: Colors.red,
-                                                              width: 30,
+                                                      Padding(
+                                                padding:  EdgeInsets.only(left: 40.sp),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                 
+                                                    Text(
+                                                        '${totime?.toString().substring(0, totime.toString().length - 7)}',
+                                                        style: TextStyle(
+                                                            fontFamily: "lexend",
+                                                            fontSize: 16.sp,
+                                                            color:
+                                                                Colors.black54)),
+                                                    if (index == 0)
+                                                      Column(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          SizedBox(
+                                                            height: 40,
+                                                            child: IconButton(
+                                                              onPressed:
+                                                                  () async {
+                                                                // updateproduction(widget.processid);
+                                                                deletePop(
+                                                                    context,
+                                                                    data?.ipdid ??
+                                                                        0,
+                                                                    data?.ipdpsid ??
+                                                                        0,
+                                                                        data?.processid ?? 0,data?.ipdcardno ?? 0,
+                                                                        data?.ipdpcid??0,data?.ipdpaid?? 0);
+
+                                                              },
+                                                              icon: SvgPicture
+                                                                  .asset(
+                                                                'assets/svg/trash.svg',
+                                                                color: Colors.red,
+                                                                width: 30,
+                                                              ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  if (index != 0)
-                                                    SizedBox(
-                                                        height: 30,
-                                                        child: Text("")),
-                                                ],
+                                                        ],
+                                                      ),
+                                                    if (index != 0)
+                                                      SizedBox(
+                                                          height: 30,
+                                                          child: Text("")),
+                                                  ],
+                                                ),
                                               )
                                             ],
                                           ),
@@ -1473,14 +1536,21 @@ shiftToTime.isBefore(shiftFromTime)) {
   delete({
     int? ipdid,
     int? ipdpsid,
+    int?processid,
+    String?cardno,
+    int?pcid,
+    int? paid
   }) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
     final requestBody = DeleteProductionEntryModel(
-        apiFor: "delete_entry",
+        apiFor: "delete_entry_v1",
         clientAuthToken: token,
         ipdid: ipdid,
-        ipdpsid: ipdpsid);
+        ipdpsid: ipdpsid, 
+        pcid:pcid, cardno:cardno , 
+        processid:processid , 
+        paid: paid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -1620,7 +1690,7 @@ shiftToTime.isBefore(shiftFromTime)) {
     }
   }
 
-  void deletePop(BuildContext context, ipdid, ipdpsid) {
+  void deletePop(BuildContext context, ipdid, ipdpsid, processid,cardno,pcid,paid ) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1653,8 +1723,9 @@ shiftToTime.isBefore(shiftFromTime)) {
                             onPressed: () async {
                               try {
                                 await delete(
-                                    ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0);
+                                    ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0,processid: processid,cardno: cardno,pcid: pcid,paid: paid );
                                 await _fetchARecentActivity();
+                                
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                               } catch (error) {
@@ -1750,6 +1821,50 @@ void clearTextFields() {
     productName = name;
     productNameController.text = name; // Sync the controller text
   }
+
+
+void validateProductName() {
+  // Get the list of products
+  final productList = Provider.of<ProductProvider>(context, listen: false)
+      .user?.listofProductEntity ?? [];
+  
+  // Trim and convert entered product name to lowercase
+  final enteredProductName = productNameController.text.trim().toLowerCase();
+
+  // Check if the entered product name exists in the product list
+  final isValidProduct = productList.any(
+    (product) => product.productName?.toLowerCase() == enteredProductName,
+  );
+
+  if (!isValidProduct) {
+    // Clear the input if the entered value is not valid
+    productNameController.clear();
+
+    // Show an error message to the user
+    setState(() {
+      itemerrorMessage = 'Please select a valid product';
+    });
+  } else {
+    // Safely get the matching product using firstWhere with orElse
+    final matchingProduct = productList.firstWhere(
+      (product) => product.productName?.toLowerCase() == enteredProductName,
+
+    );
+
+    if (matchingProduct != null) {
+      // Update the controller text and product ID
+      productNameController.text = matchingProduct.productName!;
+      product_Id = matchingProduct.productid;
+      setState(() {
+        itemerrorMessage = null; // Clear the error message if valid
+      });
+    }
+  }
+}
+
+
+
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -1797,10 +1912,9 @@ void clearTextFields() {
         .user
         ?.itemProductionArea;
 
-    DateTime shiftStartTime = DateTime.parse(fromtime!);
-    DateTime shiftEndtTime = DateTime.parse(lastUpdatedTime!);
+   
 
-    final startTime = DateFormat('HH:mm:ss').format(shiftStartTime);
+    final startTime = DateFormat('HH:mm:ss').format(shiftStartTime!);
 
     final actualdate = (fromtime != null && fromtime!.isNotEmpty)
         ? DateTime.parse(fromtime!)
@@ -2138,7 +2252,7 @@ void clearTextFields() {
                                                         Row(
                                                           children: [
                                                             Text(
-                                                              'Card No',
+                                                              'Job Card',
                                                               style: TextStyle(
                                                                 fontFamily:
                                                                     "lexend",
@@ -2182,11 +2296,13 @@ void clearTextFields() {
                                                             ),
                                                           ],
                                                         ),
-          Focus(
+
+
+Focus(
   focusNode: cardNoFocusNode,
   onKey: (node, event) {
-    if (event is RawKeyDownEvent && event.logicalKey == LogicalKeyboardKey.tab) {
-      // Trigger the API call when the Tab key is pressed
+    if (event.logicalKey == LogicalKeyboardKey.tab || event.logicalKey == LogicalKeyboardKey.enter) {
+      // Trigger the API call when the Tab or Enter key is pressed
       cardNoApiService.getCardNo(
         context: context,
         cardNo: int.tryParse(cardNoController.text) ?? 0,
@@ -2199,6 +2315,9 @@ void clearTextFields() {
           product_Id = item.pcItemId;
           pcid = item.pcId;
           updateProductName(item.itemName ?? "");
+
+          // Move the focus to the Item Ref field
+          FocusScope.of(context).requestFocus(itemRefFocusNode);
         }
       });
     }
@@ -2220,8 +2339,8 @@ void clearTextFields() {
         return null;
       },
       enabled: reworkValue != 1,
-      onEditingComplete: (){
-         final item = Provider.of<CardNoProvider>(context, listen: false)
+      onEditingComplete: () {
+        final item = Provider.of<CardNoProvider>(context, listen: false)
             .user
             ?.scanCardForItem;
 
@@ -2229,60 +2348,57 @@ void clearTextFields() {
           product_Id = item.pcItemId;
           pcid = item.pcId;
           updateProductName(item.itemName ?? "");
+
+          // Move the focus to the Item Ref field
+          FocusScope.of(context).requestFocus(itemRefFocusNode);
         }
-      
       },
     ),
   ),
 ),
-                          ],
-                                                    ),
-                                                    SizedBox(
-                                                      width: 50.h,
-                                                    ),
-                                                     Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  "Item Ref",
-                  style: TextStyle(
-                    fontFamily: "lexend",
-                    fontSize: 16.sp,
-                    color: Colors.black54,
-                  ),
-                ),
-                Text(
-                  ' *',
-                  style: TextStyle(
-                    fontFamily: "lexend",
-                    fontSize: 16.sp,
-                    color: Colors.red,
-                  ),
-                ),
-                SizedBox(height: 40),
-              ],
-            ),
- SizedBox(
+                                                      ]),
+SizedBox(width: 50.h),
+Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Row(
+      children: [
+        Text(
+          "Item Ref",
+          style: TextStyle(
+            fontFamily: "lexend",
+            fontSize: 16.sp,
+            color: Colors.black54,
+          ),
+        ),
+        Text(
+          ' *',
+          style: TextStyle(
+            fontFamily: "lexend",
+            fontSize: 16.sp,
+            color: Colors.red,
+          ),
+        ),
+        SizedBox(height: 40),
+      ],
+    ),
+    SizedBox(
       width: 170,
       height: 40,
       child: TypeAheadField<String>(
         textFieldConfiguration: TextFieldConfiguration(
-          enabled: product_Id!=null ?false :true,
+          enabled: product_Id != null ? false : true,
           controller: productNameController,
+          focusNode: itemRefFocusNode,
           decoration: InputDecoration(
             contentPadding: EdgeInsets.all(10),
             constraints: BoxConstraints(maxHeight: 40, maxWidth: 200),
-            hintText: "", // Set a hint text if needed
+            hintText: "Item Ref",
             hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
             labelStyle: TextStyle(fontSize: 12),
             filled: true,
             fillColor: Colors.white,
-            errorStyle: TextStyle(
-              fontSize: 10.0,
-              height: 0.10,
-            ),
+            errorStyle: TextStyle(fontSize: 10.0, height: 0.10),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5),
               borderSide: BorderSide(color: Colors.grey, width: 1),
@@ -2296,11 +2412,17 @@ void clearTextFields() {
               borderSide: BorderSide(color: Colors.grey, width: 1),
             ),
           ),
+          onSubmitted: (value) {
+            validateProductName();
+          },
+          // Add this to handle validation when focus is lost
+          onEditingComplete: () {
+            validateProductName();
+            FocusScope.of(context).unfocus(); 
+          },
         ),
-        
         suggestionsCallback: (pattern) async {
           if (pattern.isEmpty) return [];
-          // Get product suggestions
           final productList = Provider.of<ProductProvider>(context, listen: false)
               .user?.listofProductEntity ?? [];
           return productList
@@ -2314,6 +2436,9 @@ void clearTextFields() {
             title: Text(suggestion),
           );
         },
+
+
+    
         onSuggestionSelected: (String suggestion) {
           updateProductName(suggestion);
           // Update product ID based on selected suggestion
@@ -2321,19 +2446,37 @@ void clearTextFields() {
               .user?.listofProductEntity ?? [];
           final selectedProductItem = productList.firstWhere(
             (product) => product.productName?.toLowerCase() == suggestion.toLowerCase(),
-          // Use orElse to prevent errors
           );
 
           if (selectedProductItem != null) {
             product_Id = selectedProductItem.productid; // Update product ID
+            setState(() {
+            productNameController.text = selectedProductItem.productName!; 
+              itemerrorMessage = null; // Clear error message when valid product is selected
+            });
           }
         },
+        noItemsFoundBuilder: (context) => Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('No products found', style: TextStyle(color: Colors.red)),
+        ),
       ),
     ),
-           
-                                                        
-                                                      ],
-                                                    ),
+    if (itemerrorMessage != null)
+      Padding(
+        padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+        child: Text(
+          itemerrorMessage ?? "",
+          style: TextStyle(
+            fontSize: 9.0,
+            color: Colors.red,
+            height: 1.0,
+          ),
+        ),
+      ),
+  ],
+),
+
                                                     SizedBox(width: 50.w),
                                                     Column(
                                                       crossAxisAlignment:
@@ -2431,7 +2574,7 @@ void clearTextFields() {
     ),
     hint: Text("Select"),
     isExpanded: true,
-    onChanged: (cardNoController.text == "0" || cardNoController.text.isEmpty || reworkValue == 1)
+    onChanged: (productNameController.text.isEmpty || reworkValue == 1)
         ? null
         : (String? newvalue) async {
             if (newvalue != null) {
@@ -2790,7 +2933,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
           cardNoController.text.isNotEmpty &&
           ((seqNo == 1 && reworkValue == 0) ||
            (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
-           (seqNo != 1 && avilableqty != 0))
+           (seqNo != 1 && avilableqty != 0)&&avilableqty!=null)
          ) ? true : false,
                                                                   onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))?  (value) {
                                                                     final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
@@ -2885,7 +3028,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
           cardNoController.text.isNotEmpty &&
           ((seqNo == 1 && reworkValue == 0) ||
            (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
-           (seqNo != 1 && avilableqty != 0))
+           (seqNo != 1 && avilableqty != 0)&&avilableqty!=null)
          ) ? true : false,
                                                                   onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
                                                                     final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
@@ -2988,7 +3131,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
           cardNoController.text.isNotEmpty &&
           ((seqNo == 1 && reworkValue == 0) ||
            (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
-           (seqNo != 1 && avilableqty != 0))
+           (seqNo != 1 && avilableqty != 0)&&avilableqty!=null)
          ) ? true : false,
                                                                   onChanged:  (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
                                                                  final currentValue = int.tryParse(value) ?? 0;
@@ -3162,7 +3305,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                         Row(
                                                           children: [
                                                             Text(
-                                                                'Location',
+                                                                'Holding Area',
                                                                 style: TextStyle(
                                                                     fontFamily:
                                                                         "lexend",
@@ -3255,11 +3398,11 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                               child: FloatingActionButton(
                                                                   backgroundColor:
                                                                       Colors
-                                                                          .white,
+                                                                          .green,
                                                                   mini: true,
                                                                   shape: RoundedRectangleBorder(
                                                                       borderRadius:
-                                                                          BorderRadius.circular(5
+                                                                          BorderRadius.circular(50
                                                                               .r)),
                                                                   onPressed:
                                                                       () async {
@@ -3277,7 +3420,10 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                                     // Update time after each change
                                                                   },
                                                                   child: Text(
-                                                                      "Non Productive Time")),
+                                                                      "Non Productive Time",
+                                                                      style: 
+                                                                      TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white),
+                                                                      )),
                                                             )),
                                                                
 
@@ -3542,7 +3688,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                                         // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
                                                                         // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
                                                                         fromMinutes = shiftEndtTime
-                                                                            .difference(shiftStartTime)
+                                                                            ?.difference(shiftStartTime!)
                                                                             .inMinutes;
 
                                                                         final enteredMinutes =
@@ -3830,7 +3976,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                 Container(
                                                   alignment:
                                                       Alignment.centerLeft,
-                                                  width: 50.w,
+                                                  width: 60.w,
                                                   child: Text('S.No',
                                                       style: TextStyle(
                                                           color: Colors.white,
@@ -3839,7 +3985,7 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                 ),
                                                 Container(
                                                   alignment: Alignment.center,
-                                                  width: 250.w,
+                                                  width: 240.w,
                                                   child: Text('Problems',
                                                       style: TextStyle(
                                                           color: Colors.white,
@@ -3856,15 +4002,15 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                           fontFamily: "lexend",
                                                           fontSize: 16.sp)),
                                                 ),
-                                                // Container(
-                                                //   alignment: Alignment.center,
-                                                //   width: 100.w,
-                                                //   child: Text('Delete',
-                                                //       style: TextStyle(
-                                                //           color: Colors.white,
-                                                //           fontFamily: "lexend",
-                                                //           fontSize: 16.sp)),
-                                                // ),
+                                                Container(
+                                                  alignment: Alignment.center,
+                                                  width: 100.w,
+                                                  child: Text('Delete',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontFamily: "lexend",
+                                                          fontSize: 16.sp)),
+                                                ),
                                               ],
                                             ),
                                           ),

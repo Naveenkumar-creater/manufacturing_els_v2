@@ -685,55 +685,55 @@ final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
     }
   }
 
-  delete({
-    int? ipdid,
-    int? ipdpsid,
-  }) async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    String token = pref.getString("client_token") ?? "";
-    final requestBody = DeleteProductionEntryModel(
-        apiFor: "delete_entry",
-        clientAuthToken: token,
-        ipdid: ipdid,
-        ipdpsid: ipdpsid);
-    final requestBodyjson = jsonEncode(requestBody.toJson());
+  // delete({
+  //   int? ipdid,
+  //   int? ipdpsid,
+  // }) async {
+  //   SharedPreferences pref = await SharedPreferences.getInstance();
+  //   String token = pref.getString("client_token") ?? "";
+  //   final requestBody = DeleteProductionEntryModel(
+  //       apiFor: "delete_entry",
+  //       clientAuthToken: token,
+  //       ipdid: ipdid,
+  //       ipdpsid: ipdpsid);
+  //   final requestBodyjson = jsonEncode(requestBody.toJson());
 
-    print(requestBodyjson);
+  //   print(requestBodyjson);
 
-    const timeoutDuration = Duration(seconds: 30);
-    try {
-      http.Response response = await http
-          .post(
-            Uri.parse(ApiConstant.baseUrl),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: requestBodyjson,
-          )
-          .timeout(timeoutDuration);
+  //   const timeoutDuration = Duration(seconds: 30);
+  //   try {
+  //     http.Response response = await http
+  //         .post(
+  //           Uri.parse(ApiConstant.baseUrl),
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //           },
+  //           body: requestBodyjson,
+  //         )
+  //         .timeout(timeoutDuration);
 
-      // ignore: avoid_print
-      print(response.body);
+  //     // ignore: avoid_print
+  //     print(response.body);
 
-      if (response.statusCode == 200) {
-        try {
-          final responseJson = jsonDecode(response.body);
-          // loadEmployeeList();
-          print(responseJson);
-          return responseJson;
-        } catch (e) {
-          // Handle the case where the response body is not a valid JSON object
-          throw ("Invalid JSON response from the server");
-        }
-      } else {
-        throw ("Server responded with status code ${response.statusCode}");
-      }
-    } on TimeoutException {
-      throw ('Connection timed out. Please check your internet connection.');
-    } catch (e) {
-      ShowError.showAlert(context, e.toString());
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       try {
+  //         final responseJson = jsonDecode(response.body);
+  //         // loadEmployeeList();
+  //         print(responseJson);
+  //         return responseJson;
+  //       } catch (e) {
+  //         // Handle the case where the response body is not a valid JSON object
+  //         throw ("Invalid JSON response from the server");
+  //       }
+  //     } else {
+  //       throw ("Server responded with status code ${response.statusCode}");
+  //     }
+  //   } on TimeoutException {
+  //     throw ('Connection timed out. Please check your internet connection.');
+  //   } catch (e) {
+  //     ShowError.showAlert(context, e.toString());
+  //   }
+  // }
 
   void updateinitial() {
     if (widget.isload == true) {
@@ -1150,73 +1150,73 @@ await productApiService.productList(
     );
   }
 
- void deletePop(BuildContext context, ipdid, ipdpsid) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            backgroundColor: Colors.white,
-            child: WillPopScope(
-              onWillPop: () async {
-                return false;
-              },
-              child: Container(
-                width: 200,
-                height: 150,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8)),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                    top: 32,
-                  ),
-                  child: Column(children: [
-                    const Text("Confirm you submission"),
-                    const SizedBox(
-                      height: 32,
-                    ),
-                    Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              try {
-                                await delete(
-                                    ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0);
-                                await _fetchARecentActivity();
-                                Navigator.pop(context);
-                                Navigator.pop(context);
-                              } catch (error) {
-                                // Handle and show the error message here
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(error.toString()),
-                                    backgroundColor: Colors.amber,
-                                  ),
-                                );
-                              }
-                            },
-                            child: const Text("Submit"),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text("Go back")),
-                        ],
-                      ),
-                    )
-                  ]),
-                ),
-              ),
-            ),
-          );
-        });
-  }
+//  void deletePop(BuildContext context, ipdid, ipdpsid) {
+//     showDialog(
+//         context: context,
+//         builder: (BuildContext context) {
+//           return Dialog(
+//             backgroundColor: Colors.white,
+//             child: WillPopScope(
+//               onWillPop: () async {
+//                 return false;
+//               },
+//               child: Container(
+//                 width: 200,
+//                 height: 150,
+//                 decoration: BoxDecoration(
+//                     color: Colors.white,
+//                     borderRadius: BorderRadius.circular(8)),
+//                 child: Padding(
+//                   padding: const EdgeInsets.only(
+//                     top: 32,
+//                   ),
+//                   child: Column(children: [
+//                     const Text("Confirm you submission"),
+//                     const SizedBox(
+//                       height: 32,
+//                     ),
+//                     Center(
+//                       child: Row(
+//                         mainAxisAlignment: MainAxisAlignment.center,
+//                         children: [
+//                           ElevatedButton(
+//                             onPressed: () async {
+//                               try {
+//                                 await delete(
+//                                     ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0);
+//                                 await _fetchARecentActivity();
+//                                 Navigator.pop(context);
+//                                 Navigator.pop(context);
+//                               } catch (error) {
+//                                 // Handle and show the error message here
+//                                 ScaffoldMessenger.of(context).showSnackBar(
+//                                   SnackBar(
+//                                     content: Text(error.toString()),
+//                                     backgroundColor: Colors.amber,
+//                                   ),
+//                                 );
+//                               }
+//                             },
+//                             child: const Text("Submit"),
+//                           ),
+//                           const SizedBox(
+//                             width: 20,
+//                           ),
+//                           ElevatedButton(
+//                               onPressed: () {
+//                                 Navigator.pop(context);
+//                               },
+//                               child: const Text("Go back")),
+//                         ],
+//                       ),
+//                     )
+//                   ]),
+//                 ),
+//               ),
+//             ),
+//           );
+//         });
+//   }
 
 
   Future<void> _nonProductionActivityPopup(

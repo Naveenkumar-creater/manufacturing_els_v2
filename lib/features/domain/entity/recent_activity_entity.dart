@@ -26,6 +26,9 @@ class RecentActivitiesEntityList extends Equatable {
   final int? ipdpsid;
   final int?processid;
   final int?deptid;
+  final int? ipdpaid;
+  final int? ipdpcid;
+
   RecentActivitiesEntityList({
       required this.ipdcardno,
       required this.ipdrejqty,
@@ -39,7 +42,9 @@ class RecentActivitiesEntityList extends Equatable {
       required this.ipdid,
       required this.processid, 
       required this.ipdpsid,
-      required this.deptid
+      required this.deptid,
+      required this.ipdpaid,
+      required this.ipdpcid
       });
 
   @override
@@ -56,6 +61,8 @@ class RecentActivitiesEntityList extends Equatable {
         ipdtotime,
         ipdpsid,
         processid,
-        deptid
+        deptid,
+        ipdpaid,
+        ipdpcid
       ];
 }

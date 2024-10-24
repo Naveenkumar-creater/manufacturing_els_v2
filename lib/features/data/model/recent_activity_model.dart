@@ -39,6 +39,8 @@ class RecentActivitiesList extends RecentActivitiesEntityList{
     final int?ipdpsid;
     final int? processid;
     final int? deptid;
+    final int?ipdpaid;
+    final int?ipdpcid;
 
     RecentActivitiesList( {
         required this.ipdCardNo,
@@ -53,9 +55,13 @@ class RecentActivitiesList extends RecentActivitiesEntityList{
         required this.ipdid,
         required this.ipdpsid,
         required this.processid,
-        required this.deptid
+        required this.deptid,
+        required this.ipdpaid,
+        required this.ipdpcid
 
-    }):super(ipdid:ipdid,processid:processid,deptid:deptid,   ipdpsid:ipdpsid, ipdassetid: ipdAssetId,ipdcardno: ipdCardNo,ipdempid: ipdEmpId,ipdfromtime: ipdFromTime,ipdgoodqty: ipdGoodQty,ipditemid: ipdItemId,ipdrejqty: ipdRejQty,ipdreworkflag: ipdReworkFlag,ipdtotime: ipdToTime);
+    }):super(ipdid:ipdid,processid:processid,deptid:deptid,   ipdpsid:ipdpsid, ipdassetid: ipdAssetId,ipdcardno: ipdCardNo,ipdempid: ipdEmpId,ipdfromtime: ipdFromTime,ipdgoodqty: ipdGoodQty,ipditemid: ipdItemId,ipdrejqty: ipdRejQty,ipdreworkflag: ipdReworkFlag,ipdtotime: ipdToTime,
+    
+    ipdpaid:ipdpaid ,ipdpcid: ipdpcid);
 
   
 
@@ -74,25 +80,12 @@ class RecentActivitiesList extends RecentActivitiesEntityList{
             ipdAssetId: json["ipd_asset_id"],
             ipdid: json["ipd_id"],
             ipdpsid:json["ipd_ps_id"],
-            deptid: json["ipd_dept_id"]
+            deptid: json["ipd_dept_id"],
+            ipdpaid: json["ipd_pa_id"],
+            ipdpcid: json["ipd_pc_id"]
         );
     }
 
-    Map<String, dynamic> toJson() => {
-        "ipd_card_no": ipdCardNo,
-        "ipd_rej_qty": ipdRejQty,
-        "ipd_good_qty": ipdGoodQty,
-        "ipd_emp_id": ipdEmpId,
-        "ipd_to_time": ipdToTime?.toIso8601String(),
-        "ipd_item_id": ipdItemId,
-        "ipd_rework_flag": ipdReworkFlag,
-        "ipd_from_time": ipdFromTime?.toIso8601String(),
-        "ipd_asset_id": ipdAssetId,
-        "ipd_id":ipdid,
-        "ipd_ps_id":ipdpsid,
-        "ipd_mpm_id":processid,
-        "ipd_dept_id":deptid
-
-    };
+ 
 
 }

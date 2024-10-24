@@ -77,9 +77,13 @@ class _RecentHistoryBottomSheetState extends State<RecentHistoryBottomSheet> {
   //   }
   // }
 
-  delete({
-    int? ipdid,
+delete({
+     int? ipdid,
     int? ipdpsid,
+    int?processId,
+    String?cardNo,
+    int?pcId,
+    int? paId
   }) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
@@ -87,7 +91,7 @@ class _RecentHistoryBottomSheetState extends State<RecentHistoryBottomSheet> {
         apiFor: "delete_entry",
         clientAuthToken: token,
         ipdid: ipdid,
-        ipdpsid: ipdpsid);
+        ipdpsid: ipdpsid, pcid: null, cardno: '', processid: null, paid: null);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -127,7 +131,7 @@ class _RecentHistoryBottomSheetState extends State<RecentHistoryBottomSheet> {
     }
   }
 
-  void deletePop(BuildContext context, ipdid, ipdpsid) {
+  void deletePop(BuildContext context, ipdid, ipdpsid, processid,cardno,pcid,paid) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -160,7 +164,7 @@ class _RecentHistoryBottomSheetState extends State<RecentHistoryBottomSheet> {
                             onPressed: () async {
                               try {
                                 await delete(
-                                    ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0);
+                                    ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0,cardNo:cardno ,paId:paid ,pcId:pcid ,processId:processid );
                    
                                 Navigator.pop(context);
                                 Navigator.pop(context);
@@ -321,8 +325,13 @@ class _RecentHistoryBottomSheetState extends State<RecentHistoryBottomSheet> {
                                         child: IconButton(
                                           onPressed: () async {
                                             // updateproduction(widget.processid);
-                                            deletePop(context, data?.ipdid ?? 0,
-                                                data?.ipdpsid ?? 0);
+                                                     deletePop(
+                                                                    context,
+                                                                    data?.ipdid ??
+                                                                        0,
+                                                                    data?.ipdpsid ??
+                                                                        0,
+                                                                        data?.processid ?? 0,data?.ipdcardno ?? 0,data?.ipdpcid??0,data?.ipdpaid?? 0);
                                           },
                                           icon: SvgPicture.asset(
                                             'assets/svg/trash.svg',
