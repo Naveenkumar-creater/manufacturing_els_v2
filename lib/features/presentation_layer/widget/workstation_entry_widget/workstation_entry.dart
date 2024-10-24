@@ -106,8 +106,7 @@ class EmpWorkstationProductionEntryPage extends StatefulWidget {
       _EmpProductionEntryPageState();
 }
 
-class _EmpProductionEntryPageState
-    extends State<EmpWorkstationProductionEntryPage> {
+class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPage> {
   final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
   late ListProblemStoringProvider storedListOfProblem;
   late NonProductionStoredListProvider nonProductionList;
@@ -124,39 +123,31 @@ class _EmpProductionEntryPageState
   final ProductApiService productApiService = ProductApiService();
   final RecentActivityService recentActivityService = RecentActivityService();
   final ActivityService activityService = ActivityService();
-  ProductLocationService productLocationService=ProductLocationService();
+  ProductLocationService productLocationService = ProductLocationService();
   final Listofproblemservice listofproblemservice = Listofproblemservice();
   final ProblemStatusService problemStatusService = ProblemStatusService();
-  final ListofRootCauseService listofRootCauseService =
-      ListofRootCauseService();
-  final ListofproblemCategoryservice listofproblemCategoryservice =
-      ListofproblemCategoryservice();
+  final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
+  final ListofproblemCategoryservice listofproblemCategoryservice = ListofproblemCategoryservice();
   final TargetQtyApiService targetQtyApiService = TargetQtyApiService();
-  final EmpProductionEntryService empProductionEntryService =
-      EmpProductionEntryService();
-  final ListofEmpworkstationService listofEmpworkstationService =
-      ListofEmpworkstationService();
-  final WorkstationProblemService workstationProblemService =
-      WorkstationProblemService();
-  final NonProductionActivityService nonProductionActivityService =
-      NonProductionActivityService();
-  ListofworkstationService listofworkstationService =
-      ListofworkstationService();
+  final EmpProductionEntryService empProductionEntryService = EmpProductionEntryService();
+  final ListofEmpworkstationService listofEmpworkstationService = ListofEmpworkstationService();
+  final WorkstationProblemService workstationProblemService = WorkstationProblemService();
+  final NonProductionActivityService nonProductionActivityService = NonProductionActivityService();
+  ListofworkstationService listofworkstationService =  ListofworkstationService();
   AttendanceCountService attendanceCountService = AttendanceCountService();
   List<Map<String, dynamic>> incidentList = [];
   ActualQtyService actualQtyService = ActualQtyService();
   EditEntryApiservice editEntryApiservice = EditEntryApiservice();
-    final CardNoApiService cardNoApiService = CardNoApiService();
+  final CardNoApiService cardNoApiService = CardNoApiService();
 
-
-  ProductAvilableQtyService productAvilableQtyService=ProductAvilableQtyService();
+  ProductAvilableQtyService productAvilableQtyService =ProductAvilableQtyService();
   PlanQtyService planQtyService = PlanQtyService();
   FocusNode goodQtyFocusNode = FocusNode();
   FocusNode rejectedQtyFocusNode = FocusNode();
   FocusNode reworkFocusNode = FocusNode();
-  FocusNode cardNoFocusNode=FocusNode();
+  FocusNode cardNoFocusNode = FocusNode();
   // Define the FocusNode for the Item Ref field
-final FocusNode itemRefFocusNode = FocusNode();
+  final FocusNode itemRefFocusNode = FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -182,8 +173,8 @@ final FocusNode itemRefFocusNode = FocusNode();
   String? dropdownProduct;
   String? activityDropdown;
   String? locationDropdown;
-  String?locationName;
-    int? locationid;
+  String? locationName;
+  int? locationid;
 
   String? problemDropdown;
   int? problemid;
@@ -210,21 +201,21 @@ final FocusNode itemRefFocusNode = FocusNode();
 
   EmployeeApiService employeeApiService = EmployeeApiService();
   int? fromMinutes;
-  int ? overallqty ;
+  int? overallqty;
   int? avilableqty;
-  int ?seqNo;
-  int ?pcid;
+  int? seqNo;
+  int? pcid;
 
-   DateTime? shiftStartTime ;
-    DateTime? shiftEndtTime ;
+  DateTime? shiftStartTime;
+  DateTime? shiftEndtTime;
 
-  int?previousGoodValue; // Variable to store the previous value entered for Good Quantity
+  int? previousGoodValue; // Variable to store the previous value entered for Good Quantity
   int? previousRejectedValue;
   int?previousReworkValue; // Total minutes// Variable to track the error message
   String? errorMessage;
   String? rejectederrorMessage;
   String? reworkerrorMessage;
-   String? itemerrorMessage;
+  String? itemerrorMessage;
 
   // void updateOverallQty(int value) {
   //   setState(() {
@@ -241,7 +232,6 @@ final FocusNode itemRefFocusNode = FocusNode();
             .user
             ?.empProductionEntity;
 
-  
     final Shiftid = Provider.of<ShiftStatusProvider>(context, listen: false)
         .user
         ?.shiftStatusdetailEntity
@@ -283,9 +273,6 @@ final FocusNode itemRefFocusNode = FocusNode();
       final currentDateTime =
           '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
 
-
-
-
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       WorkStationEntryReqModel workStationEntryReq = WorkStationEntryReqModel(
           apiFor: "update_production_v1",
@@ -303,11 +290,11 @@ final FocusNode itemRefFocusNode = FocusNode();
           ipdDate: currentDateTime.toString(),
           ipdId: 0,
           // activityid == empproduction.ipdpaid ? empproduction.ipdid : 0,
-          ipdPcId: pcid??0,
+          ipdPcId: pcid ?? 0,
           ipdDeptId: widget.deptid ?? 1,
           ipdAssetId: int.tryParse(assetCotroller.text.toString()) ?? 0,
           //ipdcardno: empproduction.first.ipdcardno,
-          ipdItemId: product_Id??empproduction.itemid ,
+          ipdItemId: product_Id ?? empproduction.itemid,
           ipdMpmId: processid,
           // emppersonId: widget.empid ?? 0,
           ipdpsid: widget.psid,
@@ -317,8 +304,7 @@ final FocusNode itemRefFocusNode = FocusNode();
           listOfEmployeesForWorkStation: [],
           pwsid: widget.pwsid,
           listOfWorkstationIncident: [],
-          nonProductionList: []
-          );
+          nonProductionList: []);
 
 // // Clear the list to avoid duplicates
 // workStationEntryReq.listOfEmployeesForWorkStation.clear();
@@ -346,7 +332,7 @@ final FocusNode itemRefFocusNode = FocusNode();
 
       for (int index = 0; index < StoredListOfProblem.length; index++) {
         final incident = StoredListOfProblem[index];
-        
+
         final lisofincident = ListOfWorkStationIncidents(
             incidenid: incident.problemId,
             notes: incident.reasons,
@@ -362,13 +348,11 @@ final FocusNode itemRefFocusNode = FocusNode();
       for (int index = 0; index < ListofNonProduction.length; index++) {
         final nonProduction = ListofNonProduction[index];
 
-
         final nonProductionList = NonProductionList(
-          fromTime: nonProduction.npamFromTime,
-          notes: nonProduction.notes,
-          npamId: nonProduction.npamId,
-          toTime:nonProduction.npamToTime
-        );
+            fromTime: nonProduction.npamFromTime,
+            notes: nonProduction.notes,
+            npamId: nonProduction.npamId,
+            toTime: nonProduction.npamToTime);
         workStationEntryReq.nonProductionList.add(nonProductionList);
       }
 
@@ -395,19 +379,18 @@ final FocusNode itemRefFocusNode = FocusNode();
           try {
             final responseJson = jsonDecode(response.body);
 
-            final responseMsg=responseJson["response_msg"];
+            final responseMsg = responseJson["response_msg"];
             print(responseJson);
 
-            if(responseMsg=="success"){
-    return  ShowSaveError.showAlert(context,"Saved Successfully","Success");
-            }else{
-              return ShowSaveError.showAlert(context,responseMsg);
+            if (responseMsg == "success") {
+              return ShowSaveError.showAlert(
+                  context, "Saved Successfully", "Success");
+            } else {
+              return ShowSaveError.showAlert(context, responseMsg);
             }
-        
-            
           } catch (e) {
             // Handle the case where the response body is not a valid JSON object
-             ShowSaveError.showAlert(context, e.toString());
+            ShowSaveError.showAlert(context, e.toString());
           }
         } else {
           throw ("Server responded with status code ${response.statusCode}");
@@ -461,11 +444,11 @@ final FocusNode itemRefFocusNode = FocusNode();
     });
 
     itemRefFocusNode.addListener(() {
-    if (!itemRefFocusNode.hasFocus) {
-      validateProductName(); // Validate when focus is lost
-    }
-  });
-reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
+      if (!itemRefFocusNode.hasFocus) {
+        validateProductName(); // Validate when focus is lost
+      }
+    });
+    reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
     // Get the current time details
     currentDateTime = DateTime.now();
     now = DateTime.now();
@@ -510,8 +493,6 @@ reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
     if (shifttodate != null && shifttodate.isNotEmpty) {
       // Parse shifttodate if it's not empty
       shiftToTime = DateTime.parse(shifttodate);
-
-
     } else if (shiftToTimeString != null) {
       // Parse the shiftToTimeString if shifttodate is not provided
       final shiftToTimeParts = shiftToTimeString.split(':');
@@ -553,26 +534,23 @@ reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
       // Adjust the date of shiftToTime if it falls on the next day
       if (shiftFromTime != null &&
           shiftToTime != null &&
-shiftToTime.isBefore(shiftFromTime)) {
+          shiftToTime.isBefore(shiftFromTime)) {
         shiftToTime = shiftToTime.add(Duration(days: 1));
       }
 
+      //         if (shiftFromTime != null &&
+      //       shiftToTime != null ){
+      //       if((shiftToTime.day == DateTime.now().day &&
+      //          shiftToTime.month == DateTime.now().month &&
+      //          shiftToTime.year == DateTime.now().year &&
+      //          shiftToTime.isAfter(shiftFromTime)) ){
+      //        shiftToTime = shiftToTime;
+      //          }
+      //      else {
+      //     shiftToTime = shiftToTime.add(Duration(days: 1));
 
-
-
-    //         if (shiftFromTime != null &&
-    //       shiftToTime != null ){
-    //       if((shiftToTime.day == DateTime.now().day &&
-    //          shiftToTime.month == DateTime.now().month &&
-    //          shiftToTime.year == DateTime.now().year &&
-    //          shiftToTime.isAfter(shiftFromTime)) ){
-    //        shiftToTime = shiftToTime;
-    //          }
-    //      else {
-    //     shiftToTime = shiftToTime.add(Duration(days: 1));
-      
-    // }
-    //       }
+      // }
+      //       }
     }
 
     if (shiftFromTime != null && shiftToTime != null) {
@@ -585,9 +563,8 @@ shiftToTime.isBefore(shiftFromTime)) {
       //       '${currentTime.second.toString().padLeft(2, '0')}';
       //   shiftTime = timeString;
       // } else {
-        // Current time is outside the shift time
-        shiftTime = shiftToTimeString;
-      
+      // Current time is outside the shift time
+      shiftTime = shiftToTimeString;
 
       if (shiftToTime != null) {
         setState(() {
@@ -595,7 +572,7 @@ shiftToTime.isBefore(shiftFromTime)) {
               '${shiftToTime.month.toString().padLeft(2, '0')}-'
               '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
 
-              print(lastUpdatedTime);
+          print(lastUpdatedTime);
         });
       } else {
         print("Shift To time is not available.");
@@ -604,10 +581,8 @@ shiftToTime.isBefore(shiftFromTime)) {
       print("Shift From or To time is not available.");
     }
 
-  shiftStartTime = DateTime.parse(fromtime!);
-  shiftEndtTime = DateTime.parse(lastUpdatedTime!);
-
-
+    shiftStartTime = DateTime.parse(fromtime!);
+    shiftEndtTime = DateTime.parse(lastUpdatedTime!);
   }
 
   void submitGoodQuantity() {
@@ -615,8 +590,7 @@ shiftToTime.isBefore(shiftFromTime)) {
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
-      
-     if (currentValue > (overallqty ?? 0)) {
+      if (currentValue > (overallqty ?? 0)) {
         errorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         errorMessage = null;
@@ -646,7 +620,7 @@ shiftToTime.isBefore(shiftFromTime)) {
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
- if (currentValue > (overallqty ?? 0)) {
+      if (currentValue > (overallqty ?? 0)) {
         reworkerrorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         reworkerrorMessage = null;
@@ -676,10 +650,8 @@ shiftToTime.isBefore(shiftFromTime)) {
     goodQController.dispose();
     rejectedQController.dispose();
     reworkQtyController.dispose();
-    overallqty=null;
+    overallqty = null;
     cardNoController.dispose();
-    
-
 
     for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
@@ -729,147 +701,143 @@ shiftToTime.isBefore(shiftFromTime)) {
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsid ?? 0);
-          await productLocationService.getAreaList(context: context);
+      await productLocationService.getAreaList(context: context);
 
-    currentDateTime = DateTime.now();
-    now = DateTime.now();
-    currentYear = now.year;
-    currentMonth = now.month;
-    currentDay = now.day;
-    currentHour = now.hour;
-    currentMinute = now.minute;
-    currentSecond = now.second;
-    
-    String? shiftTime;
-    final productionEntry =
-        Provider.of<EmpProductionEntryProvider>(context, listen: false)
-            .user
-            ?.empProductionEntity;
+      currentDateTime = DateTime.now();
+      now = DateTime.now();
+      currentYear = now.year;
+      currentMonth = now.month;
+      currentDay = now.day;
+      currentHour = now.hour;
+      currentMinute = now.minute;
+      currentSecond = now.second;
 
-    String? shifttodate = productionEntry?.ipdtotime;
+      String? shiftTime;
+      final productionEntry =
+          Provider.of<EmpProductionEntryProvider>(context, listen: false)
+              .user
+              ?.empProductionEntity;
 
-    final shiftFromtime =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftFromTime;
+      String? shifttodate = productionEntry?.ipdtotime;
+
+      final shiftFromtime =
+          Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftFromTime;
 
 // Construct the shift start date with current time
-    final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
-        '${currentMonth.toString().padLeft(2, '0')}-'
-        '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+      final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
+          '${currentMonth.toString().padLeft(2, '0')}-'
+          '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
 
 // Reassign the current fromtime value based on the condition
-    fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
-        ? shiftStartDateTiming
-        : productionEntry?.ipdtotime;
+      fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+          ? shiftStartDateTiming
+          : productionEntry?.ipdtotime;
 
 // Retrieve shift details
-    final shiftToTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftToTime;
+      final shiftToTimeString =
+          Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftToTime;
 
-    DateTime? shiftToTime;
-    if (shifttodate != null && shifttodate.isNotEmpty) {
-      // Parse shifttodate if it's not empty
-      shiftToTime = DateTime.parse(shifttodate);
-
-
-    } else if (shiftToTimeString != null) {
-      // Parse the shiftToTimeString if shifttodate is not provided
-      final shiftToTimeParts = shiftToTimeString.split(':');
-      final now = DateTime.now();
-      shiftToTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftToTimeParts[0]),
-        int.parse(shiftToTimeParts[1]),
-        int.parse(shiftToTimeParts[2]),
-      );
-    }
+      DateTime? shiftToTime;
+      if (shifttodate != null && shifttodate.isNotEmpty) {
+        // Parse shifttodate if it's not empty
+        shiftToTime = DateTime.parse(shifttodate);
+      } else if (shiftToTimeString != null) {
+        // Parse the shiftToTimeString if shifttodate is not provided
+        final shiftToTimeParts = shiftToTimeString.split(':');
+        final now = DateTime.now();
+        shiftToTime = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          int.parse(shiftToTimeParts[0]),
+          int.parse(shiftToTimeParts[1]),
+          int.parse(shiftToTimeParts[2]),
+        );
+      }
 
 // Get the current time
-    final currentTime = DateTime.now();
+      final currentTime = DateTime.now();
 
 // Retrieve the shift start time
-    final shiftFromTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftFromTime;
+      final shiftFromTimeString =
+          Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftFromTime;
 
-    DateTime? shiftFromTime;
-    if (shiftFromTimeString != null && shiftToTime != null) {
-      // Parse the shiftFromTime but using the same date as shiftToTime
-      final shiftFromTimeParts = shiftFromTimeString.split(':');
+      DateTime? shiftFromTime;
+      if (shiftFromTimeString != null && shiftToTime != null) {
+        // Parse the shiftFromTime but using the same date as shiftToTime
+        final shiftFromTimeParts = shiftFromTimeString.split(':');
 
-      shiftFromTime = DateTime(
-        shiftToTime.year, // Use the same year as shiftToTime
-        shiftToTime.month, // Use the same month as shiftToTime
-        shiftToTime.day, // Use the same day as shiftToTime
-        int.parse(shiftFromTimeParts[0]),
-        int.parse(shiftFromTimeParts[1]),
-        int.parse(shiftFromTimeParts[2]),
-      );
+        shiftFromTime = DateTime(
+          shiftToTime.year, // Use the same year as shiftToTime
+          shiftToTime.month, // Use the same month as shiftToTime
+          shiftToTime.day, // Use the same day as shiftToTime
+          int.parse(shiftFromTimeParts[0]),
+          int.parse(shiftFromTimeParts[1]),
+          int.parse(shiftFromTimeParts[2]),
+        );
 
-    if (shiftFromTime != null &&
-          shiftToTime != null &&
-shiftToTime.isBefore(shiftFromTime)) {
-        shiftToTime = shiftToTime.add(Duration(days: 1));
+        if (shiftFromTime != null &&
+            shiftToTime != null &&
+            shiftToTime.isBefore(shiftFromTime)) {
+          shiftToTime = shiftToTime.add(Duration(days: 1));
+        }
+
+        // Adjust the date of shiftToTime if it falls on the next day
+        //   if (shiftFromTime != null &&
+        //       shiftToTime != null ){
+        //       if((shiftToTime.day == DateTime.now().day &&
+        //          shiftToTime.month == DateTime.now().month &&
+        //          shiftToTime.year == DateTime.now().year &&
+        //          shiftToTime.isAfter(shiftFromTime)) ){
+        //        shiftToTime = shiftToTime;
+        //          }
+        //      else {
+        //     shiftToTime = shiftToTime.add(Duration(days: 1));
+
+        // }
+        //       }
       }
 
-
-      // Adjust the date of shiftToTime if it falls on the next day
-    //   if (shiftFromTime != null &&
-    //       shiftToTime != null ){
-    //       if((shiftToTime.day == DateTime.now().day &&
-    //          shiftToTime.month == DateTime.now().month &&
-    //          shiftToTime.year == DateTime.now().year &&
-    //          shiftToTime.isAfter(shiftFromTime)) ){
-    //        shiftToTime = shiftToTime;
-    //          }
-    //      else {
-    //     shiftToTime = shiftToTime.add(Duration(days: 1));
-      
-    // }
-    //       }
-    }
-
-
-    if (shiftFromTime != null && shiftToTime != null) {
-      // No adjustment of shiftToTime date, keeping it as-is
-      // if (currentTime.isAfter(shiftFromTime) &&
-      //     currentTime.isBefore(shiftToTime)) {
-      //   // Current time is within the shift time
-      //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
-      //       '${currentTime.minute.toString().padLeft(2, '0')}:'
-      //       '${currentTime.second.toString().padLeft(2, '0')}';
-      //   shiftTime = timeString;
-      // } else {
-      //   // Current time is outside the shift time
+      if (shiftFromTime != null && shiftToTime != null) {
+        // No adjustment of shiftToTime date, keeping it as-is
+        // if (currentTime.isAfter(shiftFromTime) &&
+        //     currentTime.isBefore(shiftToTime)) {
+        //   // Current time is within the shift time
+        //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+        //       '${currentTime.minute.toString().padLeft(2, '0')}:'
+        //       '${currentTime.second.toString().padLeft(2, '0')}';
+        //   shiftTime = timeString;
+        // } else {
+        //   // Current time is outside the shift time
         shiftTime = shiftToTimeString;
-    
-      if (shiftToTime != null) {
-        setState(() {
-          lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
-              '${shiftToTime.month.toString().padLeft(2, '0')}-'
-              '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
 
-              print(lastUpdatedTime);
-        });
+        if (shiftToTime != null) {
+          setState(() {
+            lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
+                '${shiftToTime.month.toString().padLeft(2, '0')}-'
+                '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
+
+            print(lastUpdatedTime);
+          });
+        } else {
+          print("Shift To time is not available.");
+        }
       } else {
-        print("Shift To time is not available.");
+        print("Shift From or To time is not available.");
       }
-    } else {
-      print("Shift From or To time is not available.");
-    }
 
-  shiftStartTime = DateTime.parse(fromtime!);
-  shiftEndtTime = DateTime.parse(lastUpdatedTime!);
-  
+      shiftStartTime = DateTime.parse(fromtime!);
+      shiftEndtTime = DateTime.parse(lastUpdatedTime!);
+
       empTimingUpdation(fromtime!, lastUpdatedTime!);
 
       Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
@@ -904,7 +872,7 @@ shiftToTime.isBefore(shiftFromTime)) {
           // goodQController.text = productionEntry?.goodqty?.toString() ?? "";
           // rejectedQController.text = productionEntry?.rejqty?.toString() ?? "";
           // batchNOController.text = productionEntry?.ipdbatchno.toString() ??
-              ""; // Set isChecked based on initialValue
+          ""; // Set isChecked based on initialValue
         });
       }
 
@@ -1038,29 +1006,33 @@ shiftToTime.isBefore(shiftFromTime)) {
                                                       SizedBox(
                                                         width: 16,
                                                       ),
-                                                       Row(
-                                                         children: [
-                                                          Text("Job Card",style: TextStyle(
-                                                          fontFamily: "lexend",
-                                                          fontSize: 18.sp,
-                                                          color:
-                                                              Colors.black54)),
-                                                              SizedBox(width: 20.w,),
-                                                           Text(
-                                                              '${(data?.ipdcardno )}',
+                                                      Row(
+                                                        children: [
+                                                          Text("Job Card",
                                                               style: TextStyle(
-                                                                  fontSize: 17.sp,
-                                                                  color: Colors.black87,
+                                                                  fontFamily:
+                                                                      "lexend",
+                                                                  fontSize:
+                                                                      18.sp,
+                                                                  color: Colors
+                                                                      .black54)),
+                                                          SizedBox(
+                                                            width: 20.w,
+                                                          ),
+                                                          Text(
+                                                              '${(data?.ipdcardno)}',
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      17.sp,
+                                                                  color: Colors
+                                                                      .black87,
                                                                   fontFamily:
                                                                       'Lexend')),
-                                                         ],
-                                                       ),
-                                                                   SizedBox(
+                                                        ],
+                                                      ),
+                                                      SizedBox(
                                                         width: 16,
                                                       ),
-                                               
-
-                                                                  
                                                     ],
                                                   ),
                                                   IconButton(
@@ -1113,52 +1085,59 @@ shiftToTime.isBefore(shiftFromTime)) {
                                                 ],
                                               ),
                                               Padding(
-                                                padding:  EdgeInsets.only(left: 40.sp),
+                                                padding: EdgeInsets.only(
+                                                    left: 40.sp),
                                                 child: Row(
                                                   children: [
-                                                           Row(
-                                                             children: [
-                                                                 Text("Item Ref ",style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 18.sp,
-                                                            color:
-                                                                Colors.black54)),
-                                                                SizedBox(width: 20.w,),
-                                                               Text(
-                                                                '${(data?.ipditemid != 0 ? productname?.firstWhere(
-                                                                      (product) =>
-                                                                          data?.ipditemid ==
-                                                                          product
-                                                                              .productid,
-                                                                    ).productName : " ")}',
-                                                                style: TextStyle(
-                                                                    fontSize: 16.sp,
-                                                                    color: Colors.black87,
-                                                                    fontFamily:
-                                                                        'Lexend')),
-                                                             ],
-                                                           ),
+                                                    Row(
+                                                      children: [
+                                                        Text("Item Ref ",
+                                                            style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 18.sp,
+                                                                color: Colors
+                                                                    .black54)),
+                                                        SizedBox(
+                                                          width: 20.w,
+                                                        ),
+                                                        Text(
+                                                            '${(data?.ipditemid != 0 ? productname?.firstWhere(
+                                                                  (product) =>
+                                                                      data?.ipditemid ==
+                                                                      product
+                                                                          .productid,
+                                                                ).productName : " ")}',
+                                                            style: TextStyle(
+                                                                fontSize: 16.sp,
+                                                                color: Colors
+                                                                    .black87,
+                                                                fontFamily:
+                                                                    'Lexend')),
+                                                      ],
+                                                    ),
                                                   ],
                                                 ),
                                               ),
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                                      Padding(
-                                                padding:  EdgeInsets.only(left: 40.sp),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 40.sp),
                                                 child: Row(
                                                   mainAxisAlignment:
                                                       MainAxisAlignment
                                                           .spaceBetween,
                                                   children: [
-                                                 
                                                     Text(
                                                         '${totime?.toString().substring(0, totime.toString().length - 7)}',
                                                         style: TextStyle(
-                                                            fontFamily: "lexend",
+                                                            fontFamily:
+                                                                "lexend",
                                                             fontSize: 16.sp,
-                                                            color:
-                                                                Colors.black54)),
+                                                            color: Colors
+                                                                .black54)),
                                                     if (index == 0)
                                                       Column(
                                                         mainAxisAlignment:
@@ -1177,14 +1156,20 @@ shiftToTime.isBefore(shiftFromTime)) {
                                                                         0,
                                                                     data?.ipdpsid ??
                                                                         0,
-                                                                        data?.processid ?? 0,data?.ipdcardno ?? 0,
-                                                                        data?.ipdpcid??0,data?.ipdpaid?? 0);
-
+                                                                    data?.processid ??
+                                                                        0,
+                                                                    data?.ipdcardno ??
+                                                                        0,
+                                                                    data?.ipdpcid ??
+                                                                        0,
+                                                                    data?.ipdpaid ??
+                                                                        0);
                                                               },
                                                               icon: SvgPicture
                                                                   .asset(
                                                                 'assets/svg/trash.svg',
-                                                                color: Colors.red,
+                                                                color:
+                                                                    Colors.red,
                                                                 width: 30,
                                                               ),
                                                             ),
@@ -1533,23 +1518,23 @@ shiftToTime.isBefore(shiftFromTime)) {
     }
   }
 
-  delete({
-    int? ipdid,
-    int? ipdpsid,
-    int?processid,
-    String?cardno,
-    int?pcid,
-    int? paid
-  }) async {
+  delete(
+      {int? ipdid,
+      int? ipdpsid,
+      int? processid,
+      String? cardno,
+      int? pcid,
+      int? paid}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
     final requestBody = DeleteProductionEntryModel(
         apiFor: "delete_entry_v1",
         clientAuthToken: token,
         ipdid: ipdid,
-        ipdpsid: ipdpsid, 
-        pcid:pcid, cardno:cardno , 
-        processid:processid , 
+        ipdpsid: ipdpsid,
+        pcid: pcid,
+        cardno: cardno,
+        processid: processid,
         paid: paid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
@@ -1627,16 +1612,12 @@ shiftToTime.isBefore(shiftFromTime)) {
                                         goodQController.text.isNotEmpty ||
                                     rejectedQController.text.isNotEmpty ||
                                     reworkQtyController.text.isNotEmpty) {
-                                       Navigator.pop(context);
+                                  Navigator.pop(context);
                                   await updateproduction(widget.processid);
 
                                   _fetchARecentActivity();
-                                  
-                             
                                 }
-                              } catch (error) {
-                     
-                              }
+                              } catch (error) {}
                             },
                             child: const Text("Submit"),
                           ),
@@ -1690,7 +1671,8 @@ shiftToTime.isBefore(shiftFromTime)) {
     }
   }
 
-  void deletePop(BuildContext context, ipdid, ipdpsid, processid,cardno,pcid,paid ) {
+  void deletePop(
+      BuildContext context, ipdid, ipdpsid, processid, cardno, pcid, paid) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1723,9 +1705,14 @@ shiftToTime.isBefore(shiftFromTime)) {
                             onPressed: () async {
                               try {
                                 await delete(
-                                    ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0,processid: processid,cardno: cardno,pcid: pcid,paid: paid );
+                                    ipdid: ipdid ?? 0,
+                                    ipdpsid: ipdpsid ?? 0,
+                                    processid: processid,
+                                    cardno: cardno,
+                                    pcid: pcid,
+                                    paid: paid);
                                 await _fetchARecentActivity();
-                                
+
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                               } catch (error) {
@@ -1787,83 +1774,78 @@ shiftToTime.isBefore(shiftFromTime)) {
     }
   }
 
-void addFocusListeners() {
-  goodQtyFocusNode.addListener(() {
-    if (!goodQtyFocusNode.hasFocus) {
-      submitGoodQuantity();
-    }
-  });
+  void addFocusListeners() {
+    goodQtyFocusNode.addListener(() {
+      if (!goodQtyFocusNode.hasFocus) {
+        submitGoodQuantity();
+      }
+    });
 
-  rejectedQtyFocusNode.addListener(() {
-    if (!rejectedQtyFocusNode.hasFocus) {
-      submitRejectedQuantity();
-    }
-  });
+    rejectedQtyFocusNode.addListener(() {
+      if (!rejectedQtyFocusNode.hasFocus) {
+        submitRejectedQuantity();
+      }
+    });
 
-  reworkFocusNode.addListener(() {
-    if (!reworkFocusNode.hasFocus) {
-      submitReworkQuantity();
-    }
-  });
-}
+    reworkFocusNode.addListener(() {
+      if (!reworkFocusNode.hasFocus) {
+        submitReworkQuantity();
+      }
+    });
+  }
 
-void clearTextFields() {
-  goodQController.clear();
-  rejectedQController.clear();
-  reworkQtyController.clear();
-  overallqty = null;
-  seqNo = null;
-}
-
-
+  void clearTextFields() {
+    goodQController.clear();
+    rejectedQController.clear();
+    reworkQtyController.clear();
+    overallqty = null;
+    seqNo = null;
+  }
 
   void updateProductName(String name) {
     productName = name;
     productNameController.text = name; // Sync the controller text
   }
 
+  void validateProductName() {
+    // Get the list of products
+    final productList = Provider.of<ProductProvider>(context, listen: false)
+            .user
+            ?.listofProductEntity ??
+        [];
 
-void validateProductName() {
-  // Get the list of products
-  final productList = Provider.of<ProductProvider>(context, listen: false)
-      .user?.listofProductEntity ?? [];
-  
-  // Trim and convert entered product name to lowercase
-  final enteredProductName = productNameController.text.trim().toLowerCase();
+    // Trim and convert entered product name to lowercase
+    final enteredProductName = productNameController.text.trim().toLowerCase();
 
-  // Check if the entered product name exists in the product list
-  final isValidProduct = productList.any(
-    (product) => product.productName?.toLowerCase() == enteredProductName,
-  );
-
-  if (!isValidProduct) {
-    // Clear the input if the entered value is not valid
-    productNameController.clear();
-
-    // Show an error message to the user
-    setState(() {
-      itemerrorMessage = 'Please select a valid product';
-    });
-  } else {
-    // Safely get the matching product using firstWhere with orElse
-    final matchingProduct = productList.firstWhere(
+    // Check if the entered product name exists in the product list
+    final isValidProduct = productList.any(
       (product) => product.productName?.toLowerCase() == enteredProductName,
-
     );
 
-    if (matchingProduct != null) {
-      // Update the controller text and product ID
-      productNameController.text = matchingProduct.productName!;
-      product_Id = matchingProduct.productid;
+    if (!isValidProduct) {
+      // Clear the input if the entered value is not valid
+      productNameController.clear();
+
+      // Show an error message to the user
       setState(() {
-        itemerrorMessage = null; // Clear the error message if valid
+        itemerrorMessage = 'Please select a valid product';
       });
+    } else {
+      // Safely get the matching product using firstWhere with orElse
+      final matchingProduct = productList.firstWhere(
+        (product) => product.productName?.toLowerCase() == enteredProductName,
+      );
+
+      if (matchingProduct != null) {
+        // Update the controller text and product ID
+        productNameController.text = matchingProduct.productName!;
+        product_Id = matchingProduct.productid;
+        setState(() {
+          itemerrorMessage = null; // Clear the error message if valid
+        });
+      }
     }
   }
-}
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -1896,8 +1878,6 @@ void validateProductName() {
         Provider.of<ListProblemStoringProvider>(context, listen: true)
             .getIncidentList;
 
-
-
     print(productionEntry);
 
     // final productname = Provider.of<ProductProvider>(context, listen: false)
@@ -1908,11 +1888,10 @@ void validateProductName() {
         .user
         ?.activityEntity;
 
-         final location = Provider.of<ProductLocationProvider>(context, listen: false)
-        .user
-        ?.itemProductionArea;
-
-   
+    final location =
+        Provider.of<ProductLocationProvider>(context, listen: false)
+            .user
+            ?.itemProductionArea;
 
     final startTime = DateFormat('HH:mm:ss').format(shiftStartTime!);
 
@@ -1929,7 +1908,6 @@ void validateProductName() {
             ?.first
             .processName ??
         "";
-    
 
     return isLoading
         ? Scaffold(
@@ -2173,8 +2151,6 @@ void validateProductName() {
                                                       }
                                                     }
                                                   : null,
-
-
                                               child: Text(
                                                 'Submit',
                                                 style: TextStyle(
@@ -2245,6 +2221,177 @@ void validateProductName() {
                                                 Row(
                                                   children: [
                                                     Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                'Job Card',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      "lexend",
+                                                                  fontSize:
+                                                                      16.sp,
+                                                                  color: Colors
+                                                                      .black54,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                ' *',
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily:
+                                                                      "lexend",
+                                                                  fontSize:
+                                                                      16.sp,
+                                                                  color: Colors
+                                                                      .red,
+                                                                ),
+                                                              ),
+                                                              SizedBox(
+                                                                width: 2.w,
+                                                              ),
+                                                              CardNoScanner(
+                                                                // empId: widget.empid,
+                                                                // processId: widget.processid,
+                                                                onCardDataReceived:
+                                                                    (scannedCardNo,
+                                                                        scannedProductName,
+                                                                        itemid,
+                                                                        cardid) {
+                                                                  setState(() {
+                                                                    cardNoController
+                                                                            .text =
+                                                                        scannedCardNo;
+                                                                    productNameController
+                                                                            .text =
+                                                                        scannedProductName;
+                                                                    product_Id =
+                                                                        itemid;
+                                                                    pcid =
+                                                                        cardid;
+                                                                  });
+                                                                },
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          Focus(
+                                                            focusNode:
+                                                                cardNoFocusNode,
+                                                            onKey:
+                                                                (node, event) {
+                                                              if (event.logicalKey ==
+                                                                      LogicalKeyboardKey
+                                                                          .tab ||
+                                                                  event.logicalKey ==
+                                                                      LogicalKeyboardKey
+                                                                          .enter) {
+                                                                // Trigger the API call when the Tab or Enter key is pressed
+                                                                cardNoApiService
+                                                                    .getCardNo(
+                                                                  context:
+                                                                      context,
+                                                                  cardNo: int.tryParse(
+                                                                          cardNoController
+                                                                              .text) ??
+                                                                      0,
+                                                                )
+                                                                    .then((_) {
+                                                                  final item = Provider.of<
+                                                                              CardNoProvider>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .user
+                                                                      ?.scanCardForItem;
+
+                                                                  if (item !=
+                                                                      null) {
+                                                                    product_Id =
+                                                                        item.pcItemId;
+                                                                    pcid = item
+                                                                        .pcId;
+                                                                    updateProductName(
+                                                                        item.itemName ??
+                                                                            "");
+
+                                                                    // Move the focus to the Item Ref field
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .requestFocus(
+                                                                            itemRefFocusNode);
+                                                                  }
+                                                                });
+                                                              }
+                                                              return KeyEventResult
+                                                                  .ignored;
+                                                            },
+                                                            child: SizedBox(
+                                                              width: 170.w,
+                                                              height: 40.h,
+                                                              child:
+                                                                  CustomNumField(
+                                                                controller:
+                                                                    cardNoController,
+                                                                hintText:
+                                                                    'Card No',
+                                                                keyboardtype:
+                                                                    TextInputType
+                                                                        .number,
+                                                                validation:
+                                                                    (value) {
+                                                                  if (value ==
+                                                                          null ||
+                                                                      value
+                                                                          .isEmpty) {
+                                                                    return 'Enter card No.';
+                                                                  } else if (RegExp(
+                                                                          r'^0+$')
+                                                                      .hasMatch(
+                                                                          value)) {
+                                                                    return 'Cannot contain zeros';
+                                                                  }
+                                                                  return null;
+                                                                },
+                                                                enabled:
+                                                                    reworkValue !=
+                                                                        1,
+                                                                onEditingComplete:
+                                                                    () {
+                                                                  final item = Provider.of<
+                                                                              CardNoProvider>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .user
+                                                                      ?.scanCardForItem;
+
+                                                                  if (item !=
+                                                                      null) {
+                                                                    product_Id =
+                                                                        item.pcItemId;
+                                                                    pcid = item
+                                                                        .pcId;
+                                                                    updateProductName(
+                                                                        item.itemName ??
+                                                                            "");
+
+                                                                    // Move the focus to the Item Ref field
+                                                                    FocusScope.of(
+                                                                            context)
+                                                                        .requestFocus(
+                                                                            itemRefFocusNode);
+                                                                  }
+                                                                },
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ]),
+                                                    SizedBox(width: 50.h),
+                                                    Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
@@ -2252,7 +2399,7 @@ void validateProductName() {
                                                         Row(
                                                           children: [
                                                             Text(
-                                                              'Job Card',
+                                                              "Item Ref",
                                                               style: TextStyle(
                                                                 fontFamily:
                                                                     "lexend",
@@ -2272,211 +2419,215 @@ void validateProductName() {
                                                               ),
                                                             ),
                                                             SizedBox(
-                                                              width: 2.w,
-                                                            ),
-                                                            CardNoScanner(
-                                                              // empId: widget.empid,
-                                                              // processId: widget.processid,
-                                                              onCardDataReceived:
-                                                                  (scannedCardNo,
-                                                                      scannedProductName,itemid,cardid) {
-                                                                setState(() {
-                                                                  cardNoController
-                                                                          .text =
-                                                                      scannedCardNo;
-                                                                  productNameController
-                                                                          .text =
-                                                                      scannedProductName;
-                                                                      product_Id=itemid;
-                                                                      pcid=cardid;
-
-
-                                                                });
-                                                              },
-                                                            ),
+                                                                height: 40),
                                                           ],
                                                         ),
+                                                        SizedBox(
+                                                          width: 170,
+                                                          height: 40,
+                                                          child: TypeAheadField<
+                                                              String>(
+                                                            textFieldConfiguration:
+                                                                TextFieldConfiguration(
+                                                              enabled:
+                                                                  product_Id !=
+                                                                          null
+                                                                      ? false
+                                                                      : true,
+                                                              controller:
+                                                                  productNameController,
+                                                              focusNode:
+                                                                  itemRefFocusNode,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                contentPadding:
+                                                                    EdgeInsets
+                                                                        .all(
+                                                                            10),
+                                                                constraints:
+                                                                    BoxConstraints(
+                                                                        maxHeight:
+                                                                            40,
+                                                                        maxWidth:
+                                                                            200),
+                                                                hintText:
+                                                                    "Item Ref",
+                                                                hintStyle: TextStyle(
+                                                                    color: Colors
+                                                                        .black38,
+                                                                    fontSize:
+                                                                        16),
+                                                                labelStyle:
+                                                                    TextStyle(
+                                                                        fontSize:
+                                                                            12),
+                                                                filled: true,
+                                                                fillColor:
+                                                                    Colors
+                                                                        .white,
+                                                                errorStyle:
+                                                                    TextStyle(
+                                                                        fontSize:
+                                                                            10.0,
+                                                                        height:
+                                                                            0.10),
+                                                                enabledBorder:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              5),
+                                                                  borderSide: BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                                ),
+                                                                focusedBorder:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              8),
+                                                                  borderSide: BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                                ),
+                                                                border:
+                                                                    OutlineInputBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              5),
+                                                                  borderSide: BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                                ),
+                                                              ),
+                                                              onSubmitted:
+                                                                  (value) {
+                                                                validateProductName();
+                                                              },
+                                                              // Add this to handle validation when focus is lost
+                                                              onEditingComplete:
+                                                                  () {
+                                                                validateProductName();
+                                                                FocusScope.of(
+                                                                        context)
+                                                                    .unfocus();
+                                                              },
+                                                            ),
+                                                            suggestionsCallback:
+                                                                (pattern) async {
+                                                              if (pattern
+                                                                  .isEmpty)
+                                                                return [];
+                                                              final productList = Provider.of<
+                                                                              ProductProvider>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .user
+                                                                      ?.listofProductEntity ??
+                                                                  [];
+                                                              return productList
+                                                                  .where((product) =>
+                                                                      product
+                                                                          .productName
+                                                                          ?.toLowerCase()
+                                                                          .contains(pattern
+                                                                              .toLowerCase()) ??
+                                                                      false)
+                                                                  .map((product) =>
+                                                                      product
+                                                                          .productName ??
+                                                                      '')
+                                                                  .toList();
+                                                            },
+                                                            itemBuilder: (context,
+                                                                String
+                                                                    suggestion) {
+                                                              return ListTile(
+                                                                title: Text(
+                                                                    suggestion),
+                                                              );
+                                                            },
+                                                            onSuggestionSelected:
+                                                                (String
+                                                                    suggestion) {
+                                                              updateProductName(
+                                                                  suggestion);
+                                                              // Update product ID based on selected suggestion
+                                                              final productList = Provider.of<
+                                                                              ProductProvider>(
+                                                                          context,
+                                                                          listen:
+                                                                              false)
+                                                                      .user
+                                                                      ?.listofProductEntity ??
+                                                                  [];
+                                                              final selectedProductItem =
+                                                                  productList
+                                                                      .firstWhere(
+                                                                (product) =>
+                                                                    product
+                                                                        .productName
+                                                                        ?.toLowerCase() ==
+                                                                    suggestion
+                                                                        .toLowerCase(),
+                                                              );
 
-
-Focus(
-  focusNode: cardNoFocusNode,
-  onKey: (node, event) {
-    if (event.logicalKey == LogicalKeyboardKey.tab || event.logicalKey == LogicalKeyboardKey.enter) {
-      // Trigger the API call when the Tab or Enter key is pressed
-      cardNoApiService.getCardNo(
-        context: context,
-        cardNo: int.tryParse(cardNoController.text) ?? 0,
-      ).then((_) {
-        final item = Provider.of<CardNoProvider>(context, listen: false)
-            .user
-            ?.scanCardForItem;
-
-        if (item != null) {
-          product_Id = item.pcItemId;
-          pcid = item.pcId;
-          updateProductName(item.itemName ?? "");
-
-          // Move the focus to the Item Ref field
-          FocusScope.of(context).requestFocus(itemRefFocusNode);
-        }
-      });
-    }
-    return KeyEventResult.ignored;
-  },
-  child: SizedBox(
-    width: 170.w,
-    height: 40.h,
-    child: CustomNumField(
-      controller: cardNoController,
-      hintText: 'Card No',
-      keyboardtype: TextInputType.number,
-      validation: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Enter card No.';
-        } else if (RegExp(r'^0+$').hasMatch(value)) {
-          return 'Cannot contain zeros';
-        }
-        return null;
-      },
-      enabled: reworkValue != 1,
-      onEditingComplete: () {
-        final item = Provider.of<CardNoProvider>(context, listen: false)
-            .user
-            ?.scanCardForItem;
-
-        if (item != null) {
-          product_Id = item.pcItemId;
-          pcid = item.pcId;
-          updateProductName(item.itemName ?? "");
-
-          // Move the focus to the Item Ref field
-          FocusScope.of(context).requestFocus(itemRefFocusNode);
-        }
-      },
-    ),
-  ),
-),
-                                                      ]),
-SizedBox(width: 50.h),
-Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: [
-    Row(
-      children: [
-        Text(
-          "Item Ref",
-          style: TextStyle(
-            fontFamily: "lexend",
-            fontSize: 16.sp,
-            color: Colors.black54,
-          ),
-        ),
-        Text(
-          ' *',
-          style: TextStyle(
-            fontFamily: "lexend",
-            fontSize: 16.sp,
-            color: Colors.red,
-          ),
-        ),
-        SizedBox(height: 40),
-      ],
-    ),
-    SizedBox(
-      width: 170,
-      height: 40,
-      child: TypeAheadField<String>(
-        textFieldConfiguration: TextFieldConfiguration(
-          enabled: product_Id != null ? false : true,
-          controller: productNameController,
-          focusNode: itemRefFocusNode,
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(10),
-            constraints: BoxConstraints(maxHeight: 40, maxWidth: 200),
-            hintText: "Item Ref",
-            hintStyle: TextStyle(color: Colors.black38, fontSize: 16),
-            labelStyle: TextStyle(fontSize: 12),
-            filled: true,
-            fillColor: Colors.white,
-            errorStyle: TextStyle(fontSize: 10.0, height: 0.10),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey, width: 1),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey, width: 1),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey, width: 1),
-            ),
-          ),
-          onSubmitted: (value) {
-            validateProductName();
-          },
-          // Add this to handle validation when focus is lost
-          onEditingComplete: () {
-            validateProductName();
-            FocusScope.of(context).unfocus(); 
-          },
-        ),
-        suggestionsCallback: (pattern) async {
-          if (pattern.isEmpty) return [];
-          final productList = Provider.of<ProductProvider>(context, listen: false)
-              .user?.listofProductEntity ?? [];
-          return productList
-              .where((product) =>
-                  product.productName?.toLowerCase().contains(pattern.toLowerCase()) ?? false)
-              .map((product) => product.productName ?? '')
-              .toList();
-        },
-        itemBuilder: (context, String suggestion) {
-          return ListTile(
-            title: Text(suggestion),
-          );
-        },
-
-
-    
-        onSuggestionSelected: (String suggestion) {
-          updateProductName(suggestion);
-          // Update product ID based on selected suggestion
-          final productList = Provider.of<ProductProvider>(context, listen: false)
-              .user?.listofProductEntity ?? [];
-          final selectedProductItem = productList.firstWhere(
-            (product) => product.productName?.toLowerCase() == suggestion.toLowerCase(),
-          );
-
-          if (selectedProductItem != null) {
-            product_Id = selectedProductItem.productid; // Update product ID
-            setState(() {
-            productNameController.text = selectedProductItem.productName!; 
-              itemerrorMessage = null; // Clear error message when valid product is selected
-            });
-          }
-        },
-        noItemsFoundBuilder: (context) => Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('No products found', style: TextStyle(color: Colors.red)),
-        ),
-      ),
-    ),
-    if (itemerrorMessage != null)
-      Padding(
-        padding: const EdgeInsets.only(left: 8.0, top: 2.0),
-        child: Text(
-          itemerrorMessage ?? "",
-          style: TextStyle(
-            fontSize: 9.0,
-            color: Colors.red,
-            height: 1.0,
-          ),
-        ),
-      ),
-  ],
-),
-
+                                                              if (selectedProductItem !=
+                                                                  null) {
+                                                                product_Id =
+                                                                    selectedProductItem
+                                                                        .productid; // Update product ID
+                                                                setState(() {
+                                                                  productNameController
+                                                                          .text =
+                                                                      selectedProductItem
+                                                                          .productName!;
+                                                                  itemerrorMessage =
+                                                                      null; // Clear error message when valid product is selected
+                                                                });
+                                                              }
+                                                            },
+                                                            noItemsFoundBuilder:
+                                                                (context) =>
+                                                                    Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8.0),
+                                                              child: Text(
+                                                                  'No products found',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red)),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        if (itemerrorMessage !=
+                                                            null)
+                                                          Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .only(
+                                                                    left: 8.0,
+                                                                    top: 2.0),
+                                                            child: Text(
+                                                              itemerrorMessage ??
+                                                                  "",
+                                                              style: TextStyle(
+                                                                fontSize: 9.0,
+                                                                color:
+                                                                    Colors.red,
+                                                                height: 1.0,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
                                                     SizedBox(width: 50.w),
                                                     Column(
                                                       crossAxisAlignment:
@@ -2559,132 +2710,209 @@ Column(
                                                                 height: 40.h),
                                                           ],
                                                         ),
-                                   Container(
-  width: 170.w,
-  height: 45.h,
-  decoration: BoxDecoration(
-    border: Border.all(width: 1, color: Colors.grey),
-    borderRadius: BorderRadius.all(Radius.circular(5)),
-  ),
-  child: DropdownButtonFormField<String>(
-    value: activityDropdown,
-    decoration: InputDecoration(
-      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-      border: InputBorder.none,
-    ),
-    hint: Text("Select"),
-    isExpanded: true,
-    onChanged: (productNameController.text.isEmpty || reworkValue == 1)
-        ? null
-        : (String? newvalue) async {
-            if (newvalue != null) {
-              setState(() {
-                activityDropdown = newvalue;
-                clearTextFields();
-              });
+                                                        Container(
+                                                          width: 170.w,
+                                                          height: 45.h,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                width: 1,
+                                                                color: Colors
+                                                                    .grey),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            5)),
+                                                          ),
+                                                          child:
+                                                              DropdownButtonFormField<
+                                                                  String>(
+                                                            value:
+                                                                activityDropdown,
+                                                            decoration:
+                                                                InputDecoration(
+                                                              contentPadding:
+                                                                  EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          5.w,
+                                                                      vertical:
+                                                                          2.h),
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                            ),
+                                                            hint:
+                                                                Text("Select"),
+                                                            isExpanded: true,
+                                                            onChanged: (productNameController
+                                                                        .text
+                                                                        .isEmpty ||
+                                                                    reworkValue ==
+                                                                        1)
+                                                                ? null
+                                                                : (String?
+                                                                    newvalue) async {
+                                                                    if (newvalue !=
+                                                                        null) {
+                                                                      setState(
+                                                                          () {
+                                                                        activityDropdown =
+                                                                            newvalue;
+                                                                        clearTextFields();
+                                                                      });
 
-              final selectedActivity = activity?.firstWhere(
-                (activity) => activity.paActivityName == newvalue,
-                orElse: () => ProcessActivity(
-                    paActivityName: "", mpmName: "", pwsName: "", paId: 0, paMpmId: 0),
-              );
+                                                                      final selectedActivity =
+                                                                          activity
+                                                                              ?.firstWhere(
+                                                                        (activity) =>
+                                                                            activity.paActivityName ==
+                                                                            newvalue,
+                                                                        orElse: () => ProcessActivity(
+                                                                            paActivityName:
+                                                                                "",
+                                                                            mpmName:
+                                                                                "",
+                                                                            pwsName:
+                                                                                "",
+                                                                            paId:
+                                                                                0,
+                                                                            paMpmId:
+                                                                                0),
+                                                                      );
 
-              if (selectedActivity != null && selectedActivity.paId != null) {
-                activityid = selectedActivity.paId ?? 0;
+                                                                      if (selectedActivity !=
+                                                                              null &&
+                                                                          selectedActivity.paId !=
+                                                                              null) {
+                                                                        activityid =
+                                                                            selectedActivity.paId ??
+                                                                                0;
 
-                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+                                                                        Provider.of<ProductAvilableQtyProvider>(context,
+                                                                                listen: false)
+                                                                            .reset();
 
-                await productAvilableQtyService.getAvilableQty(
-                  context: context,
-                  reworkflag: reworkValue ?? 0,
-                  processid: widget.processid ?? 0,
-                  paid: activityid ?? 0,
-                  cardno: cardNoController.text,
-                );
+                                                                        await productAvilableQtyService
+                                                                            .getAvilableQty(
+                                                                          context:
+                                                                              context,
+                                                                          reworkflag:
+                                                                              reworkValue ?? 0,
+                                                                          processid:
+                                                                              widget.processid ?? 0,
+                                                                          paid: activityid ??
+                                                                              0,
+                                                                          cardno:
+                                                                              cardNoController.text,
+                                                                        );
 
-                await targetQtyApiService.getTargetQty(
-                  context: context,
-                  paId: activityid ?? 0,
-                  deptid: widget.deptid ?? 1,
-                  psid: widget.psid ?? 0,
-                  pwsid: widget.pwsid ?? 0,
-                );
+                                                                        await targetQtyApiService
+                                                                            .getTargetQty(
+                                                                          context:
+                                                                              context,
+                                                                          paId: activityid ??
+                                                                              0,
+                                                                          deptid:
+                                                                              widget.deptid ?? 1,
+                                                                          psid: widget.psid ??
+                                                                              0,
+                                                                          pwsid:
+                                                                              widget.pwsid ?? 0,
+                                                                        );
 
-                final targetqty = Provider.of<TargetQtyProvider>(context, listen: false)
-                    .user
-                    ?.targetQty;
-      final overallgoodQty =Provider.of<ProductAvilableQtyProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .user
-                                                                        ?.productqty;
-                if (overallgoodQty != null) {
+                                                                        final targetqty = Provider.of<TargetQtyProvider>(context,
+                                                                                listen: false)
+                                                                            .user
+                                                                            ?.targetQty;
+                                                                        final overallgoodQty = Provider.of<ProductAvilableQtyProvider>(context,
+                                                                                listen: false)
+                                                                            .user
+                                                                            ?.productqty;
+                                                                        if (overallgoodQty !=
+                                                                            null) {
+                                                                          print(
+                                                                              'overallgoodQty list state: $overallgoodQty');
+                                                                          avilableqty =
+                                                                              Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.ipcwGoodQtyAvl ?? 0;
 
-                  print('overallgoodQty list state: $overallgoodQty');
-                  avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
-                          .user
-                          ?.productqty
-                          ?.ipcwGoodQtyAvl ??
-                      0;
+                                                                          final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
+                                                                              .user
+                                                                              ?.productqty
+                                                                              ?.imfgpProcessSeq;
 
-                  final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
-                      .user
-                      ?.productqty
-                      ?.imfgpProcessSeq;
+                                                                          setState(
+                                                                              () {
+                                                                            overallqty =
+                                                                                avilableqty;
+                                                                            seqNo =
+                                                                                processSeq;
 
-                  setState(() {
-                    overallqty = avilableqty;
-                    seqNo = processSeq;
+                                                                            if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) &&
+                                                                                overallqty != 0) {
+                                                                              addFocusListeners();
+                                                                            } else if ((seqNo == 1 && overallqty == 0)) {
+                                                                              return null;
+                                                                            } else {
+                                                                              ShowError.showAlert(context, "Rework Qty Not Avilable");
+                                                                            }
+                                                                          });
+                                                                        } else {
+                                                                          ShowError.showAlert(
+                                                                              context,
+                                                                              "Skipped Previous Process");
+                                                                        }
 
-                    if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) && overallqty != 0) {
-                      addFocusListeners();
-                    }else if((seqNo == 1 && overallqty == 0)){
-                      return null;
-                    }
-                    else{
-            
-ShowError.showAlert(context, "Rework Qty Not Avilable");                
-
-                    }
-                  });
-                } else {
-                  ShowError.showAlert(context, "Skipped Previous Process");
-                }
-
-                setState(() {
-                  targetQtyController.text = targetqty?.targetqty?.toString() ?? '';
-                  achivedTargetQty = targetqty?.achivedtargetqty?.toString() ?? "";
-                });
-              }
-            } else {
-              setState(() {
-                activityDropdown = null;
-                activityid = 0;
-              });
-            }
-          },
-    items: activity?.map((activityName) {
-          return DropdownMenuItem<String>(
-            onTap: () {
-              setState(() {
-                selectedName = activityName.paActivityName;
-              });
-            },
-            value: activityName.paActivityName,
-            child: Text(
-              activityName.paActivityName ?? "",
-              style: TextStyle(
-                color: Colors.black87,
-                fontFamily: "lexend",
-                fontSize: 16.sp,
-              ),
-            ),
-          );
-        }).toList() ??
-        [],
-  ),
-),
+                                                                        setState(
+                                                                            () {
+                                                                          targetQtyController.text =
+                                                                              targetqty?.targetqty?.toString() ?? '';
+                                                                          achivedTargetQty =
+                                                                              targetqty?.achivedtargetqty?.toString() ?? "";
+                                                                        });
+                                                                      }
+                                                                    } else {
+                                                                      setState(
+                                                                          () {
+                                                                        activityDropdown =
+                                                                            null;
+                                                                        activityid =
+                                                                            0;
+                                                                      });
+                                                                    }
+                                                                  },
+                                                            items: activity?.map(
+                                                                    (activityName) {
+                                                                  return DropdownMenuItem<
+                                                                      String>(
+                                                                    onTap: () {
+                                                                      setState(
+                                                                          () {
+                                                                        selectedName =
+                                                                            activityName.paActivityName;
+                                                                      });
+                                                                    },
+                                                                    value: activityName
+                                                                        .paActivityName,
+                                                                    child: Text(
+                                                                      activityName
+                                                                              .paActivityName ??
+                                                                          "",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .black87,
+                                                                        fontFamily:
+                                                                            "lexend",
+                                                                        fontSize:
+                                                                            16.sp,
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                }).toList() ??
+                                                                [],
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
                                                     SizedBox(width: 50.w),
@@ -2764,78 +2992,66 @@ ShowError.showAlert(context, "Rework Qty Not Avilable");
                                                             SizedBox(
                                                               width: 2.w,
                                                             ),
-                                                           SizedBox(
-  width: 100.w,
-  height: 40.h,
-  child: Checkbox(
-    value: isChecked,
-    activeColor: Colors.green,
-    onChanged: (selectedName == null)
-        ? null
-        : (newValue) async{
-            setState(() {
-              isChecked = newValue ?? false;
-              reworkValue = isChecked ? 1 : 0;
-              clearTextFields();
-  });
+                                                            SizedBox(
+                                                              width: 100.w,
+                                                              height: 40.h,
+                                                              child: Checkbox(
+                                                                value:
+                                                                    isChecked,
+                                                                activeColor:
+                                                                    Colors
+                                                                        .green,
+                                                                onChanged:
+                                                                    (selectedName ==
+                                                                            null)
+                                                                        ? null
+                                                                        : (newValue) async {
+                                                                            setState(() {
+                                                                              isChecked = newValue ?? false;
+                                                                              reworkValue = isChecked ? 1 : 0;
+                                                                              clearTextFields();
+                                                                            });
 
-              if (reworkValue == 1) {
+                                                                            if (reworkValue ==
+                                                                                1) {
+                                                                              Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
 
-                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+                                                                              await productAvilableQtyService.getAvilableQty(
+                                                                                context: context,
+                                                                                reworkflag: reworkValue ?? 0,
+                                                                                processid: widget.processid ?? 0,
+                                                                                paid: activityid ?? 0,
+                                                                                cardno: cardNoController.text,
+                                                                              );
 
-              await  productAvilableQtyService.getAvilableQty(
-                  context: context,
-                  reworkflag: reworkValue ?? 0,
-                  processid: widget.processid ?? 0,
-                  paid: activityid ?? 0,
-                  cardno: cardNoController.text,
-                );
+                                                                              final overallgoodQty = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty;
 
-                final overallgoodQty =Provider.of<ProductAvilableQtyProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .user
-                                                                        ?.productqty;
+                                                                              if (overallgoodQty != null) {
+                                                                                print('overallgoodQty list state: $overallgoodQty');
+                                                                                avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.ipcwGoodQtyAvl ?? 0;
 
-                if (overallgoodQty != null) {
-                  print('overallgoodQty list state: $overallgoodQty');
-                  avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
-                          .user
-                          ?.productqty
-                          ?.ipcwGoodQtyAvl ??
-                      0;
+                                                                                final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.imfgpProcessSeq;
 
-                  final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
-                      .user
-                      ?.productqty
-                      ?.imfgpProcessSeq;
+                                                                                setState(() {
+                                                                                  overallqty = avilableqty;
+                                                                                  seqNo = processSeq;
+                                                                                  if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1 && overallqty != 0)) && overallqty != 0) {
+                                                                                    addFocusListeners();
+                                                                                  } else if ((seqNo == 1 && reworkValue == 0)) {
+                                                                                    return;
+                                                                                  } else {
+                                                                                    ShowError.showAlert(context, "Rework Qty Not Avilable", "Alert");
+                                                                                  }
+                                                                                });
+                                                                              } else {
+                                                                                ShowError.showAlert(context, "Skipped Previous Process");
+                                                                              }
+                                                                            }
 
-                  setState(() {
-                    overallqty = avilableqty;
-                    seqNo = processSeq;
-                    if (( seqNo != 1 || (seqNo == 1 && reworkValue == 1 && overallqty != 0 )) && overallqty != 0) {
-                      addFocusListeners();
-                    }else if((seqNo == 1 && reworkValue==0)){
-                      return;
-                    }
-                    else{
-            
-ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");                
-
-                    }
-                  });
-                } else {
-                  ShowError.showAlert(context, "Skipped Previous Process");
-                }
-              }
-          
-            print("reworkvalue $reworkValue");
-          },
-  ),
-),
-
-
+                                                                            print("reworkvalue $reworkValue");
+                                                                          },
+                                                              ),
+                                                            ),
                                                           ],
                                                         ),
                                                       ],
@@ -2846,13 +3062,10 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                   height: 2.h,
                                                 ),
                                                 Row(
-                                                  children: [
-                                         
-                                                  ],
+                                                  children: [],
                                                 ),
                                               ],
                                             ),
-
                                           ),
                                         ),
                                       ),
@@ -2883,92 +3096,121 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Padding(
-                                                  padding:  EdgeInsets.only(top:4.h),
+                                                  padding:
+                                                      EdgeInsets.only(top: 4.h),
                                                   child: Row(
                                                     children: [
-                                                    Expanded(
+                                                      Expanded(
                                                         child: SizedBox(
                                                           height: 95,
                                                           child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
                                                             children: [
                                                               Row(
                                                                 children: [
                                                                   Text(
                                                                     'Good Qty',
-                                                                    style: TextStyle(
-                                                                      fontFamily: "lexend",
-                                                                      fontSize: 16.sp,
-                                                                      color: Colors.black54,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          "lexend",
+                                                                      fontSize:
+                                                                          16.sp,
+                                                                      color: Colors
+                                                                          .black54,
                                                                     ),
                                                                   ),
                                                                   Text(
                                                                     ' *',
-                                                                    style: TextStyle(
-                                                                      fontFamily: "lexend",
-                                                                      fontSize: 16.sp,
-                                                                      color: Colors.red,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          "lexend",
+                                                                      fontSize:
+                                                                          16.sp,
+                                                                      color: Colors
+                                                                          .red,
                                                                     ),
                                                                   ),
                                                                 ],
                                                               ),
-                                                              SizedBox(height: 8.h), // Space between label and input
                                                               SizedBox(
-                                                                width: double.infinity, // Take full width
+                                                                  height: 8
+                                                                      .h), // Space between label and input
+                                                              SizedBox(
+                                                                width: double
+                                                                    .infinity, // Take full width
                                                                 height: 45.h,
-                                                                child: CustomNumField(
-                                                                  validation: (value) {
-                                                                    if (value == null || value.isEmpty) {
-                                                                      return 'Enter good qty';
-                                                                    } else if (RegExp(r'^0+$').hasMatch(value)) {
-                                                                      return 'Cannot contain zeros';
-                                                                    }
-                                                                    return null; // Return null if no validation errors
-                                                                  },
-                                                                  controller: goodQController,
-                                                                  focusNode: goodQtyFocusNode,
-                                                                  isAlphanumeric: false,
-                                                                  hintText: 'Good Quantity',
-                                                                enabled: (selectedName != null && 
-          cardNoController.text.isNotEmpty &&
-          ((seqNo == 1 && reworkValue == 0) ||
-           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
-           (seqNo != 1 && avilableqty != 0)&&avilableqty!=null)
-         ) ? true : false,
-                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))?  (value) {
-                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-                                                  
-                                                                    setState(() {
-                                                                      // Restore previous good value to overallqty if it was already subtracted
-                                                                      if (previousGoodValue != null) {
-                                                                        overallqty = (overallqty ?? 0) + previousGoodValue!;
-                                                                        previousGoodValue = null; // Reset the previous value after restoring
-                                                                      }
-                                                  
-                                                                      // Validate the entered value against overallqty
-                                                                      if (currentValue < 0) {
-                                                                        errorMessage = 'Value must be greater than 0.';
-                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
-                                                                        errorMessage = 'Value must be between 1 and $overallqty.';
-                                                                      }else if ((overallqty ?? 0)==0) {
-                                                                        errorMessage = 'Overallqty is 0 so enter 0';
-                                                                      }  
-                                                                      else {
-                                                                        errorMessage = null; // Clear the error message if valid
-                                                                      }
-                                                                    });
-                                                                  }:null
-                                                                ),
+                                                                child:
+                                                                    CustomNumField(
+                                                                        validation:
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return 'Enter good qty';
+                                                                          } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                                            return 'Cannot contain zeros';
+                                                                          }
+                                                                          return null; // Return null if no validation errors
+                                                                        },
+                                                                        controller:
+                                                                            goodQController,
+                                                                        focusNode:
+                                                                            goodQtyFocusNode,
+                                                                        isAlphanumeric:
+                                                                            false,
+                                                                        hintText:
+                                                                            'Good Quantity',
+                                                                        enabled: (selectedName != null &&
+                                                                                cardNoController.text.isNotEmpty &&
+                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                            ? true
+                                                                            : false,
+                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+
+                                                                                setState(() {
+                                                                                  // Restore previous good value to overallqty if it was already subtracted
+                                                                                  if (previousGoodValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousGoodValue!;
+                                                                                    previousGoodValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    errorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    errorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  } else if ((overallqty ?? 0) == 0) {
+                                                                                    errorMessage = 'Overallqty is 0 so enter 0';
+                                                                                  } else {
+                                                                                    errorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                               ),
-                                                              if (errorMessage != null)
+                                                              if (errorMessage !=
+                                                                  null)
                                                                 Padding(
-                                                                  padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+                                                                  padding:  EdgeInsets
+                                                                      .only(
+                                                                      left: 8.sp,
+                                                                      top: 2.sp),
                                                                   child: Text(
-                                                                    errorMessage ?? "",
-                                                                    style: TextStyle(
-                                                                      fontSize: 9.0, // Adjust the font size as needed
-                                                                      color: Colors.red,
-                                                                      height: 1.0, // Adjust the height to control spacing
+                                                                    errorMessage ??
+                                                                        "",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          9.sp, // Adjust the font size as needed
+                                                                      color: Colors
+                                                                          .red,
+                                                                      height:
+                                                                          1.0, // Adjust the height to control spacing
                                                                     ),
                                                                   ),
                                                                 ),
@@ -2976,93 +3218,121 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                           ),
                                                         ),
                                                       ),
-                                                  
-                                                  
+
                                                       SizedBox(
                                                         width: 45.w,
                                                       ),
-                                                     
-                                                        // Column for Rejected Quantity
+
+                                                      // Column for Rejected Quantity
                                                       Expanded(
                                                         child: SizedBox(
                                                           height: 95,
                                                           child: Column(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
                                                             children: [
                                                               Row(
                                                                 children: [
                                                                   Text(
                                                                     'Rejected Qty',
-                                                                    style: TextStyle(
-                                                                      fontFamily: "lexend",
-                                                                      fontSize: 16.sp,
-                                                                      color: Colors.black54,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          "lexend",
+                                                                      fontSize:
+                                                                          16.sp,
+                                                                      color: Colors
+                                                                          .black54,
                                                                     ),
                                                                   ),
                                                                   Text(
                                                                     ' *',
-                                                                    style: TextStyle(
-                                                                      fontFamily: "lexend",
-                                                                      fontSize: 16.sp,
-                                                                      color: Colors.red,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontFamily:
+                                                                          "lexend",
+                                                                      fontSize:
+                                                                          16.sp,
+                                                                      color: Colors
+                                                                          .red,
                                                                     ),
                                                                   ),
                                                                 ],
                                                               ),
-                                                              SizedBox(height: 8.h), // Space between label and input
                                                               SizedBox(
-                                                                width: double.infinity, // Take full width
+                                                                  height: 8
+                                                                      .h), // Space between label and input
+                                                              SizedBox(
+                                                                width: double
+                                                                    .infinity, // Take full width
                                                                 height: 45.h,
-                                                                child: CustomNumField(
-                                                                  validation: (value) {
-                                                                    if (value == null || value.isEmpty) {
-                                                                      return 'Enter Rejected qty';
-                                                                    }
-                                                                    return null; // Return null if no validation errors
-                                                                  },
-                                                                  focusNode: rejectedQtyFocusNode,
-                                                                  controller: rejectedQController,
-                                                                  isAlphanumeric: false,
-                                                                  hintText: 'Rejected Quantity',
-            enabled: (selectedName != null && 
-          cardNoController.text.isNotEmpty &&
-          ((seqNo == 1 && reworkValue == 0) ||
-           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
-           (seqNo != 1 && avilableqty != 0)&&avilableqty!=null)
-         ) ? true : false,
-                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
-                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-                                                  
-                                                                    setState(() {
-                                                                      // Restore previous rejected value to overallqty if it was already subtracted
-                                                                      if (previousRejectedValue != null) {
-                                                                        overallqty = (overallqty ?? 0) + previousRejectedValue!;
-                                                                        previousRejectedValue = null; // Reset the previous value after restoring
-                                                                      }
-                                                  
-                                                                      // Validate the entered value against overallqty
-                                                                      if (currentValue < 0 )  {
-                                                                        rejectederrorMessage = 'Value must be greater than 0.';
-                                                                      }  else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
-                                                                        rejectederrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                      }else if ((overallqty ?? 0)==0) {
-                                                                        rejectederrorMessage = 'Overallqty is 0 so enter 0';
-                                                                      }   else {
-                                                                        rejectederrorMessage = null; // Clear the error message if valid
-                                                                      }
-                                                                    });
-                                                                  }:null
-                                                                ),
+                                                                child:
+                                                                    CustomNumField(
+                                                                        validation:
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return 'Enter Rejected qty';
+                                                                          }
+                                                                          return null; // Return null if no validation errors
+                                                                        },
+                                                                        focusNode:
+                                                                            rejectedQtyFocusNode,
+                                                                        controller:
+                                                                            rejectedQController,
+                                                                        isAlphanumeric:
+                                                                            false,
+                                                                        hintText:
+                                                                            'Rejected Quantity',
+                                                                        enabled: (selectedName != null &&
+                                                                                cardNoController.text.isNotEmpty &&
+                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                            ? true
+                                                                            : false,
+                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+
+                                                                                setState(() {
+                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                  if (previousRejectedValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousRejectedValue!;
+                                                                                    previousRejectedValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    rejectederrorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  } else if ((overallqty ?? 0) == 0) {
+                                                                                    rejectederrorMessage = 'Overallqty is 0 so enter 0';
+                                                                                  } else {
+                                                                                    rejectederrorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                               ),
-                                                              if (rejectederrorMessage != null)
+                                                              if (rejectederrorMessage !=
+                                                                  null)
                                                                 Padding(
-                                                                  padding: const EdgeInsets.only(left: 8.0, top: 2.0),
+                                                                  padding: const EdgeInsets
+                                                                      .only(
+                                                                      left: 8.0,
+                                                                      top: 2.0),
                                                                   child: Text(
-                                                                    rejectederrorMessage ?? "",
-                                                                    style: TextStyle(
-                                                                      fontSize: 9.0, // Adjust the font size as needed
-                                                                      color: Colors.red,
-                                                                      height: 1.0, // Adjust the height to control spacing
+                                                                    rejectederrorMessage ??
+                                                                        "",
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize:
+                                                                          9.0, // Adjust the font size as needed
+                                                                      color: Colors
+                                                                          .red,
+                                                                      height:
+                                                                          1.0, // Adjust the height to control spacing
                                                                     ),
                                                                   ),
                                                                 ),
@@ -3083,104 +3353,99 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                             children: [
                                                               Row(
                                                                 children: [
-                                                                  Text('Rework Qty',
+                                                                  Text(
+                                                                      'Rework Qty',
                                                                       style: TextStyle(
                                                                           fontFamily:
                                                                               "lexend",
-                                                                          fontSize:
-                                                                              16.sp,
-                                                                          color: Colors
-                                                                              .black54)),
+                                                                          fontSize: 16
+                                                                              .sp,
+                                                                          color:
+                                                                              Colors.black54)),
                                                                   Text(
                                                                     ' *',
-                                                                    style: TextStyle(
+                                                                    style:
+                                                                        TextStyle(
                                                                       fontFamily:
                                                                           "lexend",
-                                                                      fontSize: 16.sp,
-                                                                      color:
-                                                                          Colors.red,
+                                                                      fontSize:
+                                                                          16.sp,
+                                                                      color: Colors
+                                                                          .red,
                                                                     ),
                                                                   ),
-                                                               
                                                                 ],
                                                               ),
-                                                                SizedBox(height: 8.h),
                                                               SizedBox(
-                                                                width:double.infinity ,
+                                                                  height: 8.h),
+                                                              SizedBox(
+                                                                width: double
+                                                                    .infinity,
                                                                 height: 45.h,
-                                                                child: CustomNumField(
-                                                                  validation:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                            null ||
-                                                                        value
-                                                                            .isEmpty) {
-                                                                      return ' Enter rework qty';
-                                                                    }
-                                                                    return null;
-                                                                  },
-                                                                  focusNode:
-                                                                      reworkFocusNode,
-                                                                  controller:
-                                                                      reworkQtyController,
-                                                                  isAlphanumeric:
-                                                                      false,
-                                                                  hintText:
-                                                                      'rework qty  ',
-                                                                         enabled: (selectedName != null && 
-          cardNoController.text.isNotEmpty &&
-          ((seqNo == 1 && reworkValue == 0) ||
-           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
-           (seqNo != 1 && avilableqty != 0)&&avilableqty!=null)
-         ) ? true : false,
-                                                                  onChanged:  (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
-                                                                 final currentValue = int.tryParse(value) ?? 0;
-                                                          
-                                                                    setState(() {
-                                                                      // Restore previous rejected value to overallqty if it was already subtracted
-                                                                      if (previousReworkValue !=
-                                                                          null) {
-                                                                        overallqty =
-                                                                            (overallqty ??
-                                                                                    0) +
-                                                                                previousReworkValue!;
-                                                                        previousReworkValue =
-                                                                            null; // Reset the previous value after restoring
-                                                                      }
-                                                          
-                                                                      // Validate the entered value against overallqty
-                                                                      if (currentValue <
-                                                                          0) {
-                                                                        reworkerrorMessage =
-                                                                            'Value must be greater than 0.';
-                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
-                                                                        reworkerrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                      }else if ((overallqty ?? 0)==0) {
-                                                                        reworkerrorMessage = 'Overallqty is 0 so enter 0';
-                                                                      }  else {
-                                                                        reworkerrorMessage =
-                                                                            null; // Clear the error message if valid
-                                                                      }
-                                                                    });
-                                                                  }: null
-                                                                ),
+                                                                child:
+                                                                    CustomNumField(
+                                                                        validation:
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return ' Enter rework qty';
+                                                                          }
+                                                                          return null;
+                                                                        },
+                                                                        focusNode:
+                                                                            reworkFocusNode,
+                                                                        controller:
+                                                                            reworkQtyController,
+                                                                        isAlphanumeric:
+                                                                            false,
+                                                                        hintText:
+                                                                            'rework qty  ',
+                                                                        enabled: (selectedName != null &&
+                                                                                cardNoController.text.isNotEmpty &&
+                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                            ? true
+                                                                            : false,
+                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0;
+
+                                                                                setState(() {
+                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                  if (previousReworkValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousReworkValue!;
+                                                                                    previousReworkValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    reworkerrorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  } else if ((overallqty ?? 0) == 0) {
+                                                                                    reworkerrorMessage = 'Overallqty is 0 so enter 0';
+                                                                                  } else {
+                                                                                    reworkerrorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                               ),
                                                               if (reworkerrorMessage !=
                                                                   null)
                                                                 Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .only(
-                                                                          left: 8.0,
-                                                                          top: 1.0),
+                                                                  padding: const EdgeInsets
+                                                                      .only(
+                                                                      left: 8.0,
+                                                                      top: 1.0),
                                                                   child: Text(
                                                                     reworkerrorMessage ??
                                                                         "",
-                                                                    style: TextStyle(
+                                                                    style:
+                                                                        TextStyle(
                                                                       fontSize:
                                                                           9.0, // Adjust the font size as needed
-                                                                      color:
-                                                                          Colors.red,
+                                                                      color: Colors
+                                                                          .red,
                                                                       height:
                                                                           1.0, // Adjust the height to control spacing
                                                                     ),
@@ -3193,7 +3458,6 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                     ],
                                                   ),
                                                 ),
-                                              
                                                 Row(
                                                   children: [
                                                     SizedBox(
@@ -3296,16 +3560,14 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                 ),
                                                 Row(
                                                   children: [
-
-                                                       Column     (
+                                                    Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
                                                       children: [
                                                         Row(
                                                           children: [
-                                                            Text(
-                                                                'Holding Area',
+                                                            Text('Holding Area',
                                                                 style: TextStyle(
                                                                     fontFamily:
                                                                         "lexend",
@@ -3323,79 +3585,126 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                                     Colors.red,
                                                               ),
                                                             ),
-                                                      
                                                           ],
                                                         ),
-                                                        SizedBox(height: 5.h,),
-                                   Container(
-  width: 170.w,
-  height: 45.h,
-  decoration: BoxDecoration(
-    border: Border.all(width: 1, color: Colors.grey),
-    borderRadius: BorderRadius.all(Radius.circular(5)),
-  ),
-  child: DropdownButtonFormField<String>(
-    value: locationDropdown,
-    decoration: InputDecoration(
-      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
-      border: InputBorder.none,
-    ),
-    hint: Text("Select"),
-    isExpanded: true,
-    onChanged: 
-         (String? newvalue) async {
-            if (newvalue != null) {
-              setState(() {
-                locationDropdown = newvalue;
-              });
+                                                        SizedBox(
+                                                          height: 5.h,
+                                                        ),
+                                                        Container(
+                                                          width: 170.w,
+                                                          height: 45.h,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            border: Border.all(
+                                                                width: 1,
+                                                                color: Colors
+                                                                    .grey),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .all(Radius
+                                                                        .circular(
+                                                                            5)),
+                                                          ),
+                                                          child:
+                                                              DropdownButtonFormField<
+                                                                  String>(
+                                                            value:
+                                                                locationDropdown,
+                                                            decoration:
+                                                                InputDecoration(
+                                                              contentPadding:
+                                                                  EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          5.w,
+                                                                      vertical:
+                                                                          2.h),
+                                                              border:
+                                                                  InputBorder
+                                                                      .none,
+                                                            ),
+                                                            hint:
+                                                                Text("Select"),
+                                                            isExpanded: true,
+                                                            onChanged: (String?
+                                                                newvalue) async {
+                                                              if (newvalue !=
+                                                                  null) {
+                                                                setState(() {
+                                                                  locationDropdown =
+                                                                      newvalue;
+                                                                });
 
-              final selectedlocation = location?.firstWhere(
-                (location) => location.ipaName == newvalue
-              );
+                                                                final selectedlocation =
+                                                                    location?.firstWhere((location) =>
+                                                                        location
+                                                                            .ipaName ==
+                                                                        newvalue);
 
-              if (selectedlocation != null && selectedlocation.ipaId != null) {
-                locationid = selectedlocation.ipaId ?? 0;
-              
-              }
-            } else {
-              setState(() {
-                locationDropdown = null;
-                locationid = 0;
-              });
-            }
-          },
-    items: location?.map((location) {
-          return DropdownMenuItem<String>(
-            onTap: () {
-              setState(() {
-                locationName = location.ipaName;
-              });
-            },
-            value: location.ipaName,
-            child: Text(
-              location.ipaName ?? "",
-              style: TextStyle(
-                color: Colors.black87,
-                fontFamily: "lexend",
-                fontSize: 16.sp,
-              ),
-            ),
-          );
-        }).toList() ??
-        [],
-  ),
-),
+                                                                if (selectedlocation !=
+                                                                        null &&
+                                                                    selectedlocation
+                                                                            .ipaId !=
+                                                                        null) {
+                                                                  locationid =
+                                                                      selectedlocation
+                                                                              .ipaId ??
+                                                                          0;
+                                                                }
+                                                              } else {
+                                                                setState(() {
+                                                                  locationDropdown =
+                                                                      null;
+                                                                  locationid =
+                                                                      0;
+                                                                });
+                                                              }
+                                                            },
+                                                            items: location?.map(
+                                                                    (location) {
+                                                                  return DropdownMenuItem<
+                                                                      String>(
+                                                                    onTap: () {
+                                                                      setState(
+                                                                          () {
+                                                                        locationName =
+                                                                            location.ipaName;
+                                                                      });
+                                                                    },
+                                                                    value: location
+                                                                        .ipaName,
+                                                                    child: Text(
+                                                                      location.ipaName ??
+                                                                          "",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: Colors
+                                                                            .black87,
+                                                                        fontFamily:
+                                                                            "lexend",
+                                                                        fontSize:
+                                                                            16.sp,
+                                                                      ),
+                                                                    ),
+                                                                  );
+                                                                }).toList() ??
+                                                                [],
+                                                          ),
+                                                        ),
                                                       ],
                                                     ),
-
-                                                    SizedBox(width: 45,),
+                                                    SizedBox(
+                                                      width: 45,
+                                                    ),
                                                     SizedBox(
                                                         height: 70.h,
                                                         width: 170.w,
-                                                        child:
-                                                            Padding(
-                                                              padding: const EdgeInsets.only(top: 20.0),
-                                                              child: FloatingActionButton(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .only(
+                                                                  top: 20.0),
+                                                          child:
+                                                              FloatingActionButton(
                                                                   backgroundColor:
                                                                       Colors
                                                                           .green,
@@ -3406,7 +3715,8 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                                               .r)),
                                                                   onPressed:
                                                                       () async {
-                                                                    setState(() {
+                                                                    setState(
+                                                                        () {
                                                                       nonProductionActivityService
                                                                           .getNonProductionList(
                                                                         context:
@@ -3416,18 +3726,20 @@ ShowError.showAlert(context, "Rework Qty Not Avilable","Alert");
                                                                           fromtime,
                                                                           lastUpdatedTime);
                                                                     });
-                                                              
+
                                                                     // Update time after each change
                                                                   },
                                                                   child: Text(
-                                                                      "Non Productive Time",
-                                                                      style: 
-                                                                      TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white),
-                                                                      )),
-                                                            )),
-                                                               
-
-                                                                         
+                                                                    "Non Productive Time",
+                                                                    style: TextStyle(
+                                                                        fontFamily:
+                                                                            "lexend",
+                                                                        fontSize: 14
+                                                                            .sp,
+                                                                        color: Colors
+                                                                            .white),
+                                                                  )),
+                                                        )),
                                                   ],
                                                 ),
                                               ],

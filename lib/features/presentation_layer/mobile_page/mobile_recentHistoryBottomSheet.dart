@@ -88,10 +88,10 @@ delete({
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
     final requestBody = DeleteProductionEntryModel(
-        apiFor: "delete_entry",
+        apiFor: "delete_entry_v1",
         clientAuthToken: token,
         ipdid: ipdid,
-        ipdpsid: ipdpsid, pcid: null, cardno: '', processid: null, paid: null);
+        ipdpsid: ipdpsid, pcid: pcId, cardno: cardNo, processid: processId, paid: paId);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -165,7 +165,12 @@ delete({
                               try {
                                 await delete(
                                     ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0,cardNo:cardno ,paId:paid ,pcId:pcid ,processId:processid );
-                   
+                         await recentActivityService.getRecentActivity(
+          context: context,
+          id: widget.empid ?? 0,
+          deptid: widget.deptid ?? 0,
+          psid: widget.psid ?? 0);
+    
                                 Navigator.pop(context);
                                 Navigator.pop(context);
                               } catch (error) {
@@ -331,7 +336,9 @@ delete({
                                                                         0,
                                                                     data?.ipdpsid ??
                                                                         0,
-                                                                        data?.processid ?? 0,data?.ipdcardno ?? 0,data?.ipdpcid??0,data?.ipdpaid?? 0);
+                                                                        data?.processid ?? 0,data?.ipdcardno ?? 0,
+                                                                        data?.ipdpcid??0,
+                                                                        data?.ipdpaid?? 0);
                                           },
                                           icon: SvgPicture.asset(
                                             'assets/svg/trash.svg',
