@@ -16,7 +16,6 @@ class LoginEntity extends Equatable {
 
 class UserLoginEntity extends Equatable {
     UserLoginEntity({
-
         required this.clientAutToken,
         required this.loginId,
         required this.loginPassword,

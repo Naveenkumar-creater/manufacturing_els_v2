@@ -9,8 +9,8 @@ class EditListofEmpworkstationUsecase {
 
   EditListofEmpworkstationUsecase(this.editListofEmpWorkstationRepository);
 
-Future<EditListofEmpWorkstationEntity> execute (int ipdid,String token){
-  return editListofEmpWorkstationRepository.getEditListofEmpWorkstation( ipdid,token);
+Future<EditListofEmpWorkstationEntity> execute (int ipdid,String token, psid){
+  return editListofEmpWorkstationRepository.getEditListofEmpWorkstation( ipdid,token,psid);
 
 ;}
 }

@@ -70,10 +70,10 @@ class _LoginState extends State<Login> {
                   return 'Please enter EmployeId';
                 }
                 if (value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-                  return 'Email/Phone cannot contain special symbols';
+                  return 'Username cannot contain special symbols';
                 }
                 if (value.contains(' ')) {
-                  return 'Email/Phone cannot contain spaces';
+                  return 'Username cannot contain spaces';
                 }
                 return null;
               },

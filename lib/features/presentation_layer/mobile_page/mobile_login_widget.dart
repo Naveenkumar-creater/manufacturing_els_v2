@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prominous/constant/utilities/customwidgets/custom_textform_field.dart';
-import '../../api_services/login_di.dart';
+import '../api_services/login_di.dart';
 
 class MobileLogin extends StatefulWidget {
   const MobileLogin({Key? key}) : super(key: key);

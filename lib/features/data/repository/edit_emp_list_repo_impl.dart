@@ -8,8 +8,8 @@ EditListOfEmpWorkstationDatatsource editListOfEmpWorkstationDatatsource;
 
   EditListofEmpworkstationRepoImpl( this.editListOfEmpWorkstationDatatsource);
   @override
-  Future<EditListofEmpWorkstationModel>getEditListofEmpWorkstation(int ipdid, String token) async{
-  return  await editListOfEmpWorkstationDatatsource.getEditListofEmpWorkstation(ipdid, token);
+  Future<EditListofEmpWorkstationModel>getEditListofEmpWorkstation(int ipdid, String token, int psid) async{
+  return  await editListOfEmpWorkstationDatatsource.getEditListofEmpWorkstation(ipdid, token,psid);
   }
   
 }

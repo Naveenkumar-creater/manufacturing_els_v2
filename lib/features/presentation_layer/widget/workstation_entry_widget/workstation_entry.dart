@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:convert';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -216,15 +217,8 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   String? rejectederrorMessage;
   String? reworkerrorMessage;
   String? itemerrorMessage;
+ GlobalKey _updateTimeKey = GlobalKey();
 
-  // void updateOverallQty(int value) {
-  //   setState(() {
-  //     // Check if overallqty is null and set it to 0 if it is, then subtract the value
-  //     overallqty = (overallqty ?? 0) - value;
-
-  //     print(overallqty);
-  //   });
-  // }
 
   Future<void> updateproduction(int? processid) async {
     final responsedata =
@@ -384,7 +378,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
 
             if (responseMsg == "success") {
               return ShowSaveError.showAlert(
-                  context, "Saved Successfully", "Success");
+                  context, "Saved Successfully", "Success","Success",Colors.green);
             } else {
               return ShowSaveError.showAlert(context, responseMsg);
             }
@@ -841,6 +835,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
       empTimingUpdation(fromtime!, lastUpdatedTime!);
 
       Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+
       _storedWorkstationProblemList();
 
       DateTime StartfromTime =
@@ -851,17 +846,17 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
       fromMinutes = toTime.difference(StartfromTime).inMinutes;
 
       // Initialize controllers and error messages based on list length
-      final listofempworkstation =
-          Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-              .user
-              ?.empWorkstationEntity;
+    //   final listofempworkstation =
+    //       Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+    //           .user
+    //           ?.empWorkstationEntity;
 
-      if (listofempworkstation != null) {
-        for (int i = 0; i < listofempworkstation.length; i++) {
-          empTimingTextEditingControllers.add(TextEditingController());
-          errorMessages.add(null); // Initially no error
-        }
-      }
+    // if (listofempworkstation != null) {
+    // for (int i = 0; i < listofempworkstation.length; i++) {
+    //   empTimingTextEditingControllers.add(TextEditingController());
+    //   errorMessages.add(null); // Initially no error
+    // }
+  // }
 
       // Access fetched data and set initial values
       final initialValue = productionEntry?.ipdflagid;
@@ -1318,7 +1313,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                     top: 32,
                   ),
                   child: Column(children: [
-                    const Text("Confirm you submission"),
+                    const Text("Confirm your submission"),
                     const SizedBox(
                       height: 32,
                     ),
@@ -1327,6 +1322,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                            style:  ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -1352,16 +1350,19 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: const Text("Submit",style: TextStyle(color: Colors.white),),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                            style:  ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child:  Text("Go back",style: TextStyle(color: Colors.white),)),
                         ],
                       ),
                     )
@@ -1371,6 +1372,56 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
             ),
           );
         });
+  }
+
+
+   Future<void>_WorkStationcloseapi()async{
+     try {
+         await employeeApiService.employeeList(
+                                    context: context,
+                                    deptid: widget.deptid ?? 1,
+                                    processid: widget.processid ?? 0,
+                                    psid: widget.psid ?? 0);
+
+                                await listofEmpworkstationService
+                                    .getListofEmpWorkstation(
+                                        context: context,
+                                        deptid: widget.deptid ?? 1,
+                                        psid: widget.psid ?? 0,
+                                        processid: widget.processid ?? 0,
+                                        pwsId: widget.pwsid ?? 0);
+
+                                //           Navigator.of(context).push(MaterialPageRoute(
+                                //   builder: (context) => ResponsiveTabletHomepage(),
+                                // ));
+                                await listofworkstationService
+                                    .getListofWorkstation(
+                                        context: context,
+                                        deptid: widget.deptid ?? 1057,
+                                        psid: widget.psid ?? 0,
+                                        processid: widget.processid ?? 0);
+                                await attendanceCountService.getAttCount(
+                                    context: context,
+                                    id: widget.processid ?? 0,
+                                    deptid: widget.deptid ?? 1057,
+                                    psid: widget.psid ?? 0);
+
+                              await actualQtyService.getActualQty(
+                          context: context,
+                          id: widget.processid ?? 0,
+                          psid: widget.psid ?? 0);
+
+                      await planQtyService.getPlanQty(
+                          context: context,
+                          id: widget.processid ?? 0,
+                          psid: widget.psid ?? 0);
+
+                                         
+       
+     } catch (e) {
+      isLoading=false;
+       
+     }
   }
 
   void _WorkStationcloseShiftPop(BuildContext context) {
@@ -1403,42 +1454,20 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
+                                 Navigator.pop(context);
+                                      
                                 await workstationClose(
                                     processid: widget.processid,
                                     psid: widget.psid,
-                                    pwsid: widget.pwsid);
-                                await employeeApiService.employeeList(
-                                    context: context,
-                                    deptid: widget.deptid ?? 1,
-                                    processid: widget.processid ?? 0,
-                                    psid: widget.psid ?? 0);
-                                await listofEmpworkstationService
-                                    .getListofEmpWorkstation(
-                                        context: context,
-                                        deptid: widget.deptid ?? 1,
-                                        psid: widget.psid ?? 0,
-                                        processid: widget.processid ?? 0,
-                                        pwsId: widget.pwsid ?? 0);
+                                    pwsid: widget.pwsid);   
 
-                                //           Navigator.of(context).push(MaterialPageRoute(
-                                //   builder: (context) => ResponsiveTabletHomepage(),
-                                // ));
-                                await listofworkstationService
-                                    .getListofWorkstation(
-                                        context: context,
-                                        deptid: widget.deptid ?? 1057,
-                                        psid: widget.psid ?? 0,
-                                        processid: widget.processid ?? 0);
-                                await attendanceCountService.getAttCount(
-                                    context: context,
-                                    id: widget.processid ?? 0,
-                                    deptid: widget.deptid ?? 1057,
-                                    psid: widget.psid ?? 0);
-
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                                   _WorkStationcloseapi();
+                         
                               } catch (error) {
                                 // Handle and show the error message here
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1449,16 +1478,20 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white),),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                          
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child:  Text("Go back",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),)
                         ],
                       ),
                     )
@@ -1501,12 +1534,17 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
       if (response.statusCode == 200) {
         try {
           final responseJson = jsonDecode(response.body);
-          // loadEmployeeList();
-          print(responseJson);
-          return responseJson;
+
+          final responsemsg=responseJson["response_msg"];
+          if(responsemsg=="success"){
+           return ShowSaveError.showAlert(context, "Workstation Closed successfully","Success","Success",Colors.green);
+          }else{
+ return ShowError.showAlert(context, "Workstation Not Closed","Error");
+          }
+       
         } catch (e) {
           // Handle the case where the response body is not a valid JSON object
-          throw ("Invalid JSON response from the server");
+           return ShowError.showAlert(context,e.toString(),"Error");
         }
       } else {
         throw ("Server responded with status code ${response.statusCode}");
@@ -1559,12 +1597,20 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
         try {
           final responseJson = jsonDecode(response.body);
           // loadEmployeeList();
-          print(responseJson);
-          return responseJson;
-        } catch (e) {
-          // Handle the case where the response body is not a valid JSON object
-          throw ("Invalid JSON response from the server");
-        }
+        
+            final responseMsg = responseJson["response_msg"];
+            print(responseJson);
+
+            if (responseMsg == "success") {
+              return ShowSaveError.showAlert(
+                  context, "Deleted Successfully", "Success","Success",Colors.green);
+            } else {
+              return ShowSaveError.showAlert(context, responseMsg);
+            }
+          } catch (e) {
+            // Handle the case where the response body is not a valid JSON object
+            ShowSaveError.showAlert(context, e.toString());
+          }
       } else {
         throw ("Server responded with status code ${response.statusCode}");
       }
@@ -1605,6 +1651,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 if (dropdownProduct != null &&
@@ -1612,23 +1661,29 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                         goodQController.text.isNotEmpty ||
                                     rejectedQController.text.isNotEmpty ||
                                     reworkQtyController.text.isNotEmpty) {
+                                      
                                   Navigator.pop(context);
-                                  await updateproduction(widget.processid);
 
-                                  _fetchARecentActivity();
+                                  await updateproduction(widget.processid);
+                                
+                                   _WorkStationcloseapi();
+                                 
                                 }
                               } catch (error) {}
                             },
-                            child: const Text("Submit"),
+                            child: const Text("Submit",style: TextStyle(color: Colors.white,fontFamily: "lexend")),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child: const Text("Go back",style: TextStyle(color: Colors.white,fontFamily: "lexend"),)),
                         ],
                       ),
                     )
@@ -1702,8 +1757,14 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
+
                             onPressed: () async {
                               try {
+                                 Navigator.pop(context);
+                        
                                 await delete(
                                     ipdid: ipdid ?? 0,
                                     ipdpsid: ipdpsid ?? 0,
@@ -1711,10 +1772,15 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                     cardno: cardno,
                                     pcid: pcid,
                                     paid: paid);
-                                await _fetchARecentActivity();
+                                         
+                              
+                                
+                                  
+                                 _fetchARecentActivity();
+                _updateTimeKey = GlobalKey(); // Change key to trigger rebuild
+            
 
-                                Navigator.pop(context);
-                                Navigator.pop(context);
+                          
                               } catch (error) {
                                 // Handle and show the error message here
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -1725,16 +1791,19 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: const Text("Submit",style: TextStyle(color: Colors.white, fontFamily: "lexend")),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                             style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child: const Text("Go back",style: TextStyle(color: Colors.white, fontFamily: "lexend"))),
                         ],
                       ),
                     )
@@ -1747,33 +1816,34 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   }
 
   void empTimingUpdation(String startTime, String endTime) {
-    DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
-    DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
 
-    Duration timeoutDuration = toDate.difference(fromDate);
-    int minutes = timeoutDuration.inMinutes;
+  Duration timeoutDuration = toDate.difference(fromDate);
+  int minutes = timeoutDuration.inMinutes;
 
-    final listofempworkstation =
-        Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-            .user
-            ?.empWorkstationEntity;
+  final listofempworkstation =
+      Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+          .user
+          ?.empWorkstationEntity;
 
-    if (listofempworkstation != null) {
-      setState(() {
-        // Ensure empTimingTextEditingControllers has the correct number of controllers
-        empTimingTextEditingControllers.clear(); // Clear previous controllers
+  if (listofempworkstation != null) {
+    setState(() {
+      // Clear previous controllers and messages to avoid duplicates
+      empTimingTextEditingControllers.clear();
+      errorMessages.clear();
 
-        for (int i = 0; i <= listofempworkstation.length; i++) {
-          TextEditingController controller = TextEditingController();
-          controller.text = minutes.toString();
-          empTimingTextEditingControllers.add(controller);
-        }
-      });
-    } else {
-      print("listofempworkstation is null");
-    }
+      for (int i = 0; i < listofempworkstation.length; i++) {
+        TextEditingController controller = TextEditingController();
+        controller.text = minutes.toString();
+        empTimingTextEditingControllers.add(controller);
+        errorMessages.add(null); // No initial error
+      }
+    });
+  } else {
+    print("listofempworkstation is null");
   }
-
+}
   void addFocusListeners() {
     goodQtyFocusNode.addListener(() {
       if (!goodQtyFocusNode.hasFocus) {
@@ -1941,21 +2011,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                       //     deptid: widget.deptid ?? 1057,
                       //     psid: widget.psid ?? 0,
                       //     processid: widget.processid ?? 0);
-                      await attendanceCountService.getAttCount(
-                          context: context,
-                          id: widget.processid ?? 0,
-                          deptid: widget.deptid ?? 1057,
-                          psid: widget.psid ?? 0);
-
-                      await actualQtyService.getActualQty(
-                          context: context,
-                          id: widget.processid ?? 0,
-                          psid: widget.psid ?? 0);
-
-                      await planQtyService.getPlanQty(
-                          context: context,
-                          id: widget.processid ?? 0,
-                          psid: widget.psid ?? 0);
+            _WorkStationcloseapi();
 
                       Navigator.pop(context);
                     }),
@@ -2072,6 +2128,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                   width: 30.w,
                                                 ),
                                                 UpdateTime(
+                                                  key: _updateTimeKey,
                                                   onTimeChanged: (time) {
                                                     Future.delayed(
                                                         Duration.zero, () {
@@ -2121,48 +2178,71 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                             width: 10.w,
                                           ),
                                           SizedBox(
-                                            height: 40.h,
-                                            child: CustomButton(
-                                              width: 150.w,
-                                              height: 50.h,
-                                              onPressed: selectedName != null
-                                                  ? () {
-                                                      if (_formkey.currentState
-                                                              ?.validate() ??
-                                                          false) {
-                                                        // If the form is valid, perform your actions
-                                                        print('Form is valid');
+  height: 40.h,
+  child: CustomButton(
+    width: 150.w,
+    height: 50.h,
+    onPressed: selectedName != null &&
+            locationDropdown != null &&
+            assetCotroller.text.isNotEmpty
+        ? () {
+            if (_formkey.currentState?.validate() ?? false) {
+              // If the form is valid, perform your actions
+              print('Form is valid');
 
-                                                        if (fromtime !=
-                                                            lastUpdatedTime) {
-                                                          _submitPop(context);
-                                                        } else {
-                                                          ShowError.showAlert(
-                                                              context,
-                                                              "The shift has ended, and you cannot submit any values.",
-                                                              "Alert");
-                                                        }
-                                                        // Call _submitPop function or perform actions here
-                                                      } else {
-                                                        // If the form is not valid, you can handle this case as needed
-                                                        print(
-                                                            'Form is not valid');
-                                                        // Optionally, show an error message or handle the invalid case
-                                                      }
-                                                    }
-                                                  : null,
-                                              child: Text(
-                                                'Submit',
-                                                style: TextStyle(
-                                                    fontFamily: "lexend",
-                                                    fontSize: 16.sp,
-                                                    color: Colors.white),
-                                              ),
-                                              backgroundColor: Colors.green,
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                            ),
-                                          ),
+              // Check if any TextFormField is empty or has an error message before submitting
+              if (fromtime != lastUpdatedTime) {
+                bool hasError = false;
+
+                for (var i = 0; i < empTimingTextEditingControllers.length; i++) {
+                  String controllerText = empTimingTextEditingControllers[i].text;
+                  String? errorMessage = (i < errorMessages.length) ? errorMessages[i] : null;
+
+                  // Only trigger hasError if the field is empty or errorMessage contains text
+                  if (controllerText.isEmpty || (errorMessage != null && errorMessage.isNotEmpty)) {
+                    hasError = true;
+                    break;
+                  }
+                }
+
+                if (hasError) {
+                  ShowError.showAlert(
+                    context,
+                    "Enter Valid Employee Worked Minutes",
+                    "Alert",
+                    "Warning",
+                    Colors.orange,
+                  );
+                } else {
+                  _submitPop(context);
+                }
+              } else {
+                ShowError.showAlert(
+                  context,
+                  "The fromtime and totime are the same, so you cannot submit any values.",
+                  "Alert",
+                  "Warning",
+                  Colors.orange,
+                );
+              }
+            } else {
+              // Handle the invalid form case
+              print('Form is not valid');
+            }
+          }
+        : null,
+    child: Text(
+      'Submit',
+      style: TextStyle(
+        fontFamily: "lexend",
+        fontSize: 16.sp,
+        color: Colors.white,
+      ),
+    ),
+    backgroundColor: Colors.green,
+    borderRadius: BorderRadius.circular(50),
+  ),
+),
                                           SizedBox(
                                             width: 10.h,
                                           ),
@@ -2852,7 +2932,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                                                 overallqty != 0) {
                                                                               addFocusListeners();
                                                                             } else if ((seqNo == 1 && overallqty == 0)) {
-                                                                              return null;
+                                                                              return;
                                                                             } else {
                                                                               ShowError.showAlert(context, "Rework Qty Not Avilable");
                                                                             }
@@ -3693,7 +3773,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                       ],
                                                     ),
                                                     SizedBox(
-                                                      width: 45,
+                                                      width: 45.w,
                                                     ),
                                                     SizedBox(
                                                         height: 70.h,
@@ -3997,18 +4077,19 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                                       ),
                                                                       onChanged:
                                                                           (value) {
-                                                                        // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-                                                                        // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
-                                                                        fromMinutes = shiftEndtTime
-                                                                            ?.difference(shiftStartTime!)
+                                                                        DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                        DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+                                                                        fromMinutes = toTime
+                                                                            ?.difference(fromTime!)
                                                                             .inMinutes;
 
-                                                                        final enteredMinutes =
-                                                                            int.tryParse(value) ??
-                                                                                -1;
+                                                                    
 
                                                                         setState(
                                                                             () {
+                                                                                  final enteredMinutes =
+                                                                            int.tryParse(value) ??
+                                                                               0 ;
                                                                           if (enteredMinutes < 0 ||
                                                                               enteredMinutes > fromMinutes!) {
                                                                             errorMessages[index] =
@@ -4236,7 +4317,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                                 BorderRadius
                                                                     .circular(
                                                                         4)),
-                                                    onPressed: () async {
+                                                    onPressed: assetCotroller.text.isNotEmpty ?() async {
                                                       setState(() {
                                                         listofproblemservice
                                                             .getListofProblem(
@@ -4258,6 +4339,8 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                       });
 
                                                       // Update time after each change
+                                                    }:(){
+                                                      ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.orange);
                                                     },
                                                     child: const Icon(Icons.add,
                                                         color: Colors.black,
@@ -4353,17 +4436,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                               index];
                                                       return GestureDetector(
                                                         onTap: () {
-                                                          listofproblemservice.getListofProblem(
-                                                              context: context,
-                                                              processid: widget
-                                                                      .processid ??
-                                                                  0,
-                                                              deptid: widget
-                                                                      .deptid ??
-                                                                  1057,
-                                                              assetid: int.parse(
-                                                                  assetCotroller
-                                                                      .text));
+                                                        
                                                           _problemEntrywidget(
                                                               item.fromtime,
                                                               lastUpdatedTime,

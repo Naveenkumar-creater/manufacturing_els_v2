@@ -13,6 +13,7 @@ class EditEmpListApiservice{
   Future<void>getEditEmplist({
       required BuildContext context,
     required int ipdid,
+    required int psid
   })async {
     try {
       SharedPreferences   pref=await SharedPreferences.getInstance();
@@ -24,7 +25,7 @@ class EditEmpListApiservice{
     )
       );
 
-      EditListofEmpWorkstationEntity editListofEmployee =await  editListofEmpusecase.execute(ipdid, token);
+      EditListofEmpWorkstationEntity editListofEmployee =await editListofEmpusecase.execute(ipdid, token, psid);
 
       Provider.of<EditEmpListProvider>(context,listen: false).setUser(editListofEmployee);
     } catch (e) {

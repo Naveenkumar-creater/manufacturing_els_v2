@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:prominous/constant/request_data_model/delete_production_entry.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_deletepopup_error.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
 import 'package:prominous/features/data/core/api_constant.dart';
 import 'package:prominous/features/presentation_layer/api_services/emp_production_entry_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
@@ -114,13 +117,17 @@ delete({
       if (response.statusCode == 200) {
         try {
           final responseJson = jsonDecode(response.body);
-          // loadEmployeeList();
-          print(responseJson);
-          return responseJson;
-        } catch (e) {
-          // Handle the case where the response body is not a valid JSON object
-          throw ("Invalid JSON response from the server");
-        }
+                final responseMsg = responseJson["response_msg"];
+          if (responseMsg == "success") {
+              return ShowDeleteError.showAlert(
+                  context, "Deleted Successfully","Success","Success",Colors.green);
+            } else {
+              return ShowDeleteError.showAlert(context, responseMsg);
+            }
+          } catch (e) {
+            // Handle the case where the response body is not a valid JSON object
+            ShowDeleteError.showAlert(context, e.toString());
+          }
       } else {
         throw ("Server responded with status code ${response.statusCode}");
       }
@@ -163,16 +170,12 @@ delete({
                           ElevatedButton(
                             onPressed: () async {
                               try {
+                          Navigator.pop(context);
                                 await delete(
                                     ipdid: ipdid ?? 0, ipdpsid: ipdpsid ?? 0,cardNo:cardno ,paId:paid ,pcId:pcid ,processId:processid );
-                         await recentActivityService.getRecentActivity(
-          context: context,
-          id: widget.empid ?? 0,
-          deptid: widget.deptid ?? 0,
-          psid: widget.psid ?? 0);
+                      
+               
     
-                                Navigator.pop(context);
-                                Navigator.pop(context);
                               } catch (error) {
                                 // Handle and show the error message here
                                 ScaffoldMessenger.of(context).showSnackBar(

@@ -39,7 +39,7 @@ class CustomTextFormfield extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+        Size screenSize = MediaQuery.of(context).size;
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return TextFormField(
@@ -62,9 +62,12 @@ class CustomTextFormfield extends StatelessWidget {
         suffixIcon: suffixIcon,
         filled: true,
         fillColor: Colors.white,
-         errorStyle: TextStyle(
-          fontSize: 8.0, // Adjust the font size as needed
+         errorStyle: screenSize.width<572 ?TextStyle(
+          fontSize: 9.0, // Adjust the font size as needed
           height: 0.10, // Adjust the height to control spacing
+        ):TextStyle(
+          fontSize: 12.0, // Adjust the font size as needed
+          height: 1.0, // Adjust the height to control spacing
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),

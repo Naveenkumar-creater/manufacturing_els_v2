@@ -27,9 +27,7 @@ class Listofproblemservice {
         ),
       );
 
-      ListOfProblemEntity user = await listofusecase.execute(token,deptid,processid,assetid
-       
-      );
+      ListOfProblemEntity user = await listofusecase.execute(token,deptid,processid,assetid);
 
       // Update the provider with the fetched data
       Provider.of<ListofproblemProvider>(context, listen: false).setUser(user);

@@ -202,6 +202,7 @@ class _EmpProductionEntryPageState
   final List<String?> errorMessages = [];
 
   EmployeeApiService employeeApiService = EmployeeApiService();
+   GlobalKey _updateTimeKey = GlobalKey();
   int? fromMinutes;
   int? overallqty;
   int? avilableqty;
@@ -419,7 +420,9 @@ Future<void> updateproduction(int? processid) async {
           // shiftId: widget.shiftid,
           psid: widget.psid,
           pwsid: widget.pwsid,
-          workstationName: widget.workstationName),
+          workstationName: widget.workstationName,
+          
+          ),
     );
   }
 
@@ -1284,7 +1287,7 @@ Future<void> _fetchARecentActivity() async {
                                         goodQController.text.isNotEmpty ||
                                     rejectedQController.text.isNotEmpty ||
                                     reworkQtyController.text.isNotEmpty) {
-  Navigator.of(context).pop();
+                                 Navigator.of(context).pop();
                                   await updateproduction(widget.processid);
                                 
                                  _fetchARecentActivity();
@@ -1530,32 +1533,34 @@ Future<void> _fetchARecentActivity() async {
 
 
 
-void empTimingUpdation(String startTime, String endTime) {
-  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
-  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+ void empTimingUpdation(String startTime, String endTime) {
+    DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+    DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
 
-  Duration timeoutDuration = toDate.difference(fromDate);
-  int minutes = timeoutDuration.inMinutes;
+    Duration timeoutDuration = toDate.difference(fromDate);
+    int minutes = timeoutDuration.inMinutes;
 
-  final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-      .user
-      ?.empWorkstationEntity;
+    final listofempworkstation =
+        Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+            .user
+            ?.empWorkstationEntity;
 
-  if (listofempworkstation != null) {
-    setState(() {
-      // Ensure empTimingTextEditingControllers has the correct number of controllers
-      empTimingTextEditingControllers.clear();  // Clear previous controllers
+    if (listofempworkstation != null) {
+      setState(() {
+        // Ensure empTimingTextEditingControllers has the correct number of controllers
+        empTimingTextEditingControllers.clear(); // Clear previous controllers
 
-      for (int i = 0; i <=listofempworkstation.length; i++) {
-        TextEditingController controller = TextEditingController();
-        controller.text = minutes.toString();
-        empTimingTextEditingControllers.add(controller);
-      }
-    });
-  } else {
-    print("listofempworkstation is null");
+        for (int i = 0; i <= listofempworkstation.length; i++) {
+          TextEditingController controller = TextEditingController();
+          controller.text = minutes.toString();
+          empTimingTextEditingControllers.add(controller);
+        }
+      });
+    } else {
+      print("listofempworkstation is null");
+    }
   }
-}
+
 
 void addFocusListeners() {
     goodQtyFocusNode.addListener(() {
@@ -1883,6 +1888,7 @@ void addFocusListeners() {
                                                 MainAxisAlignment.center,
                                             children: [
                                                                                    UpdateTime(
+                                                                           
                                                   onTimeChanged: (time) {
                                                     Future.delayed(
                                                         Duration.zero, () {
@@ -1942,1494 +1948,1652 @@ void addFocusListeners() {
                                       elevation: 3,
                                       borderRadius: BorderRadius.circular(5.r),
                                       child: Container(
-                                        height: 550.h,
+                                       
                                         decoration: BoxDecoration(
                                             color: Color.fromARGB(
                                                 150, 235, 236, 255),
                                             borderRadius: BorderRadius.all(
                                                 Radius.circular(5))),
-                                        child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            'Job Card',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 14.sp,
-                                                              color:
-                                                                  Colors.black54,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 16.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                          CardNoScanner(
-                                                            // empId: widget.empid,
-                                                            // processId: widget.processid,
-                                                            onCardDataReceived:
-                                                                (scannedCardNo,
-                                                                    scannedProductName,itemid,cardid) {
-                                                              setState(() {
-                                                                cardNoController
-                                                                        .text =
-                                                                    scannedCardNo;
-                                                                productNameController
-                                                                        .text =
-                                                                    scannedProductName;
-                                                              });
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
-                                              Focus(
-                                                            focusNode:
-                                                                cardNoFocusNode,
-                                                            onKey:
-                                                                (node, event) {
-                                                              if (event.logicalKey ==
-                                                                      LogicalKeyboardKey
-                                                                          .tab ||
-                                                                  event.logicalKey ==
-                                                                      LogicalKeyboardKey
-                                                                          .enter) {
-                                                                // Trigger the API call when the Tab or Enter key is pressed
-                                                                cardNoApiService
-                                                                    .getCardNo(
-                                                                  context:
-                                                                      context,
-                                                                  cardNo: int.tryParse(
-                                                                          cardNoController
-                                                                              .text) ??
-                                                                      0,
-                                                                )
-                                                                    .then((_) {
-                                                                  final item = Provider.of<
-                                                                              CardNoProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.scanCardForItem;
-
-                                                                  if (item !=
-                                                                      null) {
-                                                                    product_Id =
-                                                                        item.pcItemId;
-                                                                    pcid = item
-                                                                        .pcId;
-                                                                    updateProductName(
-                                                                        item.itemName ??
-                                                                            "");
-
-                                                                    // Move the focus to the Item Ref field
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .requestFocus(
-                                                                            itemRefFocusNode);
-                                                                  }
-                                                                });
-                                                              }
-                                                              return KeyEventResult
-                                                                  .ignored;
-                                                            },
-                                                            child: SizedBox(
-                                                              width: 150.w,
-                                                              height: 50.h,
-                                                              child:
-                                                                  CustomNumField(
-                                                                    enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                                controller:
-                                                                    cardNoController,
-                                                                hintText:
-                                                                    'Card No',
-                                                                keyboardtype:
-                                                                    TextInputType
-                                                                        .number,
-                                                                validation:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .isEmpty) {
-                                                                    return 'Enter card No.';
-                                                                  } else if (RegExp(
-                                                                          r'^0+$')
-                                                                      .hasMatch(
-                                                                          value)) {
-                                                                    return 'Cannot contain zeros';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                                enabled:
-                                                                    reworkValue !=
-                                                                        1,
-                                                                onEditingComplete:
-                                                                    () {
-                                                                  final item = Provider.of<
-                                                                              CardNoProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.scanCardForItem;
-
-                                                                  if (item !=
-                                                                      null) {
-                                                                    product_Id =
-                                                                        item.pcItemId;
-                                                                    pcid = item
-                                                                        .pcId;
-                                                                    updateProductName(
-                                                                        item.itemName ??
-                                                                            "");
-
-                                                                    // Move the focus to the Item Ref field
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .requestFocus(
-                                                                            itemRefFocusNode);
-                                                                  }
-                                                                },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top:15.w,bottom: 15.w),
+                                          child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              'Job Card',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 14.sp,
+                                                                color:
+                                                                    Colors.black54,
                                                               ),
                                                             ),
-                                                          ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20.w,
-                                                  ),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text('Asset ID',
+                                                            Text(
+                                                              ' *',
                                                               style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize: 14.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          ScanBarcode(
-                                                            // empId: widget.empid,
-                                                            pwsid: widget.pwsid,
-                                                            onCardDataReceived:
-                                                                (scannedAssetId) {
-                                                              setState(() {
-                                                                assetCotroller
-                                                                        .text =
-                                                                    scannedAssetId;
-                                                              });
-                                                            },
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150.w,
-                                                        height: 50.w,
-                                                        child: CustomNumField(
-                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          controller:
-                                                              assetCotroller,
-                                                          hintText: 'Asset id',
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 10.h,
-                                              ),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text("Item Ref",
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize: 14.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 14.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                     SizedBox(
-                                                          width: 150.w,
-                                                          height: 50.h,
-                                                          child: TypeAheadField<
-                                                              String>(
-                                                            textFieldConfiguration:
-                                                                TextFieldConfiguration(
-                                                              enabled:
-                                                                  product_Id !=
-                                                                          null
-                                                                      ? false
-                                                                      : true,
-                                                              controller:
-                                                                  productNameController,
-                                                              focusNode:
-                                                                  itemRefFocusNode,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                contentPadding:
-                                                                    EdgeInsets
-                                                                        .all(
-                                                                            10),
-                                                                constraints:
-                                                                    BoxConstraints(
-                                                                        maxHeight:
-                                                                            40,
-                                                                        maxWidth:
-                                                                            200),
-                                                                hintText:
-                                                                    "Item Ref",
-                                                                hintStyle: TextStyle(
-                                                                    color: Colors
-                                                                        .black38,
-                                                                    fontSize:
-                                                                        16),
-                                                                labelStyle:
-                                                                    TextStyle(
-                                                                        fontSize:
-                                                                            12),
-                                                                filled: true,
-                                                                fillColor:
-                                                                    Colors
-                                                                        .white,
-                                                                errorStyle:
-                                                                    TextStyle(
-                                                                        fontSize:
-                                                                            10.0,
-                                                                        height:
-                                                                            0.10),
-                                                                           enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                             
-                                                                
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color: Colors.red,
                                                               ),
-                                                              onSubmitted:
-                                                                  (value) {
-                                                                validateProductName();
-                                                              },
-                                                              // Add this to handle validation when focus is lost
-                                                              onEditingComplete:
-                                                                  () {
-                                                                validateProductName();
-                                                                FocusScope.of(
-                                                                        context)
-                                                                    .unfocus();
-                                                              },
                                                             ),
-                                                            suggestionsCallback:
-                                                                (pattern) async {
-                                                              if (pattern
-                                                                  .isEmpty)
-                                                                return [];
-                                                              final productList = Provider.of<
-                                                                              ProductProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.listofProductEntity ??
-                                                                  [];
-                                                              return productList
-                                                                  .where((product) =>
-                                                                      product
-                                                                          .productName
-                                                                          ?.toLowerCase()
-                                                                          .contains(pattern
-                                                                              .toLowerCase()) ??
-                                                                      false)
-                                                                  .map((product) =>
-                                                                      product
-                                                                          .productName ??
-                                                                      '')
-                                                                  .toList();
-                                                            },
-                                                            itemBuilder: (context,
-                                                                String
-                                                                    suggestion) {
-                                                              return ListTile(
-                                                                title: Text(
-                                                                    suggestion),
-                                                              );
-                                                            },
-                                                            onSuggestionSelected:
-                                                                (String
-                                                                    suggestion) {
-                                                              updateProductName(
-                                                                  suggestion);
-                                                              // Update product ID based on selected suggestion
-                                                              final productList = Provider.of<
-                                                                              ProductProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.listofProductEntity ??
-                                                                  [];
-                                                              final selectedProductItem =
-                                                                  productList
-                                                                      .firstWhere(
-                                                                (product) =>
-                                                                    product
-                                                                        .productName
-                                                                        ?.toLowerCase() ==
-                                                                    suggestion
-                                                                        .toLowerCase(),
-                                                              );
-
-                                                              if (selectedProductItem !=
-                                                                  null) {
-                                                                product_Id =
-                                                                    selectedProductItem
-                                                                        .productid; // Update product ID
+                                                            CardNoScanner(
+                                                              // empId: widget.empid,
+                                                              // processId: widget.processid,
+                                                              onCardDataReceived:
+                                                                  (scannedCardNo,
+                                                                      scannedProductName,itemid,cardid) {
                                                                 setState(() {
+                                                                  cardNoController
+                                                                          .text =
+                                                                      scannedCardNo;
                                                                   productNameController
                                                                           .text =
-                                                                      selectedProductItem
-                                                                          .productName!;
-                                                                  itemerrorMessage =
-                                                                      null; // Clear error message when valid product is selected
+                                                                      scannedProductName;
                                                                 });
-                                                              }
-                                                            },
-                                                            noItemsFoundBuilder:
-                                                                (context) =>
-                                                                    Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(8.0),
-                                                              child: Text(
-                                                                  'No products found',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .red)),
+                                                              },
                                                             ),
-                                                          ),
+                                                          ],
                                                         ),
-                                                        if (itemerrorMessage !=
-                                                            null)
-                                                          Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .only(
-                                                                    left: 8.0,
-                                                                    top: 2.0),
-                                                            child: Text(
-                                                              itemerrorMessage ??
-                                                                  "",
-                                                              style: TextStyle(
-                                                                fontSize: 9.0,
-                                                                color:
-                                                                    Colors.red,
-                                                                height: 1.0,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  SizedBox(
-                                                    width: 20.w,
-                                                  ),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text('Production Activity',
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize: 14.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 14.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      Container(
-                                                          width: 150.w,
-                                                          height: 40.h,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            border: Border.all(
-                                                                width: 1,
-                                                                color:
-                                                                    Colors.white),
-                                                            borderRadius:
-                                                                BorderRadius.all(
-                                                                    Radius
-                                                                        .circular(
-                                                                            5)),
-                                                          ),
-                                                          child:
-                                                              DropdownButtonFormField<
-                                                                  String>(
-                                                            value:
-                                                                activityDropdown,
-                                                            decoration:
-                                                                InputDecoration(
-                                                              fillColor:
-                                                                  Colors.white,
-                                                              filled: true,
-                                                              contentPadding:
-                                                                  EdgeInsets.symmetric(
-                                                                      horizontal:
-                                                                          5.w,
-                                                                      vertical:
-                                                                          2.h),
-                                                              border: InputBorder
-                                                                  .none,
-                                                            ),
-                                                            hint: Text("Select"),
-                                                            isExpanded: true,
-                                                           onChanged: (productNameController
-                                                                        .text
-                                                                        .isEmpty ||
-                                                                    reworkValue ==
-                                                                        1)
-                                                                ? null
-                                                                : (String?
-                                                                    newvalue) async {
-                                                                    if (newvalue !=
+                                                Focus(
+                                                              focusNode:
+                                                                  cardNoFocusNode,
+                                                              onKey:
+                                                                  (node, event) {
+                                                                if (event.logicalKey ==
+                                                                        LogicalKeyboardKey
+                                                                            .tab ||
+                                                                    event.logicalKey ==
+                                                                        LogicalKeyboardKey
+                                                                            .enter) {
+                                                                  // Trigger the API call when the Tab or Enter key is pressed
+                                                                  cardNoApiService
+                                                                      .getCardNo(
+                                                                    context:
+                                                                        context,
+                                                                    cardNo: int.tryParse(
+                                                                            cardNoController
+                                                                                .text) ??
+                                                                        0,
+                                                                  )
+                                                                      .then((_) {
+                                                                    final item = Provider.of<
+                                                                                CardNoProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.scanCardForItem;
+                                          
+                                                                    if (item !=
                                                                         null) {
-                                                                      setState(
-                                                                          () {
-                                                                        activityDropdown =
-                                                                            newvalue;
-                                                                        clearTextFields();
-                                                                      });
-
-                                                                      final selectedActivity =
-                                                                          activity
-                                                                              ?.firstWhere(
-                                                                        (activity) =>
-                                                                            activity.paActivityName ==
-                                                                            newvalue,
-                                                                        orElse: () => ProcessActivity(
-                                                                            paActivityName:
-                                                                                "",
-                                                                            mpmName:
-                                                                                "",
-                                                                            pwsName:
-                                                                                "",
-                                                                            paId:
-                                                                                0,
-                                                                            paMpmId:
-                                                                                0),
-                                                                      );
-                                                                  if (selectedActivity !=
-                                                                              null &&
-                                                                          selectedActivity.paId !=
-                                                                              null) {
-                                                                        activityid =
-                                                                            selectedActivity.paId ??
-                                                                                0;
-
-                                                                        Provider.of<ProductAvilableQtyProvider>(context,
-                                                                                listen: false)
-                                                                            .reset();
-
-                                                                        await productAvilableQtyService
-                                                                            .getAvilableQty(
-                                                                          context:
-                                                                              context,
-                                                                          reworkflag:
-                                                                              reworkValue ?? 0,
-                                                                          processid:
-                                                                              widget.processid ?? 0,
-                                                                          paid: activityid ??
-                                                                              0,
-                                                                          cardno:
-                                                                              cardNoController.text,
-                                                                        );
-
-                                                                        await targetQtyApiService
-                                                                            .getTargetQty(
-                                                                          context:
-                                                                              context,
-                                                                          paId: activityid ??
-                                                                              0,
-                                                                          deptid:
-                                                                              widget.deptid ?? 1,
-                                                                          psid: widget.psid ??
-                                                                              0,
-                                                                          pwsid:
-                                                                              widget.pwsid ?? 0,
-                                                                        );
-
-                                                                        final targetqty = Provider.of<TargetQtyProvider>(context,
-                                                                                listen: false)
-                                                                            .user
-                                                                            ?.targetQty;
-                                                                        final overallgoodQty = Provider.of<ProductAvilableQtyProvider>(context,
-                                                                                listen: false)
-                                                                            .user
-                                                                            ?.productqty;
-                                                                        if (overallgoodQty !=
-                                                                            null) {
-                                                                          print(
-                                                                              'overallgoodQty list state: $overallgoodQty');
-                                                                          avilableqty =
-                                                                              Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.ipcwGoodQtyAvl ?? 0;
-
-                                                                          final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
-                                                                              .user
-                                                                              ?.productqty
-                                                                              ?.imfgpProcessSeq;
-
-                                                                          setState(
-                                                                              () {
-                                                                            overallqty =
-                                                                                avilableqty;
-                                                                            seqNo =
-                                                                                processSeq;
-
-                                                                            if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) &&
-                                                                                overallqty != 0) {
-                                                                              addFocusListeners();
-                                                                            } else if ((seqNo == 1 && overallqty == 0)) {
-                                                                              return null;
-                                                                            } else {
-                                                                              ShowError.showAlert(context, "Rework Qty Not Avilable");
-                                                                            }
-                                                                          });
-                                                                        } else {
-                                                                          ShowError.showAlert(
-                                                                              context,
-                                                                              "Skipped Previous Process");
-                                                                        }
-
-                                                                        setState(
-                                                                            () {
-                                                                          targetQtyController.text =
-                                                                              targetqty?.targetqty?.toString() ?? '';
-                                                                          achivedTargetQty =
-                                                                              targetqty?.achivedtargetqty?.toString() ?? "";
-                                                                        });
-                                                                      }
-                                                                    } else {
-                                                                      setState(
-                                                                          () {
-                                                                        activityDropdown =
-                                                                            null;
-                                                                        activityid =
-                                                                            0;
-                                                                      });
+                                                                      product_Id =
+                                                                          item.pcItemId;
+                                                                      pcid = item
+                                                                          .pcId;
+                                                                      updateProductName(
+                                                                          item.itemName ??
+                                                                              "");
+                                          
+                                                                      // Move the focus to the Item Ref field
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .requestFocus(
+                                                                              itemRefFocusNode);
+                                                                    }
+                                                                  });
+                                                                }
+                                                                return KeyEventResult
+                                                                    .ignored;
+                                                              },
+                                                              child: SizedBox(
+                                                                width: 150.w,
+                                                                height: 50.h,
+                                                                child:
+                                                                    CustomNumField(
+                                                                      enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                                  controller:
+                                                                      cardNoController,
+                                                                  hintText:
+                                                                      'Job Card',
+                                                                  keyboardtype:
+                                                                      TextInputType
+                                                                          .number,
+                                                                  validation:
+                                                                      (value) {
+                                                                    if (value ==
+                                                                            null ||
+                                                                        value
+                                                                            .isEmpty) {
+                                                                      return 'Enter card No.';
+                                                                    } else if (RegExp(
+                                                                            r'^0+$')
+                                                                        .hasMatch(
+                                                                            value)) {
+                                                                      return 'Cannot contain zeros';
+                                                                    }
+                                                                    return null;
+                                                                  },
+                                                                  enabled:
+                                                                      reworkValue !=
+                                                                          1,
+                                                                  onEditingComplete:
+                                                                      () {
+                                                                    final item = Provider.of<
+                                                                                CardNoProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.scanCardForItem;
+                                          
+                                                                    if (item !=
+                                                                        null) {
+                                                                      product_Id =
+                                                                          item.pcItemId;
+                                                                      pcid = item
+                                                                          .pcId;
+                                                                      updateProductName(
+                                                                          item.itemName ??
+                                                                              "");
+                                          
+                                                                      // Move the focus to the Item Ref field
+                                                                      FocusScope.of(
+                                                                              context)
+                                                                          .requestFocus(
+                                                                              itemRefFocusNode);
                                                                     }
                                                                   },
-                                                            items: activity
-                                                                    ?.map(
-                                                                      (activityName) {
-                                                                        return DropdownMenuItem<
-                                                                            String>(
-                                                                          onTap:
-                                                                              () {
-                                                                            setState(
-                                                                                () {
-                                                                              selectedName =
-                                                                                  activityName.paActivityName;
-                                                                            });
-                                                                          },
-                                                                          value:
-                                                                              '${activityName.paActivityName}', // Append index to ensure uniqueness
-                                                                          child:
-                                                                              Text(
-                                                                            activityName.paActivityName ??
-                                                                                "",
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color:
-                                                                                  Colors.black87,
-                                                                              fontFamily:
-                                                                                  "lexend",
-                                                                              fontSize:
-                                                                                  16.sp,
-                                                                            ),
-                                                                          ),
-                                                                        );
-                                                                      },
-                                                                    )
-                                                                    ?.toSet()
-                                                                    .toList() ??
-                                                                [],
-                                                          )),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 10.h,
-                                              ),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text('Target Qty',
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize: 14.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 16.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 10.w,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150.w,
-                                                        height: 50.h,
-                                                        child: CustomNumField(
-                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          validation: (value) {
-                                                            if (value == null ||
-                                                                value.isEmpty) {
-                                                              return 'Enter target qty';
-                                                            } else if (RegExp(
-                                                                    r'^0+$')
-                                                                .hasMatch(
-                                                                    value)) {
-                                                              return 'Cannot contain zeros';
-                                                            }
-                                                            return null;
-                                                          },
-                                                          controller:
-                                                              targetQtyController,
-                                                          hintText:
-                                                              'Target Quantity',
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20.w,
-                                                  ),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text(
-                                                            'Good Qty',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 14.sp,
-                                                              color:
-                                                                  Colors.black54,
-                                                            ),
-                                                          ),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 16.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150.w,
-                                                        height: 50.h,
-                                                        child:  CustomNumField(
-                                                                        validation:
-                                                                            (value) {
-                                                                          if (value == null ||
-                                                                              value.isEmpty) {
-                                                                            return 'Enter good qty';
-                                                                          } else if (RegExp(r'^0+$').hasMatch(value)) {
-                                                                            return 'Cannot contain zeros';
-                                                                          }
-                                                                          return null; // Return null if no validation errors
-                                                                        },
-  enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-
-                                                                        controller:
-                                                                            goodQController,
-                                                                        focusNode:
-                                                                            goodQtyFocusNode,
-                                                                        isAlphanumeric:
-                                                                            false,
-                                                                        hintText:
-                                                                            'Good Quantity',
-                                                                        enabled: (selectedName != null &&
-                                                                                cardNoController.text.isNotEmpty &&
-                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
-                                                                            ? true
-                                                                            : false,
-                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                            ? (value) {
-                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-
-                                                                                setState(() {
-                                                                                  // Restore previous good value to overallqty if it was already subtracted
-                                                                                  if (previousGoodValue != null) {
-                                                                                    overallqty = (overallqty ?? 0) + previousGoodValue!;
-                                                                                    previousGoodValue = null; // Reset the previous value after restoring
-                                                                                  }
-
-                                                                                  // Validate the entered value against overallqty
-                                                                                  if (currentValue < 0) {
-                                                                                    errorMessage = 'Value must be greater than 0.';
-                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                    errorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                  } else if ((overallqty ?? 0) == 0) {
-                                                                                    errorMessage = 'Overallqty is 0 so enter 0';
-                                                                                  } else {
-                                                                                    errorMessage = null; // Clear the error message if valid
-                                                                                  }
-                                                                                });
-                                                                              }
-                                                                            : null),
-                                                              ),
-                                                              if (errorMessage !=
-                                                                  null)
-                                                                Padding(
-                                                                  padding:  EdgeInsets
-                                                                      .only(
-                                                                      left: 8.sp,
-                                                                      top: 2.sp),
-                                                                  child: Text(
-                                                                    errorMessage ??
-                                                                        "",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          9.sp, // Adjust the font size as needed
-                                                                      color: Colors
-                                                                          .red,
-                                                                      height:
-                                                                          1.0, // Adjust the height to control spacing
-                                                                    ),
-                                                                  ),
-                                                                
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 10.h,
-                                              ),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text('Rejected Qty',
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize: 14.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 16.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150.w,
-                                                        height: 50.h,
-                                                        child: CustomNumField(
-                                                                        validation:
-                                                                            (value) {
-                                                                          if (value == null ||
-                                                                              value.isEmpty) {
-                                                                            return 'Enter Rejected qty';
-                                                                          }
-                                                                          return null; // Return null if no validation errors
-                                                                        },
-                                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-
-                                                                        focusNode:
-                                                                            rejectedQtyFocusNode,
-                                                                        controller:
-                                                                            rejectedQController,
-                                                                        isAlphanumeric:
-                                                                            false,
-                                                                        hintText:
-                                                                            'Rejected Quantity',
-                                                                        enabled: (selectedName != null &&
-                                                                                cardNoController.text.isNotEmpty &&
-                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
-                                                                            ? true
-                                                                            : false,
-                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                            ? (value) {
-                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-
-                                                                                setState(() {
-                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
-                                                                                  if (previousRejectedValue != null) {
-                                                                                    overallqty = (overallqty ?? 0) + previousRejectedValue!;
-                                                                                    previousRejectedValue = null; // Reset the previous value after restoring
-                                                                                  }
-
-                                                                                  // Validate the entered value against overallqty
-                                                                                  if (currentValue < 0) {
-                                                                                    rejectederrorMessage = 'Value must be greater than 0.';
-                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                    rejectederrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                  } else if ((overallqty ?? 0) == 0) {
-                                                                                    rejectederrorMessage = 'Overallqty is 0 so enter 0';
-                                                                                  } else {
-                                                                                    rejectederrorMessage = null; // Clear the error message if valid
-                                                                                  }
-                                                                                });
-                                                                              }
-                                                                            : null),
-                                                              ),
-                                                              if (rejectederrorMessage !=
-                                                                  null)
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                      .only(
-                                                                      left: 8.0,
-                                                                      top: 2.0),
-                                                                  child: Text(
-                                                                    rejectederrorMessage ??
-                                                                        "",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          9.0, // Adjust the font size as needed
-                                                                      color: Colors
-                                                                          .red,
-                                                                      height:
-                                                                          1.0, // Adjust the height to control spacing
-                                                                    ),
-                                                                  ),
                                                                 ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 20.w,
-                                                  ),
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Text('Rework Qty',
-                                                              style: TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize: 14.sp,
-                                                                  color: Colors
-                                                                      .black54)),
-                                                          Text(
-                                                            ' *',
-                                                            style: TextStyle(
-                                                              fontFamily:
-                                                                  "lexend",
-                                                              fontSize: 16.sp,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      SizedBox(
-                                                        width: 150.w,
-                                                        height: 50.h,
-                                                        child:   CustomNumField(
-                                                                        validation:
-                                                                            (value) {
-                                                                          if (value == null ||
-                                                                              value.isEmpty) {
-                                                                            return ' Enter rework qty';
-                                                                          }
-                                                                          return null;
-                                                                        },
-                                                                          enabledBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    width: 1),
-                                                          ),
-                                                          focusedBorder:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-                                                          border:
-                                                              OutlineInputBorder(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(5),
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .grey,
-                                                                    width: 1),
-                                                          ),
-
-                                                                        focusNode:
-                                                                            reworkFocusNode,
-                                                                        controller:
-                                                                            reworkQtyController,
-                                                                        isAlphanumeric:
-                                                                            false,
-                                                                        hintText:
-                                                                            'rework qty  ',
-                                                                        enabled: (selectedName != null &&
-                                                                                cardNoController.text.isNotEmpty &&
-                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
-                                                                            ? true
-                                                                            : false,
-                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                            ? (value) {
-                                                                                final currentValue = int.tryParse(value) ?? 0;
-
-                                                                                setState(() {
-                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
-                                                                                  if (previousReworkValue != null) {
-                                                                                    overallqty = (overallqty ?? 0) + previousReworkValue!;
-                                                                                    previousReworkValue = null; // Reset the previous value after restoring
-                                                                                  }
-
-                                                                                  // Validate the entered value against overallqty
-                                                                                  if (currentValue < 0) {
-                                                                                    reworkerrorMessage = 'Value must be greater than 0.';
-                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                    reworkerrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                  } else if ((overallqty ?? 0) == 0) {
-                                                                                    reworkerrorMessage = 'Overallqty is 0 so enter 0';
-                                                                                  } else {
-                                                                                    reworkerrorMessage = null; // Clear the error message if valid
-                                                                                  }
-                                                                                });
-                                                                              }
-                                                                            : null),
                                                               ),
-                                                              if (reworkerrorMessage !=
-                                                                  null)
-                                                                Padding(
-                                                                  padding: const EdgeInsets
-                                                                      .only(
-                                                                      left: 8.0,
-                                                                      top: 1.0),
-                                                                  child: Text(
-                                                                    reworkerrorMessage ??
-                                                                        "",
-                                                                    style:
-                                                                        TextStyle(
-                                                                      fontSize:
-                                                                          9.0, // Adjust the font size as needed
-                                                                      color: Colors
-                                                                          .red,
-                                                                      height:
-                                                                          1.0, // Adjust the height to control spacing
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 10.h,
-                                              ),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment.start,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
-                                                          Padding(
-                                                            padding:
-                                                                EdgeInsets.only(
-                                                                    left: 4.w),
-                                                            child: Text('Rework',
+                                                            ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20.w,
+                                                    ),
+                                                     Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text("Item Ref",
                                                                 style: TextStyle(
                                                                     fontFamily:
                                                                         "lexend",
-                                                                    fontSize:
-                                                                        14.sp,
+                                                                    fontSize: 14.sp,
                                                                     color: Colors
                                                                         .black54)),
-                                                          ),
-                                                          SizedBox(
-                                                            width: 5.w,
-                                                          ),
-                                                          SizedBox(
-                                                              width: 100.w,
-                                                              height: 40.h,
-                                                              child: Checkbox(
-                                                                value:
-                                                                    isChecked,
-                                                                activeColor:
-                                                                    Colors
-                                                                        .green,
-                                                                onChanged:
-                                                                    (selectedName ==
-                                                                            null)
-                                                                        ? null
-                                                                        : (newValue) async {
-                                                                            setState(() {
-                                                                              isChecked = newValue ?? false;
-                                                                              reworkValue = isChecked ? 1 : 0;
-                                                                              clearTextFields();
-                                                                            });
-
-                                                                            if (reworkValue ==
-                                                                                1) {
-                                                                              Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
-
-                                                                              await productAvilableQtyService.getAvilableQty(
-                                                                                context: context,
-                                                                                reworkflag: reworkValue ?? 0,
-                                                                                processid: widget.processid ?? 0,
-                                                                                paid: activityid ?? 0,
-                                                                                cardno: cardNoController.text,
-                                                                              );
-
-                                                                              final overallgoodQty = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty;
-
-                                                                              if (overallgoodQty != null) {
-                                                                                print('overallgoodQty list state: $overallgoodQty');
-                                                                                avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.ipcwGoodQtyAvl ?? 0;
-
-                                                                                final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.imfgpProcessSeq;
-
-                                                                                setState(() {
-                                                                                  overallqty = avilableqty;
-                                                                                  seqNo = processSeq;
-                                                                                  if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1 && overallqty != 0)) && overallqty != 0) {
-                                                                                    addFocusListeners();
-                                                                                  } else if ((seqNo == 1 && reworkValue == 0)) {
-                                                                                    return;
-                                                                                  } else {
-                                                                                    ShowError.showAlert(context, "Rework Qty Not Avilable", "Alert");
-                                                                                  }
-                                                                                });
-                                                                              } else {
-                                                                                ShowError.showAlert(context, "Skipped Previous Process");
-                                                                              }
-                                                                            }
-
-                                                                            print("reworkvalue $reworkValue");
-                                                                          },
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.red,
                                                               ),
-                                                              
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(height: 10,),
+                                                       SizedBox(
+                                                            width: 150.w,
+                                                            height: 50.h,
+                                                            child: TypeAheadField<
+                                                                String>(
+                                                              textFieldConfiguration:
+                                                                  TextFieldConfiguration(
+                                                                enabled:
+                                                                    product_Id !=
+                                                                            null
+                                                                        ? false
+                                                                        : true,
+                                                                controller:
+                                                                    productNameController,
+                                                                focusNode:
+                                                                    itemRefFocusNode,
+                                                                decoration:
+                                                                    InputDecoration(
+                                                                  contentPadding:
+                                                                      EdgeInsets
+                                                                          .all(
+                                                                              10),
+                                                                  constraints:
+                                                                      BoxConstraints(
+                                                                          maxHeight:
+                                                                              40,
+                                                                          maxWidth:
+                                                                              200),
+                                                                  hintText:
+                                                                      "Item Ref",
+                                                                  hintStyle: TextStyle(
+                                                                      color: Colors
+                                                                          .black38,
+                                                                      fontSize:
+                                                                          16),
+                                                                  labelStyle:
+                                                                      TextStyle(
+                                                                          fontSize:
+                                                                              12),
+                                                                  filled: true,
+                                                                  fillColor:
+                                                                      Colors
+                                                                          .white,
+                                                                  errorStyle:
+                                                                      TextStyle(
+                                                                          fontSize:
+                                                                              10.0,
+                                                                          height:
+                                                                              0.10),
+                                                                             enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                               
+                                                                  
+                                                                ),
+                                                                onSubmitted:
+                                                                    (value) {
+                                                                  validateProductName();
+                                                                },
+                                                                // Add this to handle validation when focus is lost
+                                                                onEditingComplete:
+                                                                    () {
+                                                                  validateProductName();
+                                                                  FocusScope.of(
+                                                                          context)
+                                                                      .unfocus();
+                                                                },
                                                               ),
+                                                              suggestionsCallback:
+                                                                  (pattern) async {
+                                                                if (pattern
+                                                                    .isEmpty)
+                                                                  return [];
+                                                                final productList = Provider.of<
+                                                                                ProductProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.listofProductEntity ??
+                                                                    [];
+                                                                return productList
+                                                                    .where((product) =>
+                                                                        product
+                                                                            .productName
+                                                                            ?.toLowerCase()
+                                                                            .contains(pattern
+                                                                                .toLowerCase()) ??
+                                                                        false)
+                                                                    .map((product) =>
+                                                                        product
+                                                                            .productName ??
+                                                                        '')
+                                                                    .toList();
+                                                              },
+                                                              itemBuilder: (context,
+                                                                  String
+                                                                      suggestion) {
+                                                                return ListTile(
+                                                                  title: Text(
+                                                                      suggestion),
+                                                                );
+                                                              },
+                                                              onSuggestionSelected:
+                                                                  (String
+                                                                      suggestion) {
+                                                                updateProductName(
+                                                                    suggestion);
+                                                                // Update product ID based on selected suggestion
+                                                                final productList = Provider.of<
+                                                                                ProductProvider>(
+                                                                            context,
+                                                                            listen:
+                                                                                false)
+                                                                        .user
+                                                                        ?.listofProductEntity ??
+                                                                    [];
+                                                                final selectedProductItem =
+                                                                    productList
+                                                                        .firstWhere(
+                                                                  (product) =>
+                                                                      product
+                                                                          .productName
+                                                                          ?.toLowerCase() ==
+                                                                      suggestion
+                                                                          .toLowerCase(),
+                                                                );
+                                          
+                                                                if (selectedProductItem !=
+                                                                    null) {
+                                                                  product_Id =
+                                                                      selectedProductItem
+                                                                          .productid; // Update product ID
+                                                                  setState(() {
+                                                                    productNameController
+                                                                            .text =
+                                                                        selectedProductItem
+                                                                            .productName!;
+                                                                    itemerrorMessage =
+                                                                        null; // Clear error message when valid product is selected
+                                                                  });
+                                                                }
+                                                              },
+                                                              noItemsFoundBuilder:
+                                                                  (context) =>
+                                                                      Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(8.0),
+                                                                child: Text(
+                                                                    'No products found',
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .red)),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          if (itemerrorMessage !=
+                                                              null)
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .only(
+                                                                      left: 8.0,
+                                                                      top: 2.0),
+                                                              child: Text(
+                                                                itemerrorMessage ??
+                                                                    "",
+                                                                style: TextStyle(
+                                                                  fontSize: 9.0,
+                                                                  color:
+                                                                      Colors.red,
+                                                                  height: 1.0,
+                                                                ),
+                                                              ),
+                                                            ),
                                                         ],
                                                       ),
-                                                    ],
-                                                  ),
-                                                  SizedBox(
-                                                    width: 10.w,
-                                                  ),
-                                                  Row(
-                                                    children: [
-                                                    
-                                                     
-                                                      SizedBox(
-                                                        width: 150.w,
-                                                        height: 50.h,
-                                                        child:
-                                                            FloatingActionButton(
-                                                              
-                                                                backgroundColor:
-                                                                    Colors
-                                                                        .white,
-                                                               
-                                                                mini: true,
-                                                                shape: RoundedRectangleBorder(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(5
-                                                                            .r)),
-                                                                onPressed:
-                                                                    () async {
-                                                                  setState(
-                                                                      () {
-                                                                    nonProductionActivityService
-                                                                        .getNonProductionList(
-                                                                      context:
-                                                                          context,
-                                                                    );
-                                                                    _nonProductionActivityPopup(  
-                                                                        fromtime,
-                                                                        lastUpdatedTime);
-                                                                  });
-                                                                            
-                                                                  // Update time after each change
-                                                                },
-                                                                child: Text("Non Productive Time",style: TextStyle(fontSize: 12.sp,fontFamily: "lexend",),),)
-                                                      ),
-                                                    ],
-                                                  )
-                                                ],
-                                              ),
-                                              SizedBox(
-                                                height: 25.h,
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  SizedBox(
-                                                    height: 35.h,
-                                                    child: CustomButton(
-                                                      width: 100.w,
-                                                      height: 50.h,
-                                                      onPressed:
-                                                          selectedName != null
-                                                              ? () {
-                                                                  if (_formkey
-                                                                          .currentState
-                                                                          ?.validate() ??
-                                                                      false) {
-                                                                    // If the form is valid, perform your actions
-                                                                    print(
-                                                                        'Form is valid');
-                                                                       if (fromtime !=
-                                                            lastUpdatedTime) {
-                                                          _submitPop(context);
-                                                        } else {
-                                                          ShowError.showAlert(
-                                                              context,
-                                                              "The shift has ended, and you cannot submit any values.",
-                                                              "Alert");
-                                                        } // Call _submitPop function or perform actions here
-                                                                  } else {
-                                                                    // If the form is not valid, you can handle this case as needed
-                                                                    print(
-                                                                        'Form is not valid');
-                                                                    // Optionally, show an error message or handle the invalid case
-                                                                  }
-                                                                }
-                                                              : null,
-                                                      child: Text(
-                                                        'Submit',
-                                                        style: TextStyle(
-                                                            fontFamily: "lexend",
-                                                            fontSize: 12.sp,
-                                                            color: Colors.white
+                                                
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10.h,
+                                                ),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                        Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text('Asset ID',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize: 14.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                                         Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.red,
+                                                              ),
+                                                            ), 
+                                          
+                                                            ScanBarcode(
+                                                              // empId: widget.empid,
+                                                              pwsid: widget.pwsid,
+                                                              onCardDataReceived:
+                                                                  (scannedAssetId) {
+                                                                setState(() {
+                                                                  assetCotroller
+                                                                          .text =
+                                                                      scannedAssetId;
+                                                                });
+                                                              },
                                                             ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          width: 150.w,
+                                                          height: 50.w,
+                                                          child: CustomNumField(
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            controller:
+                                                                assetCotroller,
+                                                            hintText: 'Asset id',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                   
+                                                    SizedBox(
+                                                      width: 20.w,
+                                                    ),
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text('Production Activity',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize: 14.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 14.sp,
+                                                                color: Colors.red,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        Container(
+                                                            width: 150.w,
+                                                            height: 50.h,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  width: 1,
+                                                                  color:
+                                                                      Colors.white),
+                                                              borderRadius:
+                                                                  BorderRadius.all(
+                                                                      Radius
+                                                                          .circular(
+                                                                              5)),
+                                                            ),
+                                                            child:
+                                                                DropdownButtonFormField<
+                                                                    String>(
+                                                              value:
+                                                                  activityDropdown,
+                                                              decoration:
+                                                                  InputDecoration(
+                                                                fillColor:
+                                                                    Colors.white,
+                                                                filled: true,
+                                                                contentPadding:
+                                                                    EdgeInsets.symmetric(
+                                                                        horizontal:
+                                                                            5.w,
+                                                                        vertical:
+                                                                            2.h),
+                                                                border: InputBorder
+                                                                    .none,
+                                                              ),
+                                                              hint: Text("Select"),
+                                                              isExpanded: true,
+                                                             onChanged: (productNameController
+                                                                          .text
+                                                                          .isEmpty ||
+                                                                      reworkValue ==
+                                                                          1)
+                                                                  ? null
+                                                                  : (String?
+                                                                      newvalue) async {
+                                                                      if (newvalue !=
+                                                                          null) {
+                                                                        setState(
+                                                                            () {
+                                                                          activityDropdown =
+                                                                              newvalue;
+                                                                          clearTextFields();
+                                                                        });
+                                          
+                                                                        final selectedActivity =
+                                                                            activity
+                                                                                ?.firstWhere(
+                                                                          (activity) =>
+                                                                              activity.paActivityName ==
+                                                                              newvalue,
+                                                                          orElse: () => ProcessActivity(
+                                                                              paActivityName:
+                                                                                  "",
+                                                                              mpmName:
+                                                                                  "",
+                                                                              pwsName:
+                                                                                  "",
+                                                                              paId:
+                                                                                  0,
+                                                                              paMpmId:
+                                                                                  0),
+                                                                        );
+                                                                    if (selectedActivity !=
+                                                                                null &&
+                                                                            selectedActivity.paId !=
+                                                                                null) {
+                                                                          activityid =
+                                                                              selectedActivity.paId ??
+                                                                                  0;
+                                          
+                                                                          Provider.of<ProductAvilableQtyProvider>(context,
+                                                                                  listen: false)
+                                                                              .reset();
+                                          
+                                                                          await productAvilableQtyService
+                                                                              .getAvilableQty(
+                                                                            context:
+                                                                                context,
+                                                                            reworkflag:
+                                                                                reworkValue ?? 0,
+                                                                            processid:
+                                                                                widget.processid ?? 0,
+                                                                            paid: activityid ??
+                                                                                0,
+                                                                            cardno:
+                                                                                cardNoController.text,
+                                                                          );
+                                          
+                                                                          await targetQtyApiService
+                                                                              .getTargetQty(
+                                                                            context:
+                                                                                context,
+                                                                            paId: activityid ??
+                                                                                0,
+                                                                            deptid:
+                                                                                widget.deptid ?? 1,
+                                                                            psid: widget.psid ??
+                                                                                0,
+                                                                            pwsid:
+                                                                                widget.pwsid ?? 0,
+                                                                          );
+                                          
+                                                                          final targetqty = Provider.of<TargetQtyProvider>(context,
+                                                                                  listen: false)
+                                                                              .user
+                                                                              ?.targetQty;
+                                                                          final overallgoodQty = Provider.of<ProductAvilableQtyProvider>(context,
+                                                                                  listen: false)
+                                                                              .user
+                                                                              ?.productqty;
+                                                                          if (overallgoodQty !=
+                                                                              null) {
+                                                                            print(
+                                                                                'overallgoodQty list state: $overallgoodQty');
+                                                                            avilableqty =
+                                                                                Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.ipcwGoodQtyAvl ?? 0;
+                                          
+                                                                            final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false)
+                                                                                .user
+                                                                                ?.productqty
+                                                                                ?.imfgpProcessSeq;
+                                          
+                                                                            setState(
+                                                                                () {
+                                                                              overallqty =
+                                                                                  avilableqty;
+                                                                              seqNo =
+                                                                                  processSeq;
+                                          
+                                                                              if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) &&
+                                                                                  overallqty != 0) {
+                                                                                addFocusListeners();
+                                                                              } else if ((seqNo == 1 && overallqty == 0)) {
+                                                                                return null;
+                                                                              } else {
+                                                                                ShowError.showAlert(context, "Rework Qty Not Avilable");
+                                                                              }
+                                                                            });
+                                                                          } else {
+                                                                            ShowError.showAlert(
+                                                                                context,
+                                                                                "Skipped Previous Process");
+                                                                          }
+                                          
+                                                                          setState(
+                                                                              () {
+                                                                            targetQtyController.text =
+                                                                                targetqty?.targetqty?.toString() ?? '';
+                                                                            achivedTargetQty =
+                                                                                targetqty?.achivedtargetqty?.toString() ?? "";
+                                                                          });
+                                                                        }
+                                                                      } else {
+                                                                        setState(
+                                                                            () {
+                                                                          activityDropdown =
+                                                                              null;
+                                                                          activityid =
+                                                                              0;
+                                                                        });
+                                                                      }
+                                                                    },
+                                                              items: activity
+                                                                      ?.map(
+                                                                        (activityName) {
+                                                                          return DropdownMenuItem<
+                                                                              String>(
+                                                                            onTap:
+                                                                                () {
+                                                                              setState(
+                                                                                  () {
+                                                                                selectedName =
+                                                                                    activityName.paActivityName;
+                                                                              });
+                                                                            },
+                                                                            value:
+                                                                                '${activityName.paActivityName}', // Append index to ensure uniqueness
+                                                                            child:
+                                                                                Text(
+                                                                              activityName.paActivityName ??
+                                                                                  "",
+                                                                              style:
+                                                                                  TextStyle(
+                                                                                color:
+                                                                                    Colors.black87,
+                                                                                fontFamily:
+                                                                                    "lexend",
+                                                                                fontSize:
+                                                                                    16.sp,
+                                                                              ),
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                      )
+                                                                      ?.toSet()
+                                                                      .toList() ??
+                                                                  [],
+                                                            )),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10.h,
+                                                ),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text('Target Qty',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize: 14.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color: Colors.red,
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 10.w,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          width: 150.w,
+                                                          height: 50.h,
+                                                          child: CustomNumField(
+                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            validation: (value) {
+                                                              if (value == null ||
+                                                                  value.isEmpty) {
+                                                                return 'Enter target qty';
+                                                              } else if (RegExp(
+                                                                      r'^0+$')
+                                                                  .hasMatch(
+                                                                      value)) {
+                                                                return 'Cannot contain zeros';
+                                                              }
+                                                              return null;
+                                                            },
+                                                            controller:
+                                                                targetQtyController,
+                                                            hintText:
+                                                                'Target Quantity',
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20.w,
+                                                    ),
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text(
+                                                              'Good Qty',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 14.sp,
+                                                                color:
+                                                                    Colors.black54,
+                                                              ),
+                                                            ),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color: Colors.red,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          width: 150.w,
+                                                          height: 50.h,
+                                                          child:  CustomNumField(
+                                                                          validation:
+                                                                              (value) {
+                                                                            if (value == null ||
+                                                                                value.isEmpty) {
+                                                                              return 'Enter good qty';
+                                                                            } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                                              return 'Cannot contain zeros';
+                                                                            }
+                                                                            return null; // Return null if no validation errors
+                                                                          },
+                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                          
+                                                                          controller:
+                                                                              goodQController,
+                                                                          focusNode:
+                                                                              goodQtyFocusNode,
+                                                                          isAlphanumeric:
+                                                                              false,
+                                                                          hintText:
+                                                                              'Good Quantity',
+                                                                          enabled: (selectedName != null &&
+                                                                                  cardNoController.text.isNotEmpty &&
+                                                                                  ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                              ? true
+                                                                              : false,
+                                                                          onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                              ? (value) {
+                                                                                  final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                          
+                                                                                  setState(() {
+                                                                                    // Restore previous good value to overallqty if it was already subtracted
+                                                                                    if (previousGoodValue != null) {
+                                                                                      overallqty = (overallqty ?? 0) + previousGoodValue!;
+                                                                                      previousGoodValue = null; // Reset the previous value after restoring
+                                                                                    }
+                                          
+                                                                                    // Validate the entered value against overallqty
+                                                                                    if (currentValue < 0) {
+                                                                                      errorMessage = 'Value must be greater than 0.';
+                                                                                    } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                      errorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                    } else if ((overallqty ?? 0) == 0) {
+                                                                                      errorMessage = 'Overallqty is 0 so enter 0';
+                                                                                    } else {
+                                                                                      errorMessage = null; // Clear the error message if valid
+                                                                                    }
+                                                                                  });
+                                                                                }
+                                                                              : null),
+                                                                ),
+                                                                if (errorMessage !=
+                                                                    null)
+                                                                  Padding(
+                                                                    padding:  EdgeInsets
+                                                                        .only(
+                                                                        left: 8.sp,
+                                                                        top: 2.sp),
+                                                                    child: Text(
+                                                                      errorMessage ??
+                                                                          "",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            9.sp, // Adjust the font size as needed
+                                                                        color: Colors
+                                                                            .red,
+                                                                        height:
+                                                                            1.0, // Adjust the height to control spacing
+                                                                      ),
+                                                                    ),
+                                                                  
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10.h,
+                                                ),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text('Rejected Qty',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize: 14.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color: Colors.red,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          width: 150.w,
+                                                          height: 50.h,
+                                                          child: CustomNumField(
+                                                                          validation:
+                                                                              (value) {
+                                                                            if (value == null ||
+                                                                                value.isEmpty) {
+                                                                              return 'Enter Rejected qty';
+                                                                            }
+                                                                            return null; // Return null if no validation errors
+                                                                          },
+                                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                          
+                                                                          focusNode:
+                                                                              rejectedQtyFocusNode,
+                                                                          controller:
+                                                                              rejectedQController,
+                                                                          isAlphanumeric:
+                                                                              false,
+                                                                          hintText:
+                                                                              'Rejected Quantity',
+                                                                          enabled: (selectedName != null &&
+                                                                                  cardNoController.text.isNotEmpty &&
+                                                                                  ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                              ? true
+                                                                              : false,
+                                                                          onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                              ? (value) {
+                                                                                  final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                          
+                                                                                  setState(() {
+                                                                                    // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                    if (previousRejectedValue != null) {
+                                                                                      overallqty = (overallqty ?? 0) + previousRejectedValue!;
+                                                                                      previousRejectedValue = null; // Reset the previous value after restoring
+                                                                                    }
+                                          
+                                                                                    // Validate the entered value against overallqty
+                                                                                    if (currentValue < 0) {
+                                                                                      rejectederrorMessage = 'Value must be greater than 0.';
+                                                                                    } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                      rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                    } else if ((overallqty ?? 0) == 0) {
+                                                                                      rejectederrorMessage = 'Overallqty is 0 so enter 0';
+                                                                                    } else {
+                                                                                      rejectederrorMessage = null; // Clear the error message if valid
+                                                                                    }
+                                                                                  });
+                                                                                }
+                                                                              : null),
+                                                                ),
+                                                                if (rejectederrorMessage !=
+                                                                    null)
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        left: 8.0,
+                                                                        top: 2.0),
+                                                                    child: Text(
+                                                                      rejectederrorMessage ??
+                                                                          "",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            9.0, // Adjust the font size as needed
+                                                                        color: Colors
+                                                                            .red,
+                                                                        height:
+                                                                            1.0, // Adjust the height to control spacing
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      width: 20.w,
+                                                    ),
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Text('Rework Qty',
+                                                                style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize: 14.sp,
+                                                                    color: Colors
+                                                                        .black54)),
+                                                            Text(
+                                                              ' *',
+                                                              style: TextStyle(
+                                                                fontFamily:
+                                                                    "lexend",
+                                                                fontSize: 16.sp,
+                                                                color: Colors.red,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(
+                                                          width: 150.w,
+                                                          height: 50.h,
+                                                          child:   CustomNumField(
+                                                                          validation:
+                                                                              (value) {
+                                                                            if (value == null ||
+                                                                                value.isEmpty) {
+                                                                              return ' Enter rework qty';
+                                                                            }
+                                                                            return null;
+                                                                          },
+                                                                            enabledBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width: 1),
+                                                            ),
+                                                            focusedBorder:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                                            border:
+                                                                OutlineInputBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(5),
+                                                              borderSide:
+                                                                  BorderSide(
+                                                                      color: Colors
+                                                                          .grey,
+                                                                      width: 1),
+                                                            ),
+                                          
+                                                                          focusNode:
+                                                                              reworkFocusNode,
+                                                                          controller:
+                                                                              reworkQtyController,
+                                                                          isAlphanumeric:
+                                                                              false,
+                                                                          hintText:
+                                                                              'rework qty  ',
+                                                                          enabled: (selectedName != null &&
+                                                                                  cardNoController.text.isNotEmpty &&
+                                                                                  ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                              ? true
+                                                                              : false,
+                                                                          onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                              ? (value) {
+                                                                                  final currentValue = int.tryParse(value) ?? 0;
+                                          
+                                                                                  setState(() {
+                                                                                    // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                    if (previousReworkValue != null) {
+                                                                                      overallqty = (overallqty ?? 0) + previousReworkValue!;
+                                                                                      previousReworkValue = null; // Reset the previous value after restoring
+                                                                                    }
+                                          
+                                                                                    // Validate the entered value against overallqty
+                                                                                    if (currentValue < 0) {
+                                                                                      reworkerrorMessage = 'Value must be greater than 0.';
+                                                                                    } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                      reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                    } else if ((overallqty ?? 0) == 0) {
+                                                                                      reworkerrorMessage = 'Overallqty is 0 so enter 0';
+                                                                                    } else {
+                                                                                      reworkerrorMessage = null; // Clear the error message if valid
+                                                                                    }
+                                                                                  });
+                                                                                }
+                                                                              : null),
+                                                                ),
+                                                                if (reworkerrorMessage !=
+                                                                    null)
+                                                                  Padding(
+                                                                    padding: const EdgeInsets
+                                                                        .only(
+                                                                        left: 8.0,
+                                                                        top: 1.0),
+                                                                    child: Text(
+                                                                      reworkerrorMessage ??
+                                                                          "",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize:
+                                                                            9.0, // Adjust the font size as needed
+                                                                        color: Colors
+                                                                            .red,
+                                                                        height:
+                                                                            1.0, // Adjust the height to control spacing
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: 10.h,
+                                                ),
+                                                Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment.start,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment.start,
+                                                      children: [
+                                                        Row(
+                                                          children: [
+                                                            Padding(
+                                                              padding:
+                                                                  EdgeInsets.only(
+                                                                      left: 4.w),
+                                                              child: Text('Rework',
+                                                                  style: TextStyle(
+                                                                      fontFamily:
+                                                                          "lexend",
+                                                                      fontSize:
+                                                                          14.sp,
+                                                                      color: Colors
+                                                                          .black54)),
+                                                            ),
+                                                            SizedBox(
+                                                              width: 5.w,
+                                                            ),
+                                                            SizedBox(
+                                                                width: 100.w,
+                                                                height: 40.h,
+                                                                child: Checkbox(
+                                                                  value:
+                                                                      isChecked,
+                                                                  activeColor:
+                                                                      Colors
+                                                                          .green,
+                                                                  onChanged:
+                                                                      (selectedName ==
+                                                                              null)
+                                                                          ? null
+                                                                          : (newValue) async {
+                                                                              setState(() {
+                                                                                isChecked = newValue ?? false;
+                                                                                reworkValue = isChecked ? 1 : 0;
+                                                                                clearTextFields();
+                                                                              });
+                                          
+                                                                              if (reworkValue ==
+                                                                                  1) {
+                                                                                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+                                          
+                                                                                await productAvilableQtyService.getAvilableQty(
+                                                                                  context: context,
+                                                                                  reworkflag: reworkValue ?? 0,
+                                                                                  processid: widget.processid ?? 0,
+                                                                                  paid: activityid ?? 0,
+                                                                                  cardno: cardNoController.text,
+                                                                                );
+                                          
+                                                                                final overallgoodQty = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty;
+                                          
+                                                                                if (overallgoodQty != null) {
+                                                                                  print('overallgoodQty list state: $overallgoodQty');
+                                                                                  avilableqty = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.ipcwGoodQtyAvl ?? 0;
+                                          
+                                                                                  final processSeq = Provider.of<ProductAvilableQtyProvider>(context, listen: false).user?.productqty?.imfgpProcessSeq;
+                                          
+                                                                                  setState(() {
+                                                                                    overallqty = avilableqty;
+                                                                                    seqNo = processSeq;
+                                                                                    if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1 && overallqty != 0)) && overallqty != 0) {
+                                                                                      addFocusListeners();
+                                                                                    } else if ((seqNo == 1 && reworkValue == 0)) {
+                                                                                      return;
+                                                                                    } else {
+                                                                                      ShowError.showAlert(context, "Rework Qty Not Avilable", "Alert");
+                                                                                    }
+                                                                                  });
+                                                                                } else {
+                                                                                  ShowError.showAlert(context, "Skipped Previous Process");
+                                                                                }
+                                                                              }
+                                          
+                                                                              print("reworkvalue $reworkValue");
+                                                                            },
+                                                                ),
+                                                                
+                                                                ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      width: 10.w,
+                                                    ),
+                                                    Row(
+                                                      children: [
+                                                      
+                                                  
+                                                        SizedBox(
+                                                          width: 150.w,
+                                                          height: 50.h,
+                                                          child:
+                                                              FloatingActionButton(
+                                                                
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .green,
+                                                                 
+                                                                  mini: true,
+                                                                  shape: RoundedRectangleBorder(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(50
+                                                                              .r)),
+                                                                  onPressed:
+                                                                      () async {
+                                                                    setState(
+                                                                        () {
+                                                                      nonProductionActivityService
+                                                                          .getNonProductionList(
+                                                                        context:
+                                                                            context,
+                                                                      );
+                                                                      _nonProductionActivityPopup(  
+                                                                          fromtime,
+                                                                          lastUpdatedTime);
+                                                                    });
+                                                                              
+                                                                    // Update time after each change
+                                                                  },
+                                                                  child: Text("Non Productive Time",style: TextStyle(fontSize: 12.sp,fontFamily: "lexend",color: Colors.white),),)
+                                                        ),
+                                                      ],
+                                                    )
+                                          
+                                          
+                                                    
+                                                  ],
+                                                ),
+                                                 SizedBox(
+                                                  height: 10.h,
+                                                ),
+                                                 Row(     
+                                          
+                                                  
+                                                  children: [
+                                          
+                                                  Padding(
+                                                    padding: EdgeInsets.only(left: 12.w),
+                                                    child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                          children: [
+                                                            
+                                                            Row(
+                                                              children: [
+                                                                Text('Holding Area',
+                                                                    style: TextStyle(
+                                                                        fontFamily:
+                                                                            "lexend",
+                                                                        fontSize:
+                                                                            14.sp,
+                                                                        color: Colors
+                                                                            .black54)),
+                                                                Text(
+                                                                  ' *',
+                                                                  style: TextStyle(
+                                                                    fontFamily:
+                                                                        "lexend",
+                                                                    fontSize: 16.sp,
+                                                                    color:
+                                                                        Colors.red,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            SizedBox(
+                                                              height: 5.h,
+                                                            ),
+                                                           PopupMenuButton<String>(
+                                            onSelected: (String newValue) {
+                                              setState(() {
+                                                locationDropdown = newValue;
+                                              });
+                                          
+                                              final selectedLocation = location?.firstWhere(
+                                                  (location) => location.ipaName == newValue);
+                                          
+                                              if (selectedLocation != null && selectedLocation.ipaId != null) {
+                                                locationid = selectedLocation.ipaId ?? 0;
+                                              }
+                                            },
+                                          
+                                            itemBuilder: (BuildContext context) {
+                                              return location?.map((location) {
+                                                return PopupMenuItem<String>(
+                                                  value: location.ipaName,
+                                                  child: Container(
+                                                    width:100.w,
+                                                  
+                                                    child: Text(
+                                                      location.ipaName ?? "",
+                                                      style: TextStyle(
+                                                        color: Colors.black87,
+                                                        fontFamily: "lexend",
+                                                        fontSize: 14.sp,
                                                       ),
-                                                      backgroundColor:
-                                                          Colors.green,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              50),
                                                     ),
                                                   ),
+                                                );
+                                              }).toList() ??
+                                              [];
+                                            },
+                                              color: Colors.white,
+                                            child: Container(
+                                              width: 150.w,
+                                              height: 50.h,
+                                              decoration: BoxDecoration(  
+                                                border: Border.all(width: 1, color: Colors.white),
+                                                borderRadius: BorderRadius.all(Radius.circular(5)),
+                                                color: Colors.white
+                                              ),
+                                              padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    locationDropdown ?? "Select",
+                                                    style: TextStyle(
+                                                      color: Colors.black87,
+                                                      fontFamily: "lexend",
+                                                      fontSize: 14.sp,
+                                                    ),
+                                                  ),
+                                                  Icon(Icons.arrow_drop_down, color: Colors.black54),
                                                 ],
                                               ),
-                                            ]),
+                                            ),
+                                          ),
+                                          
+                                                          ],
+                                                        ),
+                                                  ),
+                                          
+                                                ],),
+                                          
+                                                SizedBox(
+                                                  height: 25.h,
+                                                ),
+                                          
+                                               
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    SizedBox(
+                                                      height: 35.h,
+                                                      child: CustomButton(
+                                                        width: 100.w,
+                                                        height: 50.h,
+                                                        onPressed:
+                                                            selectedName != null && locationDropdown!=null&& assetCotroller.text.isNotEmpty
+                                                                ? () {
+                                                                    if (_formkey
+                                                                            .currentState
+                                                                            ?.validate() ??
+                                                                        false) {
+                                                                      // If the form is valid, perform your actions
+                                                                      print(
+                                                                          'Form is valid');
+                                                                        if (fromtime != lastUpdatedTime) {
+  bool hasError = false;
+  
+  for (var i = 0; i < empTimingTextEditingControllers.length; i++) {
+    // Check if the TextFormField is empty or if there's an error message
+    if (empTimingTextEditingControllers[i].text.isEmpty) {
+      hasError = true;
+      break;
+    }
+  }
+  
+  if (hasError) {
+    ShowError.showAlert(
+      context,
+      "Enter Valid Employee Worked Minutes",
+      "Alert"
+    );
+  } else {
+    _submitPop(context);
+  }
+} else {
+  ShowError.showAlert(
+    context,
+    "The shift has ended, and you cannot submit any values.",
+    "Alert"
+  );
+}
+
+
+
+                                                                    } else {
+                                                                      // If the form is not valid, you can handle this case as needed
+                                                                      print(
+                                                                          'Form is not valid');
+                                                                      // Optionally, show an error message or handle the invalid case
+                                                                    }
+                                                                  }
+                                                                : null,
+                                                        child: Text(
+                                                          'Submit',
+                                                          style: TextStyle(
+                                                              fontFamily: "lexend",
+                                                              fontSize: 12.sp,
+                                                              color: Colors.white
+                                                              ),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                50),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ]
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              
+                                              ),
+                                        ),
                                       ),
                                     )),
                                  Padding(padding:EdgeInsets.only(left: 8.w, right: 8.w),
@@ -3611,51 +3775,70 @@ void addFocusListeners() {
                                                                             borderSide: BorderSide(color: Colors.red.shade300),
                                                                           ),
                                                                         ),
-                                                                        onChanged: (value) {
-                                                                // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-                                                                // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
-                                                                  fromMinutes = shiftEndtTime
+                                                                     onChanged:
+                                                                          (value) {
+                                                                        // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                        // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+                                                                        fromMinutes = shiftEndtTime
                                                                             ?.difference(shiftStartTime!)
                                                                             .inMinutes;
-                                                              
-                                                                          final enteredMinutes = int.tryParse(value) ?? -1;
-                                                                    
-                                                                          setState(() {
-                                                                            if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-                                                                              errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
-                                                                              
-                                                                            } else {
-                                                                              errorMessages[index] = null; // Clear error message if valid
-                                                                            }
-                                                                          });
-                                                                        },
-                                                                        onEditingComplete: () {
-                                                                          final value = empTimingTextEditingControllers[index].text;
-                                                                          final enteredMinutes = int.tryParse(value) ?? -1;
-                                                                    
-                                                                          setState(() {
-                                                                            if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-                                                                              errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
-                                                                            } else {
-                                                                              errorMessages[index] = null; // Clear error message if valid
-                                                                            }
-                                                                          });
-                                                                        },
-                                                                      ),
+
+                                                                        final enteredMinutes =
+                                                                            int.tryParse(value) ??
+                                                                                -1;
+
+                                                                        setState(
+                                                                            () {
+                                                                          if (enteredMinutes < 0 ||
+                                                                              enteredMinutes > fromMinutes!) {
+                                                                            errorMessages[index] =
+                                                                                'Value b/w 0 to $fromMinutes minutes.';
+                                                                          } else {
+                                                                            errorMessages[index] =
+                                                                                null; // Clear error message if valid
+                                                                          }
+                                                                        });
+                                                                      },
+                                                                      // onEditingComplete: () {
+                                                                      //   final value = empTimingTextEditingControllers[index].text;
+                                                                      //   final enteredMinutes = int.tryParse(value) ?? -1;
+
+                                                                      //   setState(() {
+                                                                      //     if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                                                                      //       errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+                                                                      //     } else {
+                                                                      //       errorMessages[index] = null; // Clear error message if valid
+                                                                      //     }
+                                                                      //   });
+                                                                      // },
                                                                     ),
-                                                                    // This space will display the error message but won't change the TextFormField size
-                                                                    if (errorMessages[index] != null) 
-                                                                      Padding(
-                                                                        padding: const EdgeInsets.only(left: 2.0, top: 2.0),
-                                                                        child: Text(
-                                                                          errorMessages[index]!,
-                                                                          style: TextStyle(
-                                                                            fontSize: 7.sp, // Adjust the font size as needed
-                                                                            color: Colors.red,
-                                                                            height: 1.sp, // Adjust the height to control spacing
-                                                                          ),
+                                                                  ),
+                                                                  // This space will display the error message but won't change the TextFormField size
+                                                                  if (errorMessages[
+                                                                          index] !=
+                                                                      null)
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              2.0,
+                                                                          top:
+                                                                              2.0),
+                                                                      child:
+                                                                          Text(
+                                                                        errorMessages[
+                                                                            index]!,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              8.0, // Adjust the font size as needed
+                                                                          color:
+                                                                              Colors.red,
+                                                                          height:
+                                                                              1.0, // Adjust the height to control spacing
                                                                         ),
                                                                       ),
+                                                                    ),
                                                                   ],
                                                                 ),
                                                               ),
@@ -3770,7 +3953,7 @@ void addFocusListeners() {
                                             shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(4)),
-                                            onPressed: () async {
+                                            onPressed: assetCotroller.text.isNotEmpty ?() async {
                                             
                                             
                                                         listofproblemservice
@@ -3783,9 +3966,9 @@ void addFocusListeners() {
                                                                 deptid: widget
                                                                         .deptid ??
                                                                     1057,
-                                                                assetid: int.parse(
+                                                                assetid: int.tryParse(
                                                                     assetCotroller
-                                                                        .text));
+                                                                        .text ?? "") ?? 0);
 
                                                         _problemEntrywidget(
                                                             fromtime,
@@ -3794,7 +3977,9 @@ void addFocusListeners() {
                                           
                                   
                                               // Update time after each change
-                                            },
+                                            }: (){
+                                                      ShowError.showAlert(context, "Enter the Asset Id", "Alert");
+                                                    },
                                             child: const Icon(Icons.add,
                                                 color: Colors.black, size: 15),
                                           ),
@@ -3893,18 +4078,19 @@ void addFocusListeners() {
                                                               index];
                                                       return GestureDetector(
                                                         onTap: () {
-                                                           listofproblemservice
-                                                            .getListofProblem(
-                                                                context:
-                                                                    context,
-                                                                processid: widget
-                                                                        .processid ??
-                                                                    0,
-                                                                deptid: widget
-                                                                        .deptid ??
-                                                                    1057,
+                                                          //  listofproblemservice
+                                                          //   .getListofProblem(
+                                                          //       context:
+                                                          //           context,
+                                                          //       processid: widget
+                                                          //               .processid ??
+                                                          //           0,
+                                                          //       deptid: widget
+                                                          //               .deptid ??
+                                                          //           1057,
                                                                     
-                                                                        assetid: int.parse(assetCotroller.text)  );
+                                                          //               assetid: int.tryParse(assetCotroller.text ?? "") ?? 0  );
+                                                                        
                                                           _problemEntrywidget(
                                                               item.fromtime,
                                                               lastUpdatedTime,

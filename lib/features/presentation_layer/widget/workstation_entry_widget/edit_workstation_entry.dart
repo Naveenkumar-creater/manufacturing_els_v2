@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:convert';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -11,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:prominous/constant/request_data_model/incident_entry_model.dart';
 import 'package:prominous/constant/request_data_model/non_production_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_emp_list_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_nonproduction_lis_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_product_avilability_di.dart';
@@ -352,11 +354,16 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
         if (response.statusCode == 200) {
           try {
             final responseJson = jsonDecode(response.body);
-            print(responseJson);
-            return responseJson;
+           final responsemsg=responseJson["response_msg"];
+
+           if(responsemsg=="success"){
+            return ShowSaveError.showAlert(context, "Saved Successfully", "Success","Success",Colors.green);
+           }else{
+            return ShowSaveError.showAlert(context,responsemsg.toString());
+           }
           } catch (e) {
             // Handle the case where the response body is not a valid JSON object
-            throw ("Invalid JSON response from the server");
+              return ShowSaveError.showAlert(context,e.toString());
           }
         } else {
           throw ("Server responded with status code ${response.statusCode}");
@@ -405,8 +412,18 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
                 .productName
             : "0")!;
 
+locationDropdown = null; // Set it to null initially
 
-            locationDropdown=(EditproductionEntry?.ipdareaid!=0 ? areaname?.firstWhere((area)=>EditproductionEntry?.ipdareaid==area.ipaId).ipaName : "");
+  if (EditproductionEntry?.ipdareaid != 0 && areaname != null) {
+    for (var area in areaname!) {
+      if (EditproductionEntry?.ipdareaid == area.ipaId) {
+        locationDropdown = area.ipaName;
+        break;
+      }
+    }
+  }
+
+
       });
     }
   }
@@ -428,7 +445,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     currentMinute = now.minute;
     currentSecond = now.second;
 
-
+reworkValue ??=0;
     // if (shiftToTimeString != null) {
     //   DateTime? shiftToTime;
     //   // Parse the shiftToTime
@@ -484,6 +501,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
     targetQtyController.dispose();
     goodQController.dispose();
     rejectedQController.dispose();
+    
       for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
     }
@@ -518,7 +536,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
         deptid: widget.deptid ?? 0,
       );
       await editNonProductionListService.getNonProductionList(context:context , ipdid: widget.ipdid ?? 0);
-     await editEmpListApiservice.getEditEmplist(context:context , ipdid: widget.ipdid ?? 0);
+     await editEmpListApiservice.getEditEmplist(context:context , ipdid: widget.ipdid ?? 0,psid:widget.psid ?? 0, );
 
       await productApiService.productList(
           context: context,
@@ -530,8 +548,8 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsId ?? 0);
+      await productLocationService.getAreaList(context: context);
 
-                    await productLocationService.getAreaList(context: context);
                            final editEntry =
           Provider.of<EditEntryProvider>(context, listen: false)
               .editEntry
@@ -547,7 +565,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
   
  StartfromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
  endTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
-  fromMinutes = endTime.difference(StartfromTime).inMinutes ??0;
+  fromMinutes = endTime.difference(StartfromTime).inMinutes ?? 0;
     // Initialize controllers and error messages based on list length
  
         final listofeditempworkstation =Provider.of<EditEmpListProvider>(context, listen: false)
@@ -874,6 +892,9 @@ void clearTextFields() {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 if (dropdownProduct != null &&
@@ -881,40 +902,9 @@ void clearTextFields() {
                                         goodQController.text.isNotEmpty ||
                                     rejectedQController.text.isNotEmpty ||
                                     reworkQtyController.text.isNotEmpty) {
+                                                                        Navigator.pop(context);
+
                                   await updateproduction(widget.processid);
-                                  await empProductionEntryService
-                                      .productionentry(
-                                          context: context,
-                                          pwsId: widget.pwsId ?? 0,
-                                          deptid: widget.deptid ?? 0,
-                                          psid: widget.psid ?? 0);
-
-                                  await listofEmpworkstationService
-                                      .getListofEmpWorkstation(
-                                          context: context,
-                                          deptid: widget.deptid ?? 0,
-                                          psid: widget.psid ?? 0,
-                                          processid: widget.processid ?? 1,
-                                          pwsId: widget.pwsId ?? 0);
-                                  // await productApiService.productList(
-                                  //     context: context,
-                                  //     id: widget.processid ?? 1,
-                                  //     deptId: widget.deptid ?? 0);
-
-                                  await recentActivityService.getRecentActivity(
-                                      context: context,
-                                      id: widget.pwsId ?? 0,
-                                      deptid: widget.deptid ?? 0,
-                                      psid: widget.psid ?? 0);
-
-                                  await activityService.getActivity(
-                                      context: context,
-                                      id: widget.processid ?? 0,
-                                      deptid: widget.deptid ?? 0,
-                                      pwsId: widget.pwsId ?? 0);
-
-                                  Navigator.pop(context);
-                                  Navigator.pop(context);
 
                                   // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
 
@@ -945,16 +935,19 @@ void clearTextFields() {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: const Text("Submit",style: TextStyle(color: Colors.white,fontFamily: "lexend"),),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child: const Text("Go back",style: TextStyle(color  : Colors.white,fontFamily: "lexend"))),
                         ],
                       ),
                     )
@@ -1060,40 +1053,6 @@ void empTimingUpdation(String startTime, String endTime) {
     print("listofempworkstation is null");
   }
 }
-
-
-// void empTimingUpdation(String startTime, String endTime) {
-//   DateTime fromDate =(startTime != null && startTime.isNotEmpty)
-//     ? DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime)
-//     : DateTime.now();
-//   DateTime toDate = (endTime != null && endTime.isNotEmpty)
-//     ? DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime)
-//     : DateTime.now();
-
-//   Duration timeoutDuration = toDate.difference(fromDate);
-//   int minutes = timeoutDuration.inMinutes;
-
-//   final listofempworkstation = Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-//       .user
-//       ?.empWorkstationEntity;
-
-//   if (listofempworkstation != null && listofempworkstation.isNotEmpty) {
-//     setState(() {
-//       // Ensure empTimingTextEditingControllers has the correct number of controllers
-//       empTimingTextEditingControllers.clear();  // Clear previous controllers
-
-//       // Add controllers based on the length of listofempworkstation
-//       for (int i = 0; i < listofempworkstation.length; i++) {
-//         TextEditingController controller = TextEditingController();
-//         controller.text = minutes.toString();
-//         empTimingTextEditingControllers.add(controller);
-//       }
-//     });
-//   } else {
-//     print("listofempworkstation is null or empty");
-//   }
-// }
-
 
 
   @override
@@ -1276,16 +1235,18 @@ final storedListOfProblem =
                                           child: CustomButton(
                                             width: 150,
                                             height: 50,
-                                            onPressed: selectedName != null
+                                            onPressed: selectedName != null && locationDropdown!=null&& assetCotroller.text.isNotEmpty
                                                 ? () {
                                                     if (_formkey.currentState
                                                             ?.validate() ??
                                                         false) {
                                                       // If the form is valid, perform your actions
                                                       print('Form is valid');
-                                                      _submitPop(
-                                                          context); // Call _submitPop function or perform actions here
-                                                    } else {
+
+    _submitPop(context);
+                                                        }
+ 
+                                                     else {
                                                       // If the form is not valid, you can handle this case as needed
                                                       print(
                                                           'Form is not valid');
@@ -1619,97 +1580,142 @@ final storedListOfProblem =
     ),
     hint: Text("Select"),
     isExpanded: true,
-    onChanged: (cardNoController.text == "0" || cardNoController.text.isEmpty || reworkValue == 1)
-        ? null
-        : (String? newvalue) async {
-            if (newvalue != null) {
-              setState(() {
-                activityDropdown = newvalue;
-                clearTextFields();
-              });
+   onChanged: (productNameController
+                                                                        .text
+                                                                        .isEmpty ||
+                                                                    reworkValue ==
+                                                                        1)
+                                                                ? null
+                                                                : (String?
+                                                                    newvalue) async {
+                                                                    if (newvalue !=
+                                                                        null) {
+                                                                      setState(
+                                                                          () {
+                                                                        activityDropdown =
+                                                                            newvalue;
+                                                                        clearTextFields();
+                                                                      });
 
-              final selectedActivity = activity?.firstWhere(
-                (activity) => activity.paActivityName == newvalue,
-                orElse: () => ProcessActivity(
-                    paActivityName: "", mpmName: "", pwsName: "", paId: 0, paMpmId: 0),
-              );
+                                                                      final selectedActivity =
+                                                                          activity
+                                                                              ?.firstWhere(
+                                                                        (activity) =>
+                                                                            activity.paActivityName ==
+                                                                            newvalue,
+                                                                        orElse: () => ProcessActivity(
+                                                                            paActivityName:
+                                                                                "",
+                                                                            mpmName:
+                                                                                "",
+                                                                            pwsName:
+                                                                                "",
+                                                                            paId:
+                                                                                0,
+                                                                            paMpmId:
+                                                                                0),
+                                                                      );
 
-              if (selectedActivity != null && selectedActivity.paId != null) {
-                activityid = selectedActivity.paId ?? 0;
+                                                                      if (selectedActivity !=
+                                                                              null &&
+                                                                          selectedActivity.paId !=
+                                                                              null) {
+                                                                        activityid =
+                                                                            selectedActivity.paId ??
+                                                                                0;
 
-                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
+                                                                        Provider.of<EditProductAvilableQtyProvider>(context,
+                                                                                listen: false)
+                                                                            .reset();
 
-                await editProductAvilableQtyService.getEditAvilableQty(
-                  context: context,
-                  reworkflag: reworkValue ?? 0,
-                  processid: widget.processid ?? 0,
-                  paid: activityid ?? 0,
-                  cardno: cardNoController.text,
-                  ipdid:widget.ipdid ?? 0
-                );
+                                                                        await editProductAvilableQtyService
+                                                                            .getEditAvilableQty(
+                                                                          context:
+                                                                              context,
+                                                                          reworkflag:
+                                                                              reworkValue ?? 0,
+                                                                          processid:
+                                                                              widget.processid ?? 0,
+                                                                          paid: activityid ??
+                                                                              0,
+                                                                          cardno:
+                                                                              cardNoController.text, ipdid: widget.ipdid ?? 0,
+                                                                        );
 
-                await targetQtyApiService.getTargetQty(
-                  context: context,
-                  paId: activityid ?? 0,
-                  deptid: widget.deptid ?? 1,
-                  psid: widget.psid ?? 0,
-                  pwsid: widget.pwsId ?? 0,
-                );
+                                                                        await targetQtyApiService
+                                                                            .getTargetQty(
+                                                                          context:
+                                                                              context,
+                                                                          paId: activityid ??
+                                                                              0,
+                                                                          deptid:
+                                                                              widget.deptid ?? 1,
+                                                                          psid: widget.psid ??
+                                                                              0,
+                                                                          pwsid:
+                                                                              widget.pwsId ?? 0,
+                                                                        );
 
-                final targetqty = Provider.of<TargetQtyProvider>(context, listen: false)
-                    .user
-                    ?.targetQty;
-      final overallgoodQty =Provider.of<EditProductAvilableQtyProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .user
-                                                                        ?.editproductqty;
-                if (overallgoodQty != null) {
+                                                                        final targetqty = Provider.of<TargetQtyProvider>(context,
+                                                                                listen: false)
+                                                                            .user
+                                                                            ?.targetQty;
+                                                                        final overallgoodQty = Provider.of<EditProductAvilableQtyProvider>(context,
+                                                                                listen: false)
+                                                                            .user
+                                                                            ?.editproductqty;
+                                                                        if (overallgoodQty !=
+                                                                            null) {
+                                                                          print(
+                                                                              'overallgoodQty list state: $overallgoodQty');
+                                                                          avilableqty =
+                                                                              Provider.of<EditProductAvilableQtyProvider>(context, listen: false).user?.editproductqty?.ipcwGoodQtyAvl ?? 0;
 
-                  print('overallgoodQty list state: $overallgoodQty');
-                  avilableqty = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
-                          .user
-                          ?.editproductqty
-                          ?.ipcwGoodQtyAvl ??
-                      0;
+                                                                          final processSeq = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
+                                                                              .user
+                                                                              ?.editproductqty
+                                                                              ?.imfgpProcessSeq;
 
-                  final processSeq = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
-                      .user
-                      ?.editproductqty
-                      ?.imfgpProcessSeq;
+                                                                          setState(
+                                                                              () {
+                                                                            overallqty =
+                                                                                avilableqty;
+                                                                            seqNo =
+                                                                                processSeq;
 
-                  setState(() {
-                    overallqty = avilableqty;
-                    seqNo = processSeq;
+                                                                            if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) &&
+                                                                                overallqty != 0) {
+                                                                              addFocusListeners();
+                                                                            } else if ((seqNo == 1 && overallqty == 0)) {
+                                                                              return;
+                                                                            } else {
+                                                                              ShowError.showAlert(context, "Rework Qty Not Avilable");
+                                                                            }
+                                                                          });
+                                                                        } else {
+                                                                          ShowError.showAlert(
+                                                                              context,
+                                                                              "Skipped Previous Process");
+                                                                        }
 
-                    if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1)) && overallqty != 0) {
-                      addFocusListeners();
-                    }else if((seqNo == 1 && overallqty == 0)){
-                      return null;
-                    }
-                    else{
-            
-ShowError.showAlert(context, "Production Quantity is 0");                
-
-                    }
-                  });
-                } else {
-                  ShowError.showAlert(context, "Please check the previous value");
-                }
-
-                setState(() {
-                  targetQtyController.text = targetqty?.targetqty?.toString() ?? '';
-                  achivedTargetQty = targetqty?.achivedtargetqty?.toString() ?? "";
-                });
-              }
-            } else {
-              setState(() {
-                activityDropdown = null;
-                activityid = 0;
-              });
-            }
-          },
+                                                                        setState(
+                                                                            () {
+                                                                          targetQtyController.text =
+                                                                              targetqty?.targetqty?.toString() ?? '';
+                                                                          achivedTargetQty =
+                                                                              targetqty?.achivedtargetqty?.toString() ?? "";
+                                                                        });
+                                                                      }
+                                                                    } else {
+                                                                      setState(
+                                                                          () {
+                                                                        activityDropdown =
+                                                                            null;
+                                                                        activityid =
+                                                                            0;
+                                                                      });
+                                                                    }
+                                                                  },
     items: activity?.map((activityName) {
           return DropdownMenuItem<String>(
             onTap: () {
@@ -1816,20 +1822,22 @@ ShowError.showAlert(context, "Production Quantity is 0");
   child: Checkbox(
     value: isChecked,
     activeColor: Colors.green,
-    onChanged: (selectedName == null)
-        ? null
-        : (newValue) async{
-            setState(() {
-              isChecked = newValue ?? false;
-              reworkValue = isChecked ? 1 : 0;
-              clearTextFields();
-  });
+   onChanged:
+                                                                    (selectedName ==
+                                                                            null)
+                                                                        ? null
+                                                                        : (newValue) async {
+                                                                            setState(() {
+                                                                              isChecked = newValue ?? false;
+                                                                              reworkValue = isChecked ? 1 : 0;
+                                                                              clearTextFields();
+                                                                            });
 
-              if (reworkValue == 1) {
+                                                                            if (reworkValue ==
+                                                                                1) {
+                                                                              Provider.of<EditProductAvilableQtyProvider>(context, listen: false).reset();
 
-                Provider.of<ProductAvilableQtyProvider>(context, listen: false).reset();
-
-             await editProductAvilableQtyService.getEditAvilableQty(
+                                                                          await editProductAvilableQtyService.getEditAvilableQty(
                   context: context,
                   reworkflag: reworkValue ?? 0,
                   processid: widget.processid ?? 0,
@@ -1838,50 +1846,32 @@ ShowError.showAlert(context, "Production Quantity is 0");
                   ipdid:widget.ipdid ?? 0
                 );
 
-                final overallgoodQty =Provider.of<EditProductAvilableQtyProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .user
-                                                                        ?.editproductqty;
+                                                                              final overallgoodQty = Provider.of<EditProductAvilableQtyProvider>(context, listen: false).user?.editproductqty;
 
-                if (overallgoodQty != null) {
-                  print('overallgoodQty list state: $overallgoodQty');
-                  avilableqty = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
-                          .user
-                          ?.editproductqty
-                          ?.ipcwGoodQtyAvl ??
-                      0;
+                                                                              if (overallgoodQty != null) {
+                                                                                print('overallgoodQty list state: $overallgoodQty');
+                                                                                avilableqty = Provider.of<EditProductAvilableQtyProvider>(context, listen: false).user?.editproductqty?.ipcwGoodQtyAvl ?? 0;
 
-                  final processSeq = Provider.of<EditProductAvilableQtyProvider>(context, listen: false)
-                      .user
-                      ?.editproductqty
-                      ?.imfgpProcessSeq;
+                                                                                final processSeq = Provider.of<EditProductAvilableQtyProvider>(context, listen: false).user?.editproductqty?.imfgpProcessSeq;
 
-                  setState(() {
-                    overallqty = avilableqty;
-                    seqNo = processSeq;
-                    if (( seqNo != 1 || (seqNo == 1 && reworkValue == 1)) && overallqty != 0) {
-                      addFocusListeners();
-                    }else if((seqNo == 1 && overallqty == 0)){
-                      return null;
-                    }
-                    else{
-            
-ShowError.showAlert(context, "Production Quantity is 0");                
+                                                                                setState(() {
+                                                                                  overallqty = avilableqty;
+                                                                                  seqNo = processSeq;
+                                                                                  if ((seqNo != 1 || (seqNo == 1 && reworkValue == 1 && overallqty != 0)) && overallqty != 0) {
+                                                                                    addFocusListeners();
+                                                                                  } else if ((seqNo == 1 && reworkValue == 0)) {
+                                                                                    return;
+                                                                                  } else {
+                                                                                    ShowError.showAlert(context, "Rework Qty Not Avilable", "Alert");
+                                                                                  }
+                                                                                });
+                                                                              } else {
+                                                                                ShowError.showAlert(context, "Skipped Previous Process");
+                                                                              }
+                                                                            }
 
-                    }
-                  });
-                } 
-                
-                
-                else {
-                  ShowError.showAlert(context, "Please check the previous value");
-                }
-              }
-          
-            print("reworkvalue $reworkValue");
-          },
+                                                                            print("reworkvalue $reworkValue");
+                                                                          },
   ),
 ),
 
@@ -1983,10 +1973,10 @@ ShowError.showAlert(context, "Production Quantity is 0");
                                                                   focusNode: goodQtyFocusNode,
                                                                   isAlphanumeric: false,
                                                                   hintText: 'Good Quantity',
-                                                  enabled: (selectedName != null && 
- cardNoController.text.isNotEmpty && (seqNo == 1 || (avilableqty != 0))
-
-) ? true : false,
+                              enabled:(selectedName != null &&
+                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0)))
+                                                                            ? true
+                                                                            : false,
                       
                                                                   onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))?  (value) {
                                                                     final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
@@ -2074,9 +2064,11 @@ ShowError.showAlert(context, "Production Quantity is 0");
                                                                   controller: rejectedQController,
                                                                   isAlphanumeric: false,
                                                                   hintText: 'Rejected Quantity',
-                                                                  enabled: (selectedName != null && 
- cardNoController.text.isNotEmpty && (seqNo == 1 || (overallqty != null && avilableqty != 0))
-) ? true : false,
+                                          enabled:(selectedName != null &&
+                                                                                cardNoController.text.isNotEmpty &&
+                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                            ? true
+                                                                            : false,
                                                                   onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
                                                                     final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
                                                   
@@ -2171,10 +2163,12 @@ ShowError.showAlert(context, "Production Quantity is 0");
                                                                       true,
                                                                   hintText:
                                                                       'rework qty  ',
-                                                                      enabled:(selectedName != null && 
- cardNoController.text.isNotEmpty && (seqNo == 1 || (overallqty != null && avilableqty != 0))
-) ? true : false,
-                                                                  onChanged:  (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
+                                                                      enabled:(selectedName != null &&
+                                                                                cardNoController.text.isNotEmpty &&
+                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+                                                                            ? true
+                                                                            : false,
+                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
                                                                  final currentValue = int.tryParse(value) ?? 0;
                                                           
                                                                     setState(() {
@@ -2689,13 +2683,16 @@ Container(
             ),
           ),
           onChanged: (value) {
-  // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-  // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
-//  fromMinutes = shiftEndtTime.difference(shiftStartTime).inMinutes;
+     DateTime startTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                        DateTime endTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
+                                                                        fromMinutes = endTime
+                                                                            ?.difference(startTime!)
+                                                                            .inMinutes;
 
-            final enteredMinutes = int.tryParse(value) ?? -1;
       
             setState(() {
+              
+            final enteredMinutes = int.tryParse(value) ?? 0;
               if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
                 errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
               } else {
@@ -2703,18 +2700,18 @@ Container(
               }
             });
           },
-          onEditingComplete: () {
-            final value = empTimingTextEditingControllers[index].text;
-            final enteredMinutes = int.tryParse(value) ?? -1;
+          // onEditingComplete: () {
+          //   final value = empTimingTextEditingControllers[index].text;
+          //   final enteredMinutes = int.tryParse(value) ?? -1;
       
-            setState(() {
-              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-                errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
-              } else {
-                errorMessages[index] = null; // Clear error message if valid
-              }
-            });
-          },
+          //   setState(() {
+          //     if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+          //       errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+          //     } else {
+          //       errorMessages[index] = null; // Clear error message if valid
+          //     }
+          //   });
+          // },
         ),
       ),
       // This space will display the error message but won't change the TextFormField size

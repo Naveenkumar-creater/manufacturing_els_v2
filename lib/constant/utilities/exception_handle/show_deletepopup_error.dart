@@ -1,10 +1,10 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ShowError {
-  
-   static void showAlert(
+class ShowDeleteError {
+
+static void showAlert(
     BuildContext? context,
     String message, [
     String headerTitle = "Error",
@@ -95,6 +95,8 @@ class ShowError {
                         child: const Text('OK' ,style: TextStyle(color: Colors.white)),
                         onPressed: () {
                           Navigator.of(context).pop();
+                             Navigator.of(context).pop();
+                                Navigator.of(context).pop();
                          
                         },
                       ),
@@ -108,4 +110,4 @@ class ShowError {
       );
     }
   }
-  }
+}

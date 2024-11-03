@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
 import 'package:prominous/features/presentation_layer/api_services/asset_barcode_di.dart';
@@ -28,7 +29,7 @@ class _ScanBarcodeState extends State<ScanBarcode> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 40,
+      height: 35.w,
       decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
       color: Colors.grey.shade200,
@@ -44,7 +45,7 @@ class _ScanBarcodeState extends State<ScanBarcode> {
               Icon(
                 Icons.camera_alt,
                 color: Colors.blue,
-                size: 40,
+                size: 30.w,
               )
             // Headings(
             //   text: "Scan Barcode",

@@ -1329,8 +1329,8 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
                                   width: 100.w,
                                   child: ElevatedButton(
                                     child: Text(
-                                      "Change",
-                                      style: TextStyle(fontSize: 14.w),
+                                      "Reassign",
+                                      style: TextStyle(fontSize: 12.w),
                                     ),
                                     onPressed: initialindex == 0
                                         ? null
