@@ -168,6 +168,9 @@ delete({
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                             style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                           Navigator.pop(context);
@@ -186,16 +189,19 @@ delete({
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -228,138 +234,236 @@ delete({
                 final data = recentActivity?[index];
                 final totime = data?.ipdtotime;
     
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                    right: 15,
-                    top: 30,
-                  ),
-                  child:  Material(
-        
-        elevation: 3,
-        borderRadius: BorderRadius.circular(5.r),
-                    child: Container(
-                      width: 300,
-                      height: 110,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(150, 235, 236, 255),
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(width: 1, color: Colors.grey.shade100),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 20, top: 4, bottom: 4),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 25,
-                                      height: 25,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(22),
-                                        color: Color.fromARGB(255, 80, 96, 203),
-                                      ),
-                                      child: Text('${index + 1}',
-                                          style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.white,
-                                              fontFamily: 'Lexend')),
-                                    ),
-                                    SizedBox(
-                                      width: 16,
-                                    ),
-                                    Text(
-                                        '${(data?.ipditemid != 0 ? productname?.firstWhere(
-                                              (product) =>
-                                                  data?.ipditemid ==
-                                                  product.productid,
-                                            ).productName : " ")}',
-                                        style: TextStyle(
-                                            fontSize: 16.sp,
-                                            color:
-                                                Color.fromARGB(255, 80, 96, 203),
-                                            fontFamily: 'Lexend')),
-                                  ],
-                                ),
-                                IconButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                MobileProductionEditEntry(
-                                              deptid: data?.deptid ?? 1057,
-                                              empid: data?.ipdempid ?? 0,
-                                              isload: true,
-                                              processid: data?.processid ?? 0,
-                                              psid: data?.ipdpsid,
-                                              ipdid: data?.ipdid,
-                                              attenceid: widget.attenceid,
-                                              attendceStatus:
-                                                  widget.attendceStatus,
-                                              pwsId: widget.pwsid,
-                                              workstationName:
-                                                  widget.workstationName,
+                return Container(
+                                          width: 300.w,
+                                          height: 140.h,
+                                          decoration: BoxDecoration(
+                                      
+                                         
+                                            border: Border(
+                                              top:
+                                              
+                                                   BorderSide.none,
+                                              bottom: BorderSide(
+                                                  width: 1,
+                                                  color: Colors.grey.shade300),
                                             ),
-                                          ));
-                                    },
-                                    icon: Icon(Icons.edit_sharp,
-                                        color: Color.fromARGB(255, 80, 96, 203))),
-                              ],
-                            ),
-                            SizedBox(
-                              height: 5,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    '${totime?.toString().substring(0, totime.toString().length - 7)}',
-                                    style: TextStyle(
-                                        fontFamily: "lexend",
-                                        fontSize: 15.sp,
-                                        color: Colors.black54)),
-                                if (index == 0)
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        height: 40,
-                                        child: IconButton(
-                                          onPressed: () async {
-                                            // updateproduction(widget.processid);
-                                                     deletePop(
-                                                                    context,
-                                                                    data?.ipdid ??
-                                                                        0,
-                                                                    data?.ipdpsid ??
-                                                                        0,
-                                                                        data?.processid ?? 0,data?.ipdcardno ?? 0,
-                                                                        data?.ipdpcid??0,
-                                                                        data?.ipdpaid?? 0);
-                                          },
-                                          icon: SvgPicture.asset(
-                                            'assets/svg/trash.svg',
-                                            color: Colors.red,
-                                            width: 30,
                                           ),
-                                        ),
+                  child: Padding(
+                    padding: EdgeInsets.only(top:10.h,left: 10.w,right: 10.w),
+                    child: Column(
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment
+                                                    .spaceBetween,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 25,
+                                                    height: 25,
+                                                    alignment:
+                                                        Alignment.center,
+                                                    decoration:
+                                                        BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(22),
+                                                      color: Color.fromARGB(
+                                                          255, 80, 96, 203),
+                                                    ),
+                                                    child: Text(
+                                                        '${index + 1}',
+                                                        style: const TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors
+                                                                .white,
+                                                            fontFamily:
+                                                                'Lexend')),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 16,
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Text("Job Card",
+                                                          style: TextStyle(
+                                                              fontFamily:
+                                                                  "lexend",
+                                                              fontSize:
+                                                                  16.sp,
+                                                              color: Colors
+                                                                  .black54)),
+                                                      SizedBox(
+                                                        width: 20.w,
+                                                      ),
+                                                      Text(
+                                                          '${(data?.ipdcardno)}',
+                                                          style: TextStyle(
+                                                              fontSize:
+                                                                  16.sp,
+                                                              color: Colors
+                                                                  .black87,
+                                                              fontFamily:
+                                                                  'Lexend')),
+                                                    ],
+                                                  ),
+                                                  SizedBox(
+                                                    width: 16,
+                                                  ),
+                                                ],
+                                              ),
+                                              IconButton(
+                                                  onPressed: () {
+                                                    // nonProductionList.reset(
+                                                    //     notify: false);
+                                                    // storedListOfProblem
+                                                    //     .reset(
+                                                    //         notify: false);
+                                
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              MobileProductionEditEntry(
+                                                            deptid:
+                                                                data?.deptid ??
+                                                                    1057,
+                                                            empid:
+                                                                data?.ipdempid ??
+                                                                    0,
+                                                            isload: true,
+                                                            processid:
+                                                                data?.processid ??
+                                                                    0,
+                                                            psid: data
+                                                                ?.ipdpsid,
+                                                            ipdid:
+                                                                data?.ipdid,
+                                                            attenceid: widget
+                                                                .attenceid,
+                                                            attendceStatus:
+                                                                widget
+                                                                    .attendceStatus,
+                                                            pwsId: widget
+                                                                .pwsid,
+                                                            workstationName:
+                                                                widget
+                                                                    .workstationName,
+                                                          ),
+                                                        ));
+                                                  },
+                                                  icon: Icon(
+                                                      Icons.edit_sharp,
+                                                      color: Color.fromARGB(
+                                                          255,
+                                                          80,
+                                                          96,
+                                                          203))),
+                                            ],
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 40.sp),
+                                            child: Row(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text("Item Ref ",
+                                                        style: TextStyle(
+                                                            fontFamily:
+                                                                "lexend",
+                                                            fontSize: 16.sp,
+                                                            color: Colors
+                                                                .black54)),
+                                                    SizedBox(
+                                                      width: 20.w,
+                                                    ),
+                                                    Text(
+                                                        '${(data?.ipditemid != 0 ? productname?.firstWhere(
+                                                              (product) =>
+                                                                  data?.ipditemid ==
+                                                                  product
+                                                                      .productid,
+                                                            ).productName : " ")}',
+                                                        style: TextStyle(
+                                                            fontSize: 16.sp,
+                                                            color: Colors
+                                                                .black87,
+                                                            fontFamily:
+                                                                'Lexend')),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 5.h,
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(
+                                                left: 40.sp),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Text(
+                                                    '${totime?.toString().substring(0, totime.toString().length - 7)}',
+                                                    style: TextStyle(
+                                                        fontFamily:
+                                                            "lexend",
+                                                        fontSize: 14.sp,
+                                                        color: Colors
+                                                            .black54)),
+                                                if (index == 0)
+                                                  Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      SizedBox(
+                                                        height: 40,
+                                                        child: IconButton(
+                                                          onPressed:
+                                                              () async {
+                                                            // updateproduction(widget.processid);
+                                                            deletePop(
+                                                                context,
+                                                                data?.ipdid ??
+                                                                    0,
+                                                                data?.ipdpsid ??
+                                                                    0,
+                                                                data?.processid ??
+                                                                    0,
+                                                                data?.ipdcardno ??
+                                                                    0,
+                                                                data?.ipdpcid ??
+                                                                    0,
+                                                                data?.ipdpaid ??
+                                                                    0);
+                                                          },
+                                                          icon: SvgPicture
+                                                              .asset(
+                                                            'assets/svg/trash.svg',
+                                                            color:
+                                                                Colors.red,
+                                                            width: 30,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                if (index != 0)
+                                                  SizedBox(
+                                                      height: 30,
+                                                      child: Text("")),
+                                              ],
+                                            ),
+                                          )
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                if (index != 0)
-                                  SizedBox(height: 30, child: Text("")),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
                   ),
                 );
               })

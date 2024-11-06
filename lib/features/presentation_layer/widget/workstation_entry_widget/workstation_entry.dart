@@ -707,15 +707,15 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
       currentSecond = now.second;
 
       String? shiftTime;
-      final productionEntry =
-          Provider.of<EmpProductionEntryProvider>(context, listen: false)
+
+      final productionEntry = Provider.of<EmpProductionEntryProvider>(context, listen: false)
               .user
               ?.empProductionEntity;
 
       String? shifttodate = productionEntry?.ipdtotime;
+      
 
-      final shiftFromtime =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
+      final shiftfromtime =  Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
               ?.shiftStatusdetailEntity
               ?.shiftFromTime;
@@ -723,24 +723,36 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
 // Construct the shift start date with current time
       final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
           '${currentMonth.toString().padLeft(2, '0')}-'
-          '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+          '${currentDay.toString().padLeft(2, '0')} $shiftfromtime';
 
 // Reassign the current fromtime value based on the condition
       fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
           ? shiftStartDateTiming
           : productionEntry?.ipdtotime;
 
+
+
 // Retrieve shift details
-      final shiftToTimeString =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
+      final shiftToTimeString = Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
               ?.shiftStatusdetailEntity
               ?.shiftToTime;
+              
+    TimeOfDay shiftendTime = TimeOfDay(
+    hour: int.parse(shiftToTimeString!.split(":")[0]),
+    minute: int.parse(shiftToTimeString!.split(":")[1]),
+  );
 
       DateTime? shiftToTime;
+
       if (shifttodate != null && shifttodate.isNotEmpty) {
-        // Parse shifttodate if it's not empty
-        shiftToTime = DateTime.parse(shifttodate);
+        if(shiftendTime.hour<12){
+           DateTime parsedShiftToDate = DateTime.parse(shifttodate!);
+           shiftToTime=parsedShiftToDate.add(Duration(days: 1));
+        }else{
+         shiftToTime = DateTime.parse(shifttodate);
+        }
+
       } else if (shiftToTimeString != null) {
         // Parse the shiftToTimeString if shifttodate is not provided
         final shiftToTimeParts = shiftToTimeString.split(':');
@@ -766,6 +778,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
               ?.shiftFromTime;
 
       DateTime? shiftFromTime;
+
       if (shiftFromTimeString != null && shiftToTime != null) {
         // Parse the shiftFromTime but using the same date as shiftToTime
         final shiftFromTimeParts = shiftFromTimeString.split(':');
@@ -777,8 +790,10 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
           int.parse(shiftFromTimeParts[0]),
           int.parse(shiftFromTimeParts[1]),
           int.parse(shiftFromTimeParts[2]),
+          
         );
 
+       
         if (shiftFromTime != null &&
             shiftToTime != null &&
             shiftToTime.isBefore(shiftFromTime)) {
@@ -1362,7 +1377,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child:  Text("Go back",style: TextStyle(color: Colors.white),)),
+                              child:  Text("Cancel",style: TextStyle(color: Colors.white),)),
                         ],
                       ),
                     )
@@ -1491,7 +1506,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child:  Text("Go back",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),)
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),)
                         ],
                       ),
                     )
@@ -1683,7 +1698,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back",style: TextStyle(color: Colors.white,fontFamily: "lexend"),)),
+                              child: const Text("Cancel",style: TextStyle(color: Colors.white,fontFamily: "lexend"),)),
                         ],
                       ),
                     )
@@ -1803,7 +1818,7 @@ style: ElevatedButton.styleFrom(
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back",style: TextStyle(color: Colors.white, fontFamily: "lexend"))),
+                              child: const Text("Cancel",style: TextStyle(color: Colors.white, fontFamily: "lexend"))),
                         ],
                       ),
                     )
@@ -4435,7 +4450,7 @@ style: ElevatedButton.styleFrom(
                                                           StoredListOfProblem[
                                                               index];
                                                       return GestureDetector(
-                                                        onTap: () {
+                                                        onTap:assetCotroller.text.isNotEmpty ? () {
                                                         
                                                           _problemEntrywidget(
                                                               item.fromtime,
@@ -4456,6 +4471,8 @@ style: ElevatedButton.styleFrom(
                                                               true,
                                                               fromtime,
                                                               widget.pwsid);
+                                                        }:(){
+ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.orange);
                                                         },
                                                         child: Container(
                                                           decoration:

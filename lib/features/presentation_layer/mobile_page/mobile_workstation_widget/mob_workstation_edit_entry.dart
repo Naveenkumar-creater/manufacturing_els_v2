@@ -738,6 +738,9 @@ void clearTextFields() {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                               style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -765,16 +768,20 @@ void clearTextFields() {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                          
+                               style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child:Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -817,6 +824,9 @@ void clearTextFields() {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                               style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 if (dropdownProduct != null &&
@@ -891,16 +901,19 @@ void clearTextFields() {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                                 style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child:Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -1625,7 +1638,7 @@ final storedListOfProblem =
                                                         ),
                                                         Container(
                                                             width: 150.w,
-                                                            height: 45.h,
+                                                            height: 40.h,
                                                             decoration:
                                                                 BoxDecoration(
                                                               border: Border.all(
@@ -2415,7 +2428,7 @@ final storedListOfProblem =
                                                       children: [
                                                        SizedBox(
                                                           width: 150.w,
-                                                          height: 50.h,
+                                                          height: 40.h,
                                                           child:
                                                               FloatingActionButton(
                                                                 
@@ -2772,7 +2785,7 @@ final storedListOfProblem =
                                                             Container(
                                                               alignment: Alignment
                                                                   .centerLeft,
-                                                              width: 100.w,
+                                                              width: 120.w,
                                                               child: Text(
                                                                 data!.empName![0]!
                                                                             .toUpperCase() +
@@ -2800,14 +2813,14 @@ final storedListOfProblem =
                                                             ),
 Container(
   alignment: Alignment.center,
-  width: 120.w,
+  width: 100.w,
   height: 50.h, // Container height remains fixed
   child: Column(
     crossAxisAlignment: CrossAxisAlignment.center,
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       SizedBox(
-        width: 100.w,
+        width: 90.w,
         height: 35.h, // Keep the size fixed for the TextFormField
         child: TextFormField(
           keyboardType: TextInputType.number,

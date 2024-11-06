@@ -220,7 +220,7 @@ class _NonProductionActivityPopupState
           child: Column(
             children: [
               Padding(
-                padding: screenSize.width < 572 ? EdgeInsets.only(left: 8.w,):EdgeInsets.only(left: 16.w,),
+                padding: screenSize.width < 572 ? EdgeInsets.only(top:20.h,left:8.w,):EdgeInsets.only(left: 16.w,),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,7 +338,7 @@ class _NonProductionActivityPopupState
                         ),
                         Container(  
                           width: screenSize.width < 572 ? 280.w : 360.w,
-                          height: 50.h,
+                        height: screenSize.height < 572 ? 35.h : 40.h,
                           decoration: BoxDecoration(
                             border: Border.all(width: 1, color: Colors.grey),
                             borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -350,7 +350,7 @@ class _NonProductionActivityPopupState
                                   horizontal: 5.w, vertical: 2.h),
                               border: InputBorder.none,
                             ),
-                            hint: Text("Select"),
+                            hint: Text("Select", style:TextStyle( fontSize:screenSize.width < 572 ? 12.sp : 16.sp, ),),
                             isExpanded: true,
                             onChanged: (String? newvalue) async {
                               if (newvalue != null) {
@@ -419,8 +419,8 @@ class _NonProductionActivityPopupState
                           child: Row(
                             children: [
                               CustomButton(
-                                width: screenSize.width < 572 ? 100.w : 110.w,
-                                height: screenSize.width < 572 ? 40.h : 50.h,
+                                width: screenSize.width < 572 ? 70.w : 110.w,
+                                height: screenSize.width < 572 ? 30.h : 50.h,
                                 onPressed: selectNonProduction != null
                                     ? () {
                                         setState(() {
@@ -509,7 +509,7 @@ class _NonProductionActivityPopupState
                                   style: TextStyle(
                                     fontFamily: "lexend",
                                     fontSize:
-                                        screenSize.width < 572 ? 14.w : 15.w,
+                                        screenSize.width < 572 ? 12.w : 15.w,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -520,8 +520,8 @@ class _NonProductionActivityPopupState
                                 width: 20,
                               ),
                               CustomButton(
-                                width: screenSize.width < 572 ? 100.w : 110.w,
-                                height: screenSize.width < 572 ? 40.h : 50.h,
+                                width: screenSize.width < 572 ? 70.w : 110.w,
+                                height: screenSize.width < 572 ? 30.h : 50.h,
                                 onPressed: selectNonProduction != null
                                     ? () {
                                         Navigator.pop(context);
@@ -532,7 +532,7 @@ class _NonProductionActivityPopupState
                                   style: TextStyle(
                                     fontFamily: "lexend",
                                     fontSize:
-                                        screenSize.width < 572 ? 14.w : 15.w,
+                                        screenSize.width < 572 ? 12.w : 15.w,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -556,7 +556,8 @@ class _NonProductionActivityPopupState
                 child: Padding(
                   padding: EdgeInsets.only(left: 8.w, right: 8.w),
                   child: Container(
-                    height: 70.h,
+                    height: screenSize.height < 572 ? 40.h : 50.h,
+
                     decoration: BoxDecoration(
                         color: Color.fromARGB(255, 45, 54, 104),
                         borderRadius: BorderRadius.circular(5.r)),
@@ -597,17 +598,17 @@ class _NonProductionActivityPopupState
                                     fontFamily: "Lexend",
                                     color: Colors.white),
                               )),
-                          Container(
-                              width: screenSize.width < 572 ? 50.w : 90.w,
-                              alignment: Alignment.center,
-                              child: Text(
-                                "Delete",
-                                style: TextStyle(
-                                    fontSize:
-                                        screenSize.width < 572 ? 14.sp : 16.sp,
-                                    fontFamily: "Lexend",
-                                    color: Colors.white),
-                              ))
+                          // Container(
+                          //     width: screenSize.width < 572 ? 50.w : 90.w,
+                          //     alignment: Alignment.center,
+                          //     child: Text(
+                          //       "Delete",
+                          //       style: TextStyle(  
+                          //           fontSize:
+                          //               screenSize.width < 572 ? 14.sp : 16.sp,
+                          //           fontFamily: "Lexend",
+                          //           color: Colors.white),
+                          //     ))
                         ],
                       ),
                     ),

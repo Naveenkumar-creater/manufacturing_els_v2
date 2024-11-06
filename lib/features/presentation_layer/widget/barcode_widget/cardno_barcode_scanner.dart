@@ -28,7 +28,7 @@ class _CardNoScannerState extends State<CardNoScanner> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 35.w,
+      height: 30.w,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Colors.grey.shade200,

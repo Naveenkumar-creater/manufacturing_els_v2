@@ -203,6 +203,7 @@ class _EmpProductionEntryPageState
 
   EmployeeApiService employeeApiService = EmployeeApiService();
    GlobalKey _updateTimeKey = GlobalKey();
+
   int? fromMinutes;
   int? overallqty;
   int? avilableqty;
@@ -378,7 +379,7 @@ Future<void> updateproduction(int? processid) async {
 
             if (responseMsg == "success") {
               return ShowSaveError.showAlert(
-                  context, "Saved Successfully", "Success");
+                  context, "Saved Successfully","Success","Success",Colors.green);
             } else {
               return ShowSaveError.showAlert(context, responseMsg);
             }
@@ -405,8 +406,14 @@ Future<void> updateproduction(int? processid) async {
 
   void _openBottomSheet() {
     showModalBottomSheet(
+      
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+        
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0),
+        
+        ),
+      
+        
       ),
       backgroundColor: Colors.white,
       context: context,
@@ -456,6 +463,9 @@ Future<void> updateproduction(int? processid) async {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                               style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -483,16 +493,19 @@ Future<void> updateproduction(int? processid) async {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text("Go back")),
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -534,6 +547,9 @@ Future<void> updateproduction(int? processid) async {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -559,16 +575,19 @@ Future<void> updateproduction(int? processid) async {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text("Go back")),
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -579,6 +598,57 @@ Future<void> updateproduction(int? processid) async {
           );
         });
   }
+
+  Future<void>_WorkStationcloseapi()async{
+     try {
+         await employeeApiService.employeeList(
+                                    context: context,
+                                    deptid: widget.deptid ?? 1,
+                                    processid: widget.processid ?? 0,
+                                    psid: widget.psid ?? 0);
+
+                                await listofEmpworkstationService
+                                    .getListofEmpWorkstation(
+                                        context: context,
+                                        deptid: widget.deptid ?? 1,
+                                        psid: widget.psid ?? 0,
+                                        processid: widget.processid ?? 0,
+                                        pwsId: widget.pwsid ?? 0);
+
+                                //           Navigator.of(context).push(MaterialPageRoute(
+                                //   builder: (context) => ResponsiveTabletHomepage(),
+                                // ));
+                                await listofworkstationService
+                                    .getListofWorkstation(
+                                        context: context,
+                                        deptid: widget.deptid ?? 1057,
+                                        psid: widget.psid ?? 0,
+                                        processid: widget.processid ?? 0);
+                                await attendanceCountService.getAttCount(
+                                    context: context,
+                                    id: widget.processid ?? 0,
+                                    deptid: widget.deptid ?? 1057,
+                                    psid: widget.psid ?? 0);
+
+                              await actualQtyService.getActualQty(
+                          context: context,
+                          id: widget.processid ?? 0,
+                          psid: widget.psid ?? 0);
+
+                      await planQtyService.getPlanQty(
+                          context: context,
+                          id: widget.processid ?? 0,
+                          psid: widget.psid ?? 0);
+
+                                         
+       
+     } catch (e) {
+      isLoading=false;
+       
+     }
+  }
+
+  
 
   void _WorkStationcloseShiftPop(BuildContext context) {
     showDialog(
@@ -610,39 +680,20 @@ Future<void> updateproduction(int? processid) async {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                          
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
+                              
                             onPressed: () async {
                               try {
                                 await workstationClose(
                                     processid: widget.processid,
                                     psid: widget.psid,
                                     pwsid: widget.pwsid);
-                                await employeeApiService.employeeList(
-                                    context: context,
-                                    deptid: widget.deptid ?? 1,
-                                    processid: widget.processid ?? 0,
-                                    psid: widget.psid ?? 0);
-                                await listofEmpworkstationService
-                                    .getListofEmpWorkstation(
-                                        context: context,
-                                        deptid: widget.deptid ?? 1,
-                                        psid: widget.psid ?? 0,
-                                        processid: widget.processid ?? 0,
-                                        pwsId: widget.pwsid ?? 0);
-
-                                //           Navigator.of(context).push(MaterialPageRoute(
-                                //   builder: (context) => ResponsiveTabletHomepage(),
-                                // ));
-                                await listofworkstationService
-                                    .getListofWorkstation(
-                                        context: context,
-                                        deptid: widget.deptid ?? 1057,
-                                        psid: widget.psid ?? 0,
-                                        processid: widget.processid ?? 0);
-                                await attendanceCountService.getAttCount(
-                                    context: context,
-                                    id: widget.processid ?? 0,
-                                    deptid: widget.deptid ?? 1057,
-                                    psid: widget.psid ?? 0);
+                                   
+                                   _WorkStationcloseapi(); 
+                              
 
                                 Navigator.of(context).pop();
                                 Navigator.of(context).pop();
@@ -656,16 +707,19 @@ Future<void> updateproduction(int? processid) async {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text("Go back")),
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -1103,11 +1157,22 @@ Future<void> _fetchARecentActivity() async {
               .user
               ?.shiftStatusdetailEntity
               ?.shiftToTime;
+              
+    TimeOfDay shiftendTime = TimeOfDay(
+    hour: int.parse(shiftToTimeString!.split(":")[0]),
+    minute: int.parse(shiftToTimeString!.split(":")[1]),
+  );
 
       DateTime? shiftToTime;
+
       if (shifttodate != null && shifttodate.isNotEmpty) {
-        // Parse shifttodate if it's not empty
-        shiftToTime = DateTime.parse(shifttodate);
+        if(shiftendTime.hour<12){
+           DateTime parsedShiftToDate = DateTime.parse(shifttodate!);
+           shiftToTime=parsedShiftToDate.add(Duration(days: 1));
+        }else{
+         shiftToTime = DateTime.parse(shifttodate);
+        }
+
       } else if (shiftToTimeString != null) {
         // Parse the shiftToTimeString if shifttodate is not provided
         final shiftToTimeParts = shiftToTimeString.split(':');
@@ -1120,7 +1185,7 @@ Future<void> _fetchARecentActivity() async {
           int.parse(shiftToTimeParts[1]),
           int.parse(shiftToTimeParts[2]),
         );
-      }
+      };
 
 // Get the current time
       final currentTime = DateTime.now();
@@ -1280,6 +1345,10 @@ Future<void> _fetchARecentActivity() async {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           ElevatedButton(
+                             
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green
+                            ),
                             onPressed: () async {
                               try {
                                 if (dropdownProduct != null &&
@@ -1290,7 +1359,7 @@ Future<void> _fetchARecentActivity() async {
                                  Navigator.of(context).pop();
                                   await updateproduction(widget.processid);
                                 
-                                 _fetchARecentActivity();
+                               _WorkStationcloseapi(); 
 
                                   
                                 }
@@ -1304,16 +1373,19 @@ Future<void> _fetchARecentActivity() async {
                                 );
                               }
                             },
-                            child: const Text("Submit"),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
                           ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red
+                            ),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text("Go back")),
+                              child: Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -1805,15 +1877,15 @@ void addFocusListeners() {
                           fontFamily: "lexend",
                           fontSize: 20.sp),
                     ),
-                    ScanWorkstationBarcode(
-                      deptid: widget.deptid,
-                      pwsid: widget.pwsid,
-                      onCardDataReceived: (scannedBarcode) {
-                        setState(() {
-                          workstationBarcode = scannedBarcode;
-                        });
-                      },
-                    )
+                    // ScanWorkstationBarcode(
+                    //   deptid: widget.deptid,
+                    //   pwsid: widget.pwsid,
+                    //   onCardDataReceived: (scannedBarcode) {
+                    //     setState(() {
+                    //       workstationBarcode = scannedBarcode;
+                    //     });
+                    //   },
+                    // )
                   ],
                 ),
                 backgroundColor: Color.fromARGB(255, 45, 54, 104),
@@ -1887,8 +1959,8 @@ void addFocusListeners() {
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
-                                                                                   UpdateTime(
-                                                                           
+                                                                                UpdateTime(
+                                                  key: _updateTimeKey,
                                                   onTimeChanged: (time) {
                                                     Future.delayed(
                                                         Duration.zero, () {
@@ -1911,7 +1983,7 @@ void addFocusListeners() {
                                                   shiftToTime:
                                                       shiftTotime ?? "",
                                                   shiftDate: actualdate,
-                                                ), 
+                                                ),
                                               SizedBox(
                                                 width: 10.w,
                                               ),
@@ -1923,6 +1995,7 @@ void addFocusListeners() {
                                                   onPressed: () {
                                                     _WorkStationcloseShiftPop(
                                                         context);
+
                                                   },
                                                   child: Text('Close Shift',
                                                       style: TextStyle(
@@ -2188,7 +2261,7 @@ void addFocusListeners() {
                                                             ),
                                                           ],
                                                         ),
-                                                        SizedBox(height: 10,),
+                                                        SizedBox(height: 10.h,),
                                                        SizedBox(
                                                             width: 150.w,
                                                             height: 50.h,
@@ -2522,9 +2595,10 @@ void addFocusListeners() {
                                                             ),
                                                           ],
                                                         ),
+                                                        SizedBox(height: 5.h,),
                                                         Container(
                                                             width: 150.w,
-                                                            height: 50.h,
+                                                            height: 45.h,
                                                             decoration:
                                                                 BoxDecoration(
                                                               border: Border.all(
@@ -2864,17 +2938,7 @@ void addFocusListeners() {
                                                           width: 150.w,
                                                           height: 50.h,
                                                           child:  CustomNumField(
-                                                                          validation:
-                                                                              (value) {
-                                                                            if (value == null ||
-                                                                                value.isEmpty) {
-                                                                              return 'Enter good qty';
-                                                                            } else if (RegExp(r'^0+$').hasMatch(value)) {
-                                                                              return 'Cannot contain zeros';
-                                                                            }
-                                                                            return null; // Return null if no validation errors
-                                                                          },
-                                            enabledBorder:
+                                                             enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderRadius:
                                                                   BorderRadius
@@ -2893,7 +2957,7 @@ void addFocusListeners() {
                                                               borderSide:
                                                                   BorderSide(
                                                                       color: Colors
-                                                                          .grey,
+                                                                          .white,
                                                                       width: 1),
                                                             ),
                                                             border:
@@ -2904,10 +2968,21 @@ void addFocusListeners() {
                                                               borderSide:
                                                                   BorderSide(
                                                                       color: Colors
-                                                                          .grey,
+                                                                          .white,
                                                                       width: 1),
                                                             ),
-                                          
+                                                            
+                                                                          validation:
+                                                                              (value) {
+                                                                            if (value == null ||
+                                                                                value.isEmpty) {
+                                                                              return 'Enter good qty';
+                                                                            } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                                              return 'Cannot contain zeros';
+                                                                            }
+                                                                            return null; // Return null if no validation errors
+                                                                          },
+                                           
                                                                           controller:
                                                                               goodQController,
                                                                           focusNode:
@@ -3359,7 +3434,7 @@ void addFocusListeners() {
                                                   
                                                         SizedBox(
                                                           width: 150.w,
-                                                          height: 50.h,
+                                                          height: 40.h,
                                                           child:
                                                               FloatingActionButton(
                                                                 
@@ -3476,7 +3551,7 @@ void addFocusListeners() {
                                               color: Colors.white,
                                             child: Container(
                                               width: 150.w,
-                                              height: 50.h,
+                                              height: 45.h,
                                               decoration: BoxDecoration(  
                                                 border: Border.all(width: 1, color: Colors.white),
                                                 borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -3516,73 +3591,71 @@ void addFocusListeners() {
                                                       MainAxisAlignment.center,
                                                   children: [
                                                     SizedBox(
-                                                      height: 35.h,
-                                                      child: CustomButton(
-                                                        width: 100.w,
-                                                        height: 50.h,
-                                                        onPressed:
-                                                            selectedName != null && locationDropdown!=null&& assetCotroller.text.isNotEmpty
-                                                                ? () {
-                                                                    if (_formkey
-                                                                            .currentState
-                                                                            ?.validate() ??
-                                                                        false) {
-                                                                      // If the form is valid, perform your actions
-                                                                      print(
-                                                                          'Form is valid');
-                                                                        if (fromtime != lastUpdatedTime) {
-  bool hasError = false;
-  
-  for (var i = 0; i < empTimingTextEditingControllers.length; i++) {
-    // Check if the TextFormField is empty or if there's an error message
-    if (empTimingTextEditingControllers[i].text.isEmpty) {
-      hasError = true;
-      break;
-    }
-  }
-  
-  if (hasError) {
-    ShowError.showAlert(
-      context,
-      "Enter Valid Employee Worked Minutes",
-      "Alert"
-    );
-  } else {
-    _submitPop(context);
-  }
-} else {
-  ShowError.showAlert(
-    context,
-    "The shift has ended, and you cannot submit any values.",
-    "Alert"
-  );
-}
+  height: 35.h,
+  child: CustomButton(
+    width: 100.w,
+    height: 50.h,
+    onPressed: selectedName != null &&
+            locationDropdown != null &&
+            assetCotroller.text.isNotEmpty
+        ? () {
+            if (_formkey.currentState?.validate() ?? false) {
+              // If the form is valid, perform your actions
+              print('Form is valid');
 
+              // Check if any TextFormField is empty or has an error message before submitting
+              if (fromtime != lastUpdatedTime) {
+                bool hasError = false;
 
+                for (var i = 0; i < empTimingTextEditingControllers.length; i++) {
+                  String controllerText = empTimingTextEditingControllers[i].text;
+                  String? errorMessage = (i < errorMessages.length) ? errorMessages[i] : null;
 
-                                                                    } else {
-                                                                      // If the form is not valid, you can handle this case as needed
-                                                                      print(
-                                                                          'Form is not valid');
-                                                                      // Optionally, show an error message or handle the invalid case
-                                                                    }
-                                                                  }
-                                                                : null,
-                                                        child: Text(
-                                                          'Submit',
-                                                          style: TextStyle(
-                                                              fontFamily: "lexend",
-                                                              fontSize: 12.sp,
-                                                              color: Colors.white
-                                                              ),
-                                                        ),
-                                                        backgroundColor:
-                                                            Colors.green,
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                                50),
-                                                      ),
-                                                    ),
+                  // Only trigger hasError if the field is empty or errorMessage contains text
+                  if (controllerText.isEmpty || (errorMessage != null && errorMessage.isNotEmpty)) {
+                    hasError = true;
+                    break;
+                  }
+                }
+
+                if (hasError) {
+                  ShowError.showAlert(
+                    context,
+                    "Enter Valid Employee Worked Minutes",
+                    "Alert",
+                    "Warning",
+                    Colors.orange,
+                  );
+                } else {
+                  _submitPop(context);
+                }
+              } else {
+                ShowError.showAlert(
+                  context,
+                  "The fromtime and totime are the same, so you cannot submit any values.",
+                  "Alert",
+                  "Warning",
+                  Colors.orange,
+                );
+              }
+            } else {
+              // Handle the invalid form case
+              print('Form is not valid');
+            }
+          }
+        : null,
+    child: Text(
+      'Submit',
+      style: TextStyle(
+        fontFamily: "lexend",
+        fontSize: 14.sp,
+        color: Colors.white,
+      ),
+    ),
+    backgroundColor: Colors.green,
+    borderRadius: BorderRadius.circular(50),
+  ),
+),
                                                   ],
                                                 ),
                                               ]
@@ -3777,18 +3850,19 @@ void addFocusListeners() {
                                                                         ),
                                                                      onChanged:
                                                                           (value) {
-                                                                        // DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-                                                                        // DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
-                                                                        fromMinutes = shiftEndtTime
-                                                                            ?.difference(shiftStartTime!)
+                                                                        DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                        DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(lastUpdatedTime!);
+                                                                        fromMinutes = toTime
+                                                                            ?.difference(fromTime!)
                                                                             .inMinutes;
 
-                                                                        final enteredMinutes =
-                                                                            int.tryParse(value) ??
-                                                                                -1;
+                                                                    
 
                                                                         setState(
                                                                             () {
+                                                                                  final enteredMinutes =
+                                                                            int.tryParse(value) ??
+                                                                               0 ;
                                                                           if (enteredMinutes < 0 ||
                                                                               enteredMinutes > fromMinutes!) {
                                                                             errorMessages[index] =
@@ -3978,7 +4052,7 @@ void addFocusListeners() {
                                   
                                               // Update time after each change
                                             }: (){
-                                                      ShowError.showAlert(context, "Enter the Asset Id", "Alert");
+                                                    ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.orange);
                                                     },
                                             child: const Icon(Icons.add,
                                                 color: Colors.black, size: 15),
@@ -4077,7 +4151,7 @@ void addFocusListeners() {
                                                           StoredListOfProblem[
                                                               index];
                                                       return GestureDetector(
-                                                        onTap: () {
+                                                        onTap: assetCotroller.text.isNotEmpty ? () {
                                                           //  listofproblemservice
                                                           //   .getListofProblem(
                                                           //       context:
@@ -4107,6 +4181,8 @@ void addFocusListeners() {
                                                               fromtime,
                                                               widget.pwsid
                                                               );
+                                                        }:(){
+ ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.orange);
                                                         },
                                             child: Container(
                                               height: 80.h,

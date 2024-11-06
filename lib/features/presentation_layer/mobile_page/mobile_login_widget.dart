@@ -158,7 +158,8 @@ class _LoginState extends State<MobileLogin> {
                           ),
                         if (isCircularProgressIndicatorVisible)
                           SizedBox(
-                            height: 40.h,
+                            height: 20.h,
+                            width: 20.w,
                             child: const CircularProgressIndicator(
                               color: Colors.white,
                             ),

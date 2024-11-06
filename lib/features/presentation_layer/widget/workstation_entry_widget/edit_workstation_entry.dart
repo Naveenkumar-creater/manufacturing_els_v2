@@ -783,7 +783,7 @@ void clearTextFields() {
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back")),
+                              child: const Text("Cancel")),
                         ],
                       ),
                     )
@@ -947,7 +947,7 @@ void clearTextFields() {
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child: const Text("Go back",style: TextStyle(color  : Colors.white,fontFamily: "lexend"))),
+                              child: const Text("Cancel",style: TextStyle(color  : Colors.white,fontFamily: "lexend"))),
                         ],
                       ),
                     )

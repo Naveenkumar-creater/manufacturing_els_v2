@@ -270,15 +270,20 @@ Future<void> _fetchProblemDetails() async {
     incidentid: widget.SelectProblemId ?? 0,
   );
 
-  ListOfIncident? selectproblemname;
+ 
 
-  // Manually find the problem by iterating through the list
-  for (var problem in listofproblem ?? []) {
-    if (problem.incmId == widget.SelectProblemId) {
+ListOfIncident? selectproblemname;
+
+// Manually iterate through the list and check for the matching ID
+if (listofproblem != null) {
+  for (var problem in listofproblem) {
+    if (problem is ListOfIncident && problem.incmId == widget.SelectProblemId) {
       selectproblemname = problem;
       break;
     }
   }
+}
+
 
   // Check if a matching problem was found
   if (selectproblemname != null) {
@@ -490,7 +495,8 @@ updateProblemList({
           )
         : SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.only(left: 16.w, bottom: 20.w,top: 16.h),
+            padding: screenSize.width < 572 ? EdgeInsets.only(top:20.h,left:12.w,bottom: 20.w): EdgeInsets.only(left: 12.w, bottom: 20.w,top: 16.h),
+
           child:
           
            Column(
@@ -573,7 +579,7 @@ updateProblemList({
                   ),
                   Container(
                     width: screenSize.width < 572 ? 270.w : 365.w,
-                    height: 50.h,
+                 height: screenSize.height < 572 ? 35.h : 40.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -585,7 +591,7 @@ updateProblemList({
                             horizontal: 5.w, vertical: 2.h),
                         border: InputBorder.none,
                       ),
-                      hint: Text("Select"),
+                      hint:  Text("Select", style:TextStyle( fontSize:screenSize.width < 572 ? 12.sp : 16.sp, ),),
                       isExpanded: true,
                       onChanged: (String? newvalue) async {
                         if (newvalue != null) {
@@ -696,7 +702,7 @@ updateProblemList({
                   ),
                   Container(
                     width: screenSize.width < 572 ? 270.w : 365.w,
-                    height: 50.h,
+                     height: screenSize.height < 572 ? 35.h : 40.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -708,7 +714,7 @@ updateProblemList({
                             horizontal: 5.w, vertical: 2.h),
                         border: InputBorder.none,
                       ),
-                      hint: Text("Select"),
+                      hint:  Text("Select", style:TextStyle( fontSize:screenSize.width < 572 ? 12.sp : 16.sp, ),),
                       isExpanded: true,
                       onChanged: (String? newvalue) async {
                         if (newvalue != null) {
@@ -819,7 +825,7 @@ updateProblemList({
                   ),
                   Container(
                     width: screenSize.width < 572 ? 270.w : 365.w,
-                    height: 50.h,
+                     height: screenSize.height < 572 ? 35.h : 40.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -830,7 +836,7 @@ updateProblemList({
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 5.w, vertical: 5.h)),
-                        hint: Text("Select"),
+                        hint:  Text("Select", style:TextStyle( fontSize:screenSize.width < 572 ? 12.sp : 16.sp, ),),
                         isExpanded: true,
                         onChanged: (String? newvalue) async {
                           if (newvalue != null) {
@@ -926,7 +932,7 @@ updateProblemList({
                   ),
                   Container(
                     width: screenSize.width < 572 ? 270.w : 365.w,
-                    height: 50.h,
+                     height: screenSize.height < 572 ? 35.h : 40.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -937,7 +943,7 @@ updateProblemList({
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 5.w, vertical: 5.h)),
-                        hint: Text("Select"),
+                        hint:  Text("Select", style:TextStyle( fontSize:screenSize.width < 572 ? 12.sp : 16.sp, ),),
                         isExpanded: true,
                         onChanged: (String? newvalue) {
                           if (newvalue != null) {
@@ -1011,7 +1017,7 @@ updateProblemList({
                   ),
                   Container(
                     width: screenSize.width < 572 ? 270.w : 365.w,
-                    height: 50.h,
+                     height: screenSize.height < 572 ? 35.h : 40.h,
                     decoration: BoxDecoration(
                       border: Border.all(width: 1, color: Colors.grey),
                       borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -1022,7 +1028,7 @@ updateProblemList({
                             border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(
                                 horizontal: 5.w, vertical: 5.h)),
-                        hint: Text("Select"),
+                        hint:  Text("Select", style:TextStyle( fontSize:screenSize.width < 572 ? 12.sp : 16.sp, ),),
                         isExpanded: true,
                         onChanged: (String? newvalue) {
                           if (newvalue != null) {
@@ -1069,7 +1075,7 @@ updateProblemList({
                             .toList()),
                   ),
                 
-                  (problemStatusid==3)?
+                  (problemStatusid==2 || problemStatusid==4)?
                   Column(
                     children: [
                          SizedBox(height: 20),
@@ -1165,10 +1171,10 @@ updateProblemList({
                       ? SizedBox(
                           height: 40.h,
                           child: CustomButton(
-                            width: screenSize.width < 572 ? 100.w : 130.w,
-                            height: 50.h,
+                             width: screenSize.width < 572 ? 80.w : 130.w,
+                            height: screenSize.height < 572 ? 30.h : 50.h,
                             onPressed:() async {
-                              
+
                                       await updateProblemList(
                                         endTime: lastupdatedTime,
                                         fromtime: fromTime,
@@ -1206,8 +1212,8 @@ updateProblemList({
                        SizedBox(
                           height: 40.h,
                           child: CustomButton(
-                            width: screenSize.width < 572 ? 100.w : 130.w,
-                            height: 50.h,
+                            width: screenSize.width < 572 ? 70.w : 130.w,
+                            height: screenSize.height < 572 ? 30.h : 50.h,
                             onPressed: selectproblemname != null &&
                                     selectproblemCategoryname != null &&
                                     selectrootcausename != null

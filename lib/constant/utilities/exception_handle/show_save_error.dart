@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ShowSaveError {
-static void showAlert(
+ static void showAlert(
     BuildContext? context,
     String message, [
     String headerTitle = "Error",
@@ -13,46 +13,55 @@ static void showAlert(
       // Define the custom header icon and color based on dialog type
       Widget customHeaderIcon;
       Color headerBackgroundColor;
+      String buttontext;
+         
 
       switch (dialog) {
         case "Success":
-          customHeaderIcon = Icon(Icons.check_circle, color: Colors.white, size: 50.sp);
+          customHeaderIcon = Icon(Icons.check_circle, color: Colors.white, size: 35.sp);
           headerBackgroundColor = Colors.green;
+          buttontext="Ok";
           break;
         case "Warning":
-          customHeaderIcon = Icon(Icons.warning, color: Colors.white, size: 50.sp);
+          customHeaderIcon = Icon(Icons.warning, color: Colors.white, size: 35.sp);
           headerBackgroundColor = Colors.orange;
+          buttontext="Ok";
           break;
         case "Info":
-          customHeaderIcon = Icon(Icons.info, color: Colors.white, size: 50.sp);
+          customHeaderIcon = Icon(Icons.info, color: Colors.white, size: 35.sp);
           headerBackgroundColor = Colors.blue;
+          buttontext="Ok";
           break;
         case "Error":
         default:
-          customHeaderIcon = Icon(Icons.cancel, color: Colors.white, size: 50.sp);
+          customHeaderIcon = Icon(Icons.cancel, color: Colors.white, size: 35.sp);
           headerBackgroundColor = Colors.red;
+           buttontext="Try Again";
           break;
       }
 
       showDialog(
         context: context,
+
         barrierDismissible: false, 
         builder: (BuildContext context) {
           return Dialog(
-
+               shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.r), // Adjust the radius as needed
+      ),
             child: Padding(
               padding:  EdgeInsets.only(bottom: 12.sp),
               child: Container(
-                width: 300.w, // Set your desired width
+                width: 150.w, // Set your desired width
                        // Set your desired height
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                     height: 100.h,
+                     height: 50.h,
                       decoration: BoxDecoration(
                         color: headerBackgroundColor,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(30.r)), // Keep top corners square
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)), // Keep top corners square
                       ),
                       child: Center(child: customHeaderIcon),
                     ),
@@ -65,11 +74,11 @@ static void showAlert(
                         child: Column(
                           mainAxisSize: MainAxisSize.min, // Take only necessary space
                           children: [
-                            Text(
-                              headerTitle,
-                              style: TextStyle(color: Colors.black, fontSize: 25.sp),
-                              textAlign: TextAlign.center,
-                            ),
+                            // Text(
+                            //   headerTitle,
+                            //   style: TextStyle(color: Colors.black, fontSize: 25.sp),
+                            //   textAlign: TextAlign.center,
+                            // ),
                             SizedBox(height: 10.h), // Spacing between title and message
                             Text(
                               message,
@@ -90,10 +99,10 @@ static void showAlert(
                           backgroundColor: buttonColor,
                           
                         ),
-                        child: const Text('OK' ,style: TextStyle(color: Colors.white)),
+                        child: Text(buttontext,style: TextStyle(color: Colors.white)),
                         onPressed: () {
                           Navigator.of(context).pop();
-                             Navigator.of(context).pop();
+                            Navigator.of(context).pop();
                          
                         },
                       ),
