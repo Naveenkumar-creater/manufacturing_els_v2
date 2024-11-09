@@ -444,75 +444,79 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
   //       });
   // }
 
-  void _workstationPopup(
-      {int? empPersonid,
-      int? pwseId,
-      int? processId,
-      int? attid,
-      int? attStatus}) {
-    final listofWorkstation =
-        Provider.of<ListofworkstationProvider>(context, listen: false)
-            .user
-            ?.listOfWorkstation;
 
-    showGeneralDialog(
-      barrierDismissible: true,
-      barrierLabel: '',
-      transitionDuration: const Duration(milliseconds: 400),
-      context: context,
-      pageBuilder: (context, animation1, animation2) {
-        return Container();
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
-              .animate(animation),
-          child: FadeTransition(
-            opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
-            child: Align(
-              alignment: Alignment.centerRight, // Align the drawer to the right
-              child: Container(
-                color: Colors.white,
-                width: MediaQuery.of(context).size.width *
-                    0.4, // Set the width to half of the screen
-                height: MediaQuery.of(context)
-                    .size
-                    .height, // Set the height to full screen height
-                child: Drawer(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  backgroundColor: Color.fromARGB(150, 235, 236, 255),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 16.w),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Select Workstation',
-                            style: TextStyle(
-                                fontSize: 24.sp,
-                                color: Color.fromARGB(255, 80, 96, 203),
-                                fontFamily: "Lexend",
-                                fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(
-                            height: 20.h,
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: listofWorkstation?.length,
-                              itemBuilder: (context, index) {
-                                final workstation = listofWorkstation?[index];
 
-                                return GestureDetector(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 16.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border(
+
+bool isTapped = false;
+
+void _workstationPopup({
+  int? empPersonid,
+  int? pwseId,
+  int? processId,
+  int? attid,
+  int? attStatus,
+}) {
+  final listofWorkstation =
+      Provider.of<ListofworkstationProvider>(context, listen: false)
+          .user
+          ?.listOfWorkstation;
+
+  // Capture the parent context before starting async operations
+  final parentContext = context;
+
+  showGeneralDialog(
+    barrierDismissible: true,
+    barrierLabel: '',
+    transitionDuration: const Duration(milliseconds: 400),
+    context: parentContext,
+    pageBuilder: (context, animation1, animation2) {
+      return Container();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+            .animate(animation),
+        child: FadeTransition(
+          opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              color: Colors.white,
+              width: MediaQuery.of(context).size.width * 0.4,
+              height: MediaQuery.of(context).size.height,
+              child: Drawer(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                backgroundColor: Color.fromARGB(150, 235, 236, 255),
+                child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 16.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Select Workstation',
+                          style: TextStyle(
+                              fontSize: 24.sp,
+                              color: Color.fromARGB(255, 80, 96, 203),
+                              fontFamily: "Lexend",
+                              fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(height: 20.h),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: listofWorkstation?.length,
+                            itemBuilder: (context, index) {
+                              final workstation = listofWorkstation?[index];
+
+                              return GestureDetector(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 16.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
                                       top: (index == 0)
                                           ? BorderSide(
                                               width: 1,
@@ -521,54 +525,77 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
                                       bottom: BorderSide(
                                           width: 1,
                                           color: Colors.grey.shade300),
-                                    )), // Set unique background color for selected tile
-                                    child: Text(
-                                      "${workstation?.pwsName} ",
-                                      style: TextStyle(
-                                          color: Colors.black54,
-                                          fontFamily: "Lexend",
-                                          fontSize: 15.sp),
                                     ),
                                   ),
-                                  onTap: () async {
+                                  child: Text(
+                                    "${workstation?.pwsName} ",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontFamily: "Lexend",
+                                        fontSize: 16.sp),
+                                  ),
+                                ),
+                                onTap: () async {
+                                  // Prevent multiple taps
+                                  if (isTapped) {
+                                    return;
+                                    }
+                                  isTapped = true;
+
+Future.microtask(()async{
+
+
+                                  try {
+                                    // Perform async operations
                                     await _changeWorkstation(
                                       empPersonid: empPersonid,
                                       pwesId: pwseId,
                                       pwsId: workstation?.pwsId,
                                       attId: attid,
-                                      // attstatus: attStatus ?? 0
                                     );
                                     await employeeApiService.employeeList(
-                                        context: context,
-                                        processid: processId ?? 0,
-                                        deptid: widget.deptid ?? 1,
-                                        psid: widget.psid ?? 0);
+                                      context: parentContext,
+                                      processid: processId ?? 0,
+                                      deptid: widget.deptid ?? 1,
+                                      psid: widget.psid ?? 0,
+                                    );
 
                                     await listofworkstationService
                                         .getListofWorkstation(
-                                            context: context,
-                                            deptid: widget.deptid ?? 1057,
-                                            psid: widget.psid ?? 0,
-                                            processid: processId ?? 0);
-
-                                    Navigator.of(context).pop();
-                                  },
-                                );
-                              },
-                            ),
+                                      context: parentContext,
+                                      deptid: widget.deptid ?? 1057,
+                                      psid: widget.psid ?? 0,
+                                      processid: processId ?? 0,
+                                    );
+                                              // Use the captured parent context to pop the dialog
+                                  Navigator.of(parentContext).pop();
+                                  } catch (e) {
+                                    // Handle any exceptions here
+                                    print("Error: $e");
+                                  } finally {
+                                   await Future.delayed(Duration(milliseconds: 300));
+                                    isTapped = false;
+                                  }
+                                  });
+                                },
+                                
+                              );
+                            },
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        );
-      },
-    );
-  }
+        ),
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -1247,6 +1274,7 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
                                                         deptid:
                                                             widget.deptid ?? 1,
                                                         psid: widget.psid ?? 0);
+                                                        
                                                 await listofworkstationService
                                                     .getListofWorkstation(
                                                         context: context,

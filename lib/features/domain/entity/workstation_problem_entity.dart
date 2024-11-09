@@ -52,8 +52,8 @@ class ResolveProblemsEntity extends Equatable {
     final int? ipdincIncrcmId;
     final String? incidentName;
     final String? problemStatus;
-    final int?    ipdincid;
-      final int? ipdincipdid;
+    final int? ipdincid;
+    final int? ipdincipdid;
 
     @override
     List<Object?> get props => [

@@ -93,7 +93,7 @@ class ShowDeleteError {
                     ),
                     SizedBox(height: 35.h), // Spacing before button
                     SizedBox(
-                      width: 100.w,
+                      width: 150.w,
                       height: 35.h,
                       child: ElevatedButton(
                         

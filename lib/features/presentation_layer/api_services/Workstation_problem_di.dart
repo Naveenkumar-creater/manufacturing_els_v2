@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 import '../../../constant/utilities/exception_handle/show_pop_error.dart';
 
 class WorkstationProblemService {
-  Future<void> getListofSolution({
+  Future<void> getListofProblem({
     required BuildContext context,
     required int pwsid,
 

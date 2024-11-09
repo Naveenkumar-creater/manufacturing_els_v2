@@ -90,7 +90,9 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
    final WorkstationProblemService workstationProblemService =
       WorkstationProblemService();
   bool isChecked = false;
-  int? productionStoppageId;
+  
+  int? productionStoppageid;
+ 
 
   List<Map<String, dynamic>> submittedDataList = [];
   String? fromTime; // This will store the selected time
@@ -264,11 +266,11 @@ Future<void> _fetchProblemDetails() async {
 
     if (widget.SelectProblemId != null) {
 
-  await listofproblemCategoryservice.getListofProblemCategory(
-    context: context,
-    deptid: deptid ?? 1,
-    incidentid: widget.SelectProblemId ?? 0,
-  );
+  // await listofproblemCategoryservice.getListofProblemCategory(
+  //   context: context,
+  //   deptid: deptid ?? 1,
+  //   incidentid: widget.SelectProblemId ?? 0,
+  // );
 
  
 
@@ -364,10 +366,10 @@ if (listofproblem != null) {
       problemStatusid = problemstatus.statusId;
     }
 
-    productionStoppageId = widget.productionStopageId;
+    productionStoppageid = widget.productionStopageId;
 
-    if(productionStoppageId!=null){
-      isChecked=productionStoppageId==1;
+    if(productionStoppageid!=null){
+      isChecked=productionStoppageid==1;
     }
 
     incidentReasonController.text = widget?.reason ?? "";
@@ -1141,9 +1143,9 @@ updateProblemList({
                             onChanged: (newValue) {
                               setState(() {
                                 isChecked = newValue ?? false;
-                                productionStoppageId = isChecked ? 1 : 0;
+                                productionStoppageid = isChecked ? 1 : 0;
                               });
-                              print("reworkvalue  ${productionStoppageId}");
+                              print("reworkvalue  ${productionStoppageid}");
                               // Perform any additional actions here, such as updating the database
                             },
                           ),
@@ -1183,14 +1185,14 @@ updateProblemList({
                                         ipdincid: widget.ipdincid,
                                         note: incidentReasonController.text,
                                         problemSolvedstatus: problemStatusid,
-                                        productionstopage: productionStoppageId,
+                                        productionstopage: productionStoppageid,
                                         rootcauseid: rootCauseid,
                                         solutionid: solutionid,
                                         subincidentId: problemCategoryid,
                                       );
 
                                       print(updateProblemList);
-                                     workstationProblemService.getListofSolution(context: context, pwsid: widget.pwsId ?? 0);
+                                     workstationProblemService.getListofProblem(context: context, pwsid: widget.pwsId ?? 0);
                                     Navigator.pop(context);
                                   },
                                 
@@ -1223,8 +1225,7 @@ updateProblemList({
                                           ListOfWorkStationIncident(
                                               fromtime: fromTime,
                                               endtime: lastupdatedTime,
-                                              productionStoppageId:
-                                                  productionStoppageId,
+                                              productionStoppageId:productionStoppageid ?? 0,
                                               problemstatusId: problemStatusid,
                                               problemsolvedName:
                                                   selectProblemStatusDesc,

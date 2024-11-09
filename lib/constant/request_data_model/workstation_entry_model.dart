@@ -121,12 +121,17 @@ class ListOfEmployeesForWorkStation {
 class ListOfWorkStationIncidents {
   ListOfWorkStationIncidents(
       {
-        required this.incfromtime,required this.incendtime,required this.solutionId,required this.problemStatusId,required this.productionstopageId, 
-
+        required this.incfromtime,
+        required this.incendtime,
+        required this.solutionId,
+        required this.problemStatusId,
+        required this.productionstopageId, 
         required this.incidenid,
       required this.subincidentid,
       required this.rootcauseid,
-      required this.notes});
+      required this.ipdIncId,
+      required this.notes,
+      required this.ipdId});
 
   final int? incidenid;
   final int? subincidentid;
@@ -137,6 +142,8 @@ class ListOfWorkStationIncidents {
   final int?solutionId;
   final int?problemStatusId;
   final int? productionstopageId;
+  final int?ipdIncId;
+  final int?ipdId;
 
   Map<String, dynamic> toJson() => {
        "inc_from_time": incfromtime,
@@ -147,6 +154,8 @@ class ListOfWorkStationIncidents {
         "solution_id":solutionId,
         "problem_solved_status":problemStatusId,
         "production_stopage": productionstopageId,
+        "ipdinc_id":ipdIncId,
+        "ipdinc_ipd_id":ipdId,
         "notes": notes
       };
 }

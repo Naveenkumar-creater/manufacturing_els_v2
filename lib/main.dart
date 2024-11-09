@@ -145,13 +145,6 @@ ChangeNotifierProvider<WorkstationProblemProvider>(create: (_)=>WorkstationProbl
 ChangeNotifierProvider<ProductAvilableQtyProvider>(create: (_)=>ProductAvilableQtyProvider()),
 ChangeNotifierProvider<EditProductAvilableQtyProvider>(create: (_)=>EditProductAvilableQtyProvider()),
 ChangeNotifierProvider<ProductLocationProvider>(create: (_)=>ProductLocationProvider()),
-
-
-
-
-
-
-
       
       ],
       child: ScreenUtilInit(

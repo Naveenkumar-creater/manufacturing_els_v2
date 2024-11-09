@@ -148,6 +148,7 @@ class _EmpProductionEntryPageState
   FocusNode rejectedQtyFocusNode = FocusNode();
   FocusNode reworkFocusNode = FocusNode();
   FocusNode cardNoFocusNode = FocusNode();
+   FocusNode assetFocusNode = FocusNode();
   // Define the FocusNode for the Item Ref field
   final FocusNode itemRefFocusNode = FocusNode();
   bool isChecked = false;
@@ -337,8 +338,8 @@ Future<void> updateproduction(int? processid) async {
             incendtime: incident.endtime,
             problemStatusId: incident.problemstatusId,
             productionstopageId: incident.productionStoppageId ?? 0,
-            solutionId: incident.solutionId);
-        workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
+            solutionId: incident.solutionId, ipdIncId:incident.ipdIncId, ipdId: incident.ipdId );
+             workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
       }
       for (int index = 0; index < ListofNonProduction.length; index++) {
         final nonProduction = ListofNonProduction[index];
@@ -687,6 +688,9 @@ Future<void> updateproduction(int? processid) async {
                               
                             onPressed: () async {
                               try {
+                                
+                                Navigator.of(context).pop();
+                        
                                 await workstationClose(
                                     processid: widget.processid,
                                     psid: widget.psid,
@@ -695,8 +699,6 @@ Future<void> updateproduction(int? processid) async {
                                    _WorkStationcloseapi(); 
                               
 
-                                Navigator.of(context).pop();
-                                Navigator.of(context).pop();
                               } catch (error) {
                                 // Handle and show the error message here
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -792,30 +794,33 @@ Future<void> updateproduction(int? processid) async {
           ?.listofProductEntity;
 
       setState(() {
-        assetCotroller.text = productionEntry?.ipdassetid?.toString() ?? "0";
-        cardNoController.text = productionEntry?.ipdcardno?.toString() ?? "0";
-        reworkQtyController.text =
-            productionEntry?.ipdreworkableqty?.toString() ?? "0";
-        // If itemid is not 0, find the matching product name
-        productNameController.text = (productionEntry?.itemid != 0
-            ? productname
-                ?.firstWhere(
-                  (product) => productionEntry?.itemid == product.productid,
-                )
-                .productName
-            : "0")!;
+        // assetCotroller.text = productionEntry?.ipdassetid?.toString() ?? "0";
+        // cardNoController.text = productionEntry?.ipdcardno?.toString() ?? "0";
+        // reworkQtyController.text =
+        //     productionEntry?.ipdreworkableqty?.toString() ?? "0";
+        // // If itemid is not 0, find the matching product name
+        // productNameController.text = (productionEntry?.itemid != 0
+        //     ? productname
+        //         ?.firstWhere(
+        //           (product) => productionEntry?.itemid == product.productid,
+        //         )
+        //         .productName
+        //     : "0")!;
       });
     }
   }
 
 
- @override
-    void initState() {
-      super.initState();
+  @override
+  void initState() {
+    super.initState();
 
-      _fetchARecentActivity();
+    // Fetch recent activity, then initialize the values
+    _fetchARecentActivity().then((_) {
+      updateinitial();
+    });
 
-itemRefFocusNode.addListener(() {
+    itemRefFocusNode.addListener(() {
       if (!itemRefFocusNode.hasFocus) {
         validateProductName(); // Validate when focus is lost
       }
@@ -1069,8 +1074,7 @@ itemRefFocusNode.addListener(() {
    for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
     }
-  // Use the stored reference
-    storedListOfProblem.reset(notify: false);
+
     nonProductionList.reset(notify: false);
     super.dispose();
   }
@@ -1081,7 +1085,7 @@ itemRefFocusNode.addListener(() {
   //   return DateFormat('yyyy-MM-dd HH:mm').format(dateTime);
   // }
 
-Future<void> _fetchARecentActivity() async {
+ Future<void> _fetchARecentActivity() async {
     try {
       // Fetch data
       await empProductionEntryService.productionentry(
@@ -1097,7 +1101,7 @@ Future<void> _fetchARecentActivity() async {
           processid: widget.processid ?? 1,
           pwsId: widget.pwsid ?? 0);
 
-      await workstationProblemService.getListofSolution(
+      await workstationProblemService.getListofProblem(
           context: context, pwsid: widget.pwsid ?? 0);
 
       await productApiService.productList(
@@ -1116,6 +1120,7 @@ Future<void> _fetchARecentActivity() async {
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsid ?? 0);
+
       await productLocationService.getAreaList(context: context);
 
       currentDateTime = DateTime.now();
@@ -1128,15 +1133,15 @@ Future<void> _fetchARecentActivity() async {
       currentSecond = now.second;
 
       String? shiftTime;
-      final productionEntry =
-          Provider.of<EmpProductionEntryProvider>(context, listen: false)
+
+      final productionEntry = Provider.of<EmpProductionEntryProvider>(context, listen: false)
               .user
               ?.empProductionEntity;
 
       String? shifttodate = productionEntry?.ipdtotime;
+      
 
-      final shiftFromtime =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
+      final shiftfromtime =  Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
               ?.shiftStatusdetailEntity
               ?.shiftFromTime;
@@ -1144,16 +1149,17 @@ Future<void> _fetchARecentActivity() async {
 // Construct the shift start date with current time
       final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
           '${currentMonth.toString().padLeft(2, '0')}-'
-          '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+          '${currentDay.toString().padLeft(2, '0')} $shiftfromtime';
 
 // Reassign the current fromtime value based on the condition
       fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
           ? shiftStartDateTiming
           : productionEntry?.ipdtotime;
 
+
+
 // Retrieve shift details
-      final shiftToTimeString =
-          Provider.of<ShiftStatusProvider>(context, listen: false)
+      final shiftToTimeString = Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
               ?.shiftStatusdetailEntity
               ?.shiftToTime;
@@ -1185,7 +1191,7 @@ Future<void> _fetchARecentActivity() async {
           int.parse(shiftToTimeParts[1]),
           int.parse(shiftToTimeParts[2]),
         );
-      };
+      }
 
 // Get the current time
       final currentTime = DateTime.now();
@@ -1198,6 +1204,7 @@ Future<void> _fetchARecentActivity() async {
               ?.shiftFromTime;
 
       DateTime? shiftFromTime;
+
       if (shiftFromTimeString != null && shiftToTime != null) {
         // Parse the shiftFromTime but using the same date as shiftToTime
         final shiftFromTimeParts = shiftFromTimeString.split(':');
@@ -1209,8 +1216,10 @@ Future<void> _fetchARecentActivity() async {
           int.parse(shiftFromTimeParts[0]),
           int.parse(shiftFromTimeParts[1]),
           int.parse(shiftFromTimeParts[2]),
+          
         );
 
+       
         if (shiftFromTime != null &&
             shiftToTime != null &&
             shiftToTime.isBefore(shiftFromTime)) {
@@ -1266,7 +1275,6 @@ Future<void> _fetchARecentActivity() async {
 
       empTimingUpdation(fromtime!, lastUpdatedTime!);
 
-      Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
       _storedWorkstationProblemList();
 
       DateTime StartfromTime =
@@ -1277,17 +1285,17 @@ Future<void> _fetchARecentActivity() async {
       fromMinutes = toTime.difference(StartfromTime).inMinutes;
 
       // Initialize controllers and error messages based on list length
-      final listofempworkstation =
-          Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-              .user
-              ?.empWorkstationEntity;
+    //   final listofempworkstation =
+    //       Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+    //           .user
+    //           ?.empWorkstationEntity;
 
-      if (listofempworkstation != null) {
-        for (int i = 0; i < listofempworkstation.length; i++) {
-          empTimingTextEditingControllers.add(TextEditingController());
-          errorMessages.add(null); // Initially no error
-        }
-      }
+    // if (listofempworkstation != null) {
+    // for (int i = 0; i < listofempworkstation.length; i++) {
+    //   empTimingTextEditingControllers.add(TextEditingController());
+    //   errorMessages.add(null); // Initially no error
+    // }
+  // }
 
       // Access fetched data and set initial values
       final initialValue = productionEntry?.ipdflagid;
@@ -1565,6 +1573,8 @@ Future<void> _fetchARecentActivity() async {
   }
 
     void _storedWorkstationProblemList() {
+
+  Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
    final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
         .user
         ?.resolvedProblemInWs;
@@ -1594,7 +1604,8 @@ Future<void> _fetchARecentActivity() async {
                                               rootCausename:
                                                   workstationProblem[i].incrcmRootcauseBrief,
                                                   ipdId:workstationProblem[i].ipdincipdid,
-                                                  ipdIncId: workstationProblem[i].ipdincid );
+                                                  ipdIncId: workstationProblem[i].ipdincid,
+                                                  assetId:workstationProblem[i].incmAssetId  );
        Provider.of<ListProblemStoringProvider>(
                                                     context,
                                                     listen: false)
@@ -1605,33 +1616,35 @@ Future<void> _fetchARecentActivity() async {
 
 
 
- void empTimingUpdation(String startTime, String endTime) {
-    DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
-    DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
+  void empTimingUpdation(String startTime, String endTime) {
+  DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
+  DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
 
-    Duration timeoutDuration = toDate.difference(fromDate);
-    int minutes = timeoutDuration.inMinutes;
+  Duration timeoutDuration = toDate.difference(fromDate);
+  int minutes = timeoutDuration.inMinutes;
 
-    final listofempworkstation =
-        Provider.of<ListofEmpworkstationProvider>(context, listen: false)
-            .user
-            ?.empWorkstationEntity;
+  final listofempworkstation =
+      Provider.of<ListofEmpworkstationProvider>(context, listen: false)
+          .user
+          ?.empWorkstationEntity;
 
-    if (listofempworkstation != null) {
-      setState(() {
-        // Ensure empTimingTextEditingControllers has the correct number of controllers
-        empTimingTextEditingControllers.clear(); // Clear previous controllers
+  if (listofempworkstation != null) {
+    setState(() {
+      // Clear previous controllers and messages to avoid duplicates
+      empTimingTextEditingControllers.clear();
+      errorMessages.clear();
 
-        for (int i = 0; i <= listofempworkstation.length; i++) {
-          TextEditingController controller = TextEditingController();
-          controller.text = minutes.toString();
-          empTimingTextEditingControllers.add(controller);
-        }
-      });
-    } else {
-      print("listofempworkstation is null");
-    }
+      for (int i = 0; i < listofempworkstation.length; i++) {
+        TextEditingController controller = TextEditingController();
+        controller.text = minutes.toString();
+        empTimingTextEditingControllers.add(controller);
+        errorMessages.add(null); // No initial error
+      }
+    });
+  } else {
+    print("listofempworkstation is null");
   }
+}
 
 
 void addFocusListeners() {
@@ -2086,63 +2099,40 @@ void addFocusListeners() {
                                                             ),
                                                           ],
                                                         ),
-                                                Focus(
-                                                              focusNode:
-                                                                  cardNoFocusNode,
-                                                              onKey:
-                                                                  (node, event) {
-                                                                if (event.logicalKey ==
-                                                                        LogicalKeyboardKey
-                                                                            .tab ||
-                                                                    event.logicalKey ==
-                                                                        LogicalKeyboardKey
-                                                                            .enter) {
-                                                                  // Trigger the API call when the Tab or Enter key is pressed
-                                                                  cardNoApiService
-                                                                      .getCardNo(
-                                                                    context:
-                                                                        context,
-                                                                    cardNo: int.tryParse(
-                                                                            cardNoController
-                                                                                .text) ??
-                                                                        0,
-                                                                  )
-                                                                      .then((_) {
-                                                                    final item = Provider.of<
-                                                                                CardNoProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .user
-                                                                        ?.scanCardForItem;
-                                          
-                                                                    if (item !=
-                                                                        null) {
-                                                                      product_Id =
-                                                                          item.pcItemId;
-                                                                      pcid = item
-                                                                          .pcId;
-                                                                      updateProductName(
-                                                                          item.itemName ??
-                                                                              "");
-                                          
-                                                                      // Move the focus to the Item Ref field
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .requestFocus(
-                                                                              itemRefFocusNode);
-                                                                    }
-                                                                  });
-                                                                }
-                                                                return KeyEventResult
-                                                                    .ignored;
-                                                              },
-                                                              child: SizedBox(
-                                                                width: 150.w,
-                                                                height: 50.h,
-                                                                child:
-                                                                    CustomNumField(
-                                                                      enabledBorder:
+                                             Focus(
+  focusNode: cardNoFocusNode,
+  onFocusChange: (hasFocus) {
+    // Trigger only when the focus is lost
+    if (!hasFocus) {
+      final cardNo = int.tryParse(cardNoController.text) ?? 0;
+      if (cardNo != 0) {
+        cardNoApiService.getCardNo(
+          context: context,
+          cardNo: cardNo,
+        ).then((_) {
+          final item = Provider.of<CardNoProvider>(context, listen: false)
+              .user
+              ?.scanCardForItem;
+
+          if (item != null) {
+            setState(() {
+              product_Id = item.pcItemId;
+              pcid = item.pcId;
+              updateProductName(item.itemName ?? "");
+            });
+
+            // Move the focus to the Item Ref field automatically
+            FocusScope.of(context).requestFocus(itemRefFocusNode);
+          }
+        });
+      }
+    }
+  },
+  child: SizedBox(
+    width: 150.w,
+    height: 50.h,
+    child: CustomNumField(
+        enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderRadius:
                                                                   BorderRadius
@@ -2175,61 +2165,46 @@ void addFocusListeners() {
                                                                           .grey,
                                                                       width: 1),
                                                             ),
-                                                                  controller:
-                                                                      cardNoController,
-                                                                  hintText:
-                                                                      'Job Card',
-                                                                  keyboardtype:
-                                                                      TextInputType
-                                                                          .number,
-                                                                  validation:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                            null ||
-                                                                        value
-                                                                            .isEmpty) {
-                                                                      return 'Enter card No.';
-                                                                    } else if (RegExp(
-                                                                            r'^0+$')
-                                                                        .hasMatch(
-                                                                            value)) {
-                                                                      return 'Cannot contain zeros';
-                                                                    }
-                                                                    return null;
-                                                                  },
-                                                                  enabled:
-                                                                      reworkValue !=
-                                                                          1,
-                                                                  onEditingComplete:
-                                                                      () {
-                                                                    final item = Provider.of<
-                                                                                CardNoProvider>(
-                                                                            context,
-                                                                            listen:
-                                                                                false)
-                                                                        .user
-                                                                        ?.scanCardForItem;
-                                          
-                                                                    if (item !=
-                                                                        null) {
-                                                                      product_Id =
-                                                                          item.pcItemId;
-                                                                      pcid = item
-                                                                          .pcId;
-                                                                      updateProductName(
-                                                                          item.itemName ??
-                                                                              "");
-                                          
-                                                                      // Move the focus to the Item Ref field
-                                                                      FocusScope.of(
-                                                                              context)
-                                                                          .requestFocus(
-                                                                              itemRefFocusNode);
-                                                                    }
-                                                                  },
-                                                                ),
-                                                              ),
-                                                            ),
+      controller: cardNoController,
+      hintText: 'Job Card',
+      keyboardtype: TextInputType.number,
+
+      validation: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Enter Job Card.';
+        } else if (RegExp(r'^0+$').hasMatch(value)) {
+          return 'Cannot contain zeros';
+        }
+        return null;
+      },
+      enabled: activityDropdown !=null ? false:true,
+      onEditingComplete: () {
+        final cardNo = int.tryParse(cardNoController.text) ?? 0;
+        if (cardNo != 0) {
+          cardNoApiService.getCardNo(
+            context: context,
+            cardNo: cardNo,
+          ).then((_) {
+            final item = Provider.of<CardNoProvider>(context, listen: false)
+                .user
+                ?.scanCardForItem;
+
+            if (item != null) {
+              setState(() {
+                product_Id = item.pcItemId;
+                pcid = item.pcId;
+                updateProductName(item.itemName ?? "");
+              });
+
+              // Move the focus to the Item Ref field automatically
+              FocusScope.of(context).requestFocus(itemRefFocusNode);
+            }
+          });
+        }
+      },
+    ),
+  ),
+),
                                                       ],
                                                     ),
                                                     SizedBox(
@@ -2521,11 +2496,26 @@ void addFocusListeners() {
                                                             ),
                                                           ],
                                                         ),
-                                                        SizedBox(
-                                                          width: 150.w,
-                                                          height: 50.w,
-                                                          child: CustomNumField(
-                                                            enabledBorder:
+                                                          Focus(
+                                                          focusNode: assetFocusNode,
+  onFocusChange: (hasFocus) {
+    if (!hasFocus) {
+      // When focus is lost, submit the value
+      final assetId = assetCotroller.text;
+
+      if (assetId.isNotEmpty) {
+       setState(() {
+         assetCotroller.text=assetId;
+       });
+        print("Asset ID submitted: $assetId");
+      }
+    }
+  },
+  child: SizedBox(
+    width: 150.w,
+    height: 50.h,
+    child: CustomNumField(
+        enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderRadius:
                                                                   BorderRadius
@@ -2558,11 +2548,15 @@ void addFocusListeners() {
                                                                           .grey,
                                                                       width: 1),
                                                             ),
-                                                            controller:
-                                                                assetCotroller,
-                                                            hintText: 'Asset id',
-                                                          ),
-                                                        ),
+      enabled: activityDropdown != null ? false : true,
+      controller: assetCotroller,
+      hintText: 'Asset id',
+      
+    ),
+  ),
+),
+                                                        
+                                                
                                                       ],
                                                     ),
                                                    
@@ -2632,13 +2626,11 @@ void addFocusListeners() {
                                                               ),
                                                               hint: Text("Select"),
                                                               isExpanded: true,
-                                                             onChanged: (productNameController
-                                                                          .text
-                                                                          .isEmpty ||
-                                                                      reworkValue ==
-                                                                          1)
-                                                                  ? null
-                                                                  : (String?
+                                                             onChanged: ((cardNoController.text.isNotEmpty && productNameController
+                                                                        .text
+                                                                        .isNotEmpty && assetCotroller.text.isNotEmpty && reworkValue==0) )
+                                                                ? 
+                                                                   (String?
                                                                       newvalue) async {
                                                                       if (newvalue !=
                                                                           null) {
@@ -2740,7 +2732,7 @@ void addFocusListeners() {
                                                                               } else if ((seqNo == 1 && overallqty == 0)) {
                                                                                 return null;
                                                                               } else {
-                                                                                ShowError.showAlert(context, "Rework Qty Not Avilable");
+                                                                                ShowError.showAlert(context, "No Avilable Quantity");
                                                                               }
                                                                             });
                                                                           } else {
@@ -2766,7 +2758,7 @@ void addFocusListeners() {
                                                                               0;
                                                                         });
                                                                       }
-                                                                    },
+                                                                    }:null,
                                                               items: activity
                                                                       ?.map(
                                                                         (activityName) {
@@ -3595,7 +3587,8 @@ void addFocusListeners() {
   child: CustomButton(
     width: 100.w,
     height: 50.h,
-    onPressed: selectedName != null &&
+    onPressed: 
+    selectedName != null &&
             locationDropdown != null &&
             assetCotroller.text.isNotEmpty
         ? () {
@@ -3888,14 +3881,14 @@ void addFocusListeners() {
                                                                     ),
                                                                   ),
                                                                   // This space will display the error message but won't change the TextFormField size
-                                                                  if (errorMessages[
+                                                                   if (errorMessages[
                                                                           index] !=
                                                                       null)
                                                                     Padding(
                                                                       padding: const EdgeInsets
                                                                           .only(
                                                                           left:
-                                                                              2.0,
+                                                                              8.0,
                                                                           top:
                                                                               2.0),
                                                                       child:
@@ -3905,7 +3898,7 @@ void addFocusListeners() {
                                                                         style:
                                                                             TextStyle(
                                                                           fontSize:
-                                                                              8.0, // Adjust the font size as needed
+                                                                              9.0, // Adjust the font size as needed
                                                                           color:
                                                                               Colors.red,
                                                                           height:
@@ -4145,25 +4138,25 @@ void addFocusListeners() {
                                          
                                       
                                       ListView.builder(
-                                        itemCount: StoredListOfProblem?.length,
+                                        itemCount: StoredListOfProblem.length,
                                         itemBuilder: (context, index) {
                                          final item =
                                                           StoredListOfProblem[
                                                               index];
                                                       return GestureDetector(
-                                                        onTap: assetCotroller.text.isNotEmpty ? () {
-                                                          //  listofproblemservice
-                                                          //   .getListofProblem(
-                                                          //       context:
-                                                          //           context,
-                                                          //       processid: widget
-                                                          //               .processid ??
-                                                          //           0,
-                                                          //       deptid: widget
-                                                          //               .deptid ??
-                                                          //           1057,
+                                                        onTap:() {
+                                                           listofproblemservice
+                                                            .getListofProblem(
+                                                                context:
+                                                                    context,
+                                                                processid: widget
+                                                                        .processid ??
+                                                                    0,
+                                                                deptid: widget
+                                                                        .deptid ??
+                                                                    1057,
                                                                     
-                                                          //               assetid: int.tryParse(assetCotroller.text ?? "") ?? 0  );
+                                                                        assetid:item.assetId ?? 0  );
                                                                         
                                                           _problemEntrywidget(
                                                               item.fromtime,
@@ -4181,8 +4174,6 @@ void addFocusListeners() {
                                                               fromtime,
                                                               widget.pwsid
                                                               );
-                                                        }:(){
- ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.orange);
                                                         },
                                             child: Container(
                                               height: 80.h,

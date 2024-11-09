@@ -9,7 +9,6 @@ WorkstationProblemsEntity ? get user=>_user;
 void setUser(WorkstationProblemsEntity ? listofproblem){
   _user=listofproblem;
   notifyListeners();
-
 }
 
 }

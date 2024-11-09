@@ -13,6 +13,7 @@ import 'package:prominous/constant/request_data_model/incident_entry_model.dart'
 import 'package:prominous/constant/request_data_model/non_production_entry_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
+import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_emp_list_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_nonproduction_lis_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_product_avilability_di.dart';
@@ -34,6 +35,7 @@ import 'package:prominous/features/presentation_layer/provider/edit_entry_provid
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/problem_entry_popup.dart';
@@ -116,6 +118,7 @@ class _EditEmpProductionEntryPageState extends State<EditEmpProductionEntryPage>
    final NonProductionActivityService nonProductionActivityService =NonProductionActivityService();
      final Listofproblemservice listofproblemservice = Listofproblemservice();
   final ListofEmpworkstationService listofEmpworkstationService = ListofEmpworkstationService();
+      final WorkstationProblemService workstationProblemService = WorkstationProblemService();
 
       ProductLocationService productLocationService=ProductLocationService();
         EditProductAvilableQtyService editProductAvilableQtyService=EditProductAvilableQtyService();
@@ -206,6 +209,7 @@ class _EditEmpProductionEntryPageState extends State<EditEmpProductionEntryPage>
         Provider.of<EditEmpListProvider>(context, listen: false)
             .user
             ?.editEmplistEntity;
+
     final StoredListOfProblem =
         Provider.of<ListProblemStoringProvider>(context, listen: false)
             .getIncidentList;
@@ -311,9 +315,12 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
             subincidentid: incident.problemCategoryId,
         incfromtime: incident.fromtime, 
         incendtime:incident.endtime,
+
         problemStatusId:incident.problemstatusId,
         productionstopageId:incident.productionStoppageId ,
-        solutionId:incident.solutionId);
+        solutionId:incident.solutionId, 
+        ipdIncId: incident.ipdIncId, ipdId: incident.ipdId,
+        );
 
 
         editworkStationEntryReq.listOfWorkstationIncident.add(lisofincident);
@@ -507,7 +514,7 @@ reworkValue ??=0;
     }
 
     // Use the stored reference
-    storedListOfProblem.reset(notify: false);
+    // storedListOfProblem.reset(notify: false);
     nonProductionList.reset(notify: false);
     super.dispose();
   }
@@ -797,22 +804,19 @@ void clearTextFields() {
 
   
 
- Future<void> _problemEntrywidget(
-     String ? shiftFromTime,
-      String ? shiftToTime,
-      [
-      int? selectproblemid,
+  Future<void> _problemEntrywidget(String? shiftFromTime, String? shiftToTime,
+      [int? selectproblemid,
       int? problemCategoryId,
       int? rootcauseid,
       String? reason,
-      int?solutionid,
+      int? solutionid,
       int? problemStatusId,
       int? productionStopageid,
-      int?ipdId,
-      int?ipdincId,
+      int? ipdId,
+      int? ipdincId,
       bool? showButton,
-      String?closeStartTime
-     ]) async {
+      String? closeStartTime,
+      int? pwsid]) async {
     showGeneralDialog(
       barrierDismissible: true,
       barrierLabel: '',
@@ -996,6 +1000,8 @@ Future<void> _nonProductionActivityPopup(
   }
 
   void _storeIncidentList() {
+    
+   Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
     final editIncidentList =
         Provider.of<EditIncidentListProvider>(context, listen: false)
             .user
@@ -1026,6 +1032,49 @@ Future<void> _nonProductionActivityPopup(
     }
   }
 
+
+
+ void _storedWorkstationProblemList() {
+
+  Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+   final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+        .user
+        ?.resolvedProblemInWs;
+           
+    if (workstationProblem != null) {
+      for (int i = 0; i < workstationProblem.length; i++) {
+         ListOfWorkStationIncident data =
+                                          ListOfWorkStationIncident(
+                                              fromtime: workstationProblem[i].fromTime,
+                                              endtime: workstationProblem[i].endTime,
+                                              productionStoppageId:
+                                                  workstationProblem[i].productionStopageId,
+                                              problemstatusId: workstationProblem[i].problemStatusId,
+                                              problemsolvedName:
+                                                  workstationProblem[i].problemStatus,
+                                              solutionId: workstationProblem[i].solId,
+                                              solutionName: workstationProblem[i].solDesc,
+                                              problemCategoryname:
+                                                 workstationProblem[i].subincidentName,
+                                              problemId: workstationProblem[i].incidentId,
+                                              problemName: workstationProblem[i].incidentName,
+                                              problemCategoryId:
+                                                  workstationProblem[i].subincidentId,
+                                              reasons:
+                                                  workstationProblem[i].ipdincNotes,
+                                              rootCauseId: workstationProblem[i].ipdincIncrcmId,
+                                              rootCausename:
+                                                  workstationProblem[i].incrcmRootcauseBrief,
+                                                  ipdId:workstationProblem[i].ipdincipdid,
+                                                  ipdIncId: workstationProblem[i].ipdincid,
+                                                  assetId:workstationProblem[i].incmAssetId  );
+       Provider.of<ListProblemStoringProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .addIncidentList(data);
+      }
+    }
+  }
 
 void empTimingUpdation(String startTime, String endTime) {
   DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
@@ -1069,10 +1118,9 @@ void empTimingUpdation(String startTime, String endTime) {
         //     ?.getNonProductionList;
 
 // Access stored data and use it
-final storedListOfProblem =
-    Provider.of<ListProblemStoringProvider>(context, listen: true)
-        .getIncidentList;
-
+final ListOfStoredProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: true)
+            .getIncidentList;
     final shiftFromtime =
         Provider.of<ShiftStatusProvider>(context, listen: false)
             .user
@@ -1151,6 +1199,8 @@ final storedListOfProblem =
                 leading: IconButton(
                     icon: Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
+                        workstationProblemService.getListofProblem(context: context, pwsid: widget.pwsId ?? 0);
+                        _storedWorkstationProblemList();
                       Navigator.pop(context);
                     }),
                 title: Text(
@@ -2928,7 +2978,7 @@ Container(
                                                                     
                                                                         assetid: int.parse(assetCotroller.text)
                                                                     );
-                                          _problemEntrywidget(fromtime,totime);
+                                                         _problemEntrywidget(fromtime,totime);
                                                       });
 
                                                       // Update time after each change
@@ -3003,8 +3053,7 @@ Container(
                                             ),
                                           ),
                                         ),
-                                        (storedListOfProblem != null &&
-                                                storedListOfProblem.isNotEmpty)
+                                        (ListOfStoredProblem.isNotEmpty)
                                             ? Container(
                                                height:240.h,
                                                 width: 635.w,
@@ -3012,33 +3061,33 @@ Container(
                                                     color: Color.fromARGB(
                                                         150, 235, 236, 255)),
                                                 child: ListView.builder(
-                                                  itemCount: storedListOfProblem
+                                                  itemCount: ListOfStoredProblem
                                                       ?.length,
                                                   itemBuilder:
                                                       (context, index) {
                                                     final incidentlist =
-                                                        storedListOfProblem?[
+                                                        ListOfStoredProblem[
                                                             index];
                         
-                                                    final problemname=incidentlist?.problemName;
-                                                    final problemCategoryname=incidentlist?.problemCategoryname;
+                                                    final problemname=incidentlist.problemName;
+                                                    final problemCategoryname=incidentlist.problemCategoryname;
                         
                                                     return GestureDetector(
                                                         onTap: () {
                                                           _problemEntrywidget(
-                                                            incidentlist?.fromtime,
-                                                              incidentlist?.endtime,
-                                                              incidentlist?.problemId,
-                                                              incidentlist?.problemCategoryId,
-                                                              incidentlist?.rootCauseId,
-                                                              incidentlist?.reasons,
-                                                              incidentlist?.solutionId,
-                                                              incidentlist?.problemstatusId,
-                                                              incidentlist?.productionStoppageId,
-                                                              incidentlist?.ipdId ?? 0,
-                                                              incidentlist?.ipdIncId ?? 0,
+                                                            incidentlist.fromtime,
+                                                              incidentlist.endtime,
+                                                              incidentlist.problemId,
+                                                              incidentlist.problemCategoryId,
+                                                              incidentlist.rootCauseId,
+                                                              incidentlist.reasons,
+                                                              incidentlist.solutionId,
+                                                              incidentlist.problemstatusId,
+                                                              incidentlist.productionStoppageId?? 0,
+                                                              incidentlist.ipdId ?? 0,
+                                                              incidentlist.ipdIncId ?? 0,
                                                                true,
-                                                              incidentlist?.fromtime,
+                                                              incidentlist.fromtime,
                                                               );
                                                         },
                                                       child: Container(
@@ -3112,7 +3161,7 @@ Container(
                                                                             onPressed:
                                                                                 () {
                                                                               setState(() {
-                                                                                 storedListOfProblem.removeAt(index);
+                                                                                 ListOfStoredProblem.removeAt(index);
                                                                               });
                                                                             },
                                                                             icon:

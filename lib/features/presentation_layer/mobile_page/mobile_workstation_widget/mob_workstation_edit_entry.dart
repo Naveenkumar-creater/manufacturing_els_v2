@@ -12,6 +12,7 @@ import 'package:prominous/constant/request_data_model/non_production_entry_model
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
 import 'package:prominous/features/presentation_layer/api_services/Editincidentlist_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/Workstation_problem_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_emp_list_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_nonproduction_lis_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/edit_product_avilability_di.dart';
@@ -33,6 +34,7 @@ import 'package:prominous/features/presentation_layer/provider/listofempworkstat
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/change_dateformate.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
 import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/non_production_activity_popup.dart';
@@ -99,6 +101,7 @@ class _MobileProductionEditEntryState extends State<MobileProductionEditEntry> {
   // final TextEditingController reworkQController = TextEditingController();
   final TextEditingController targetQtyController = TextEditingController();
   final TextEditingController reworkQtyController = TextEditingController();
+    final WorkstationProblemService workstationProblemService = WorkstationProblemService();
 
   final TextEditingController batchNOController = TextEditingController();
   final TextEditingController cardNoController = TextEditingController();
@@ -312,7 +315,7 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
         incendtime:incident.endtime,
         problemStatusId:incident.problemstatusId,
         productionstopageId:incident.productionStoppageId ,
-        solutionId:incident.solutionId);
+        solutionId:incident.solutionId, ipdIncId:incident.ipdIncId,ipdId: incident.ipdId );
 
 
         editworkStationEntryReq.listOfWorkstationIncident.add(lisofincident);
@@ -356,13 +359,14 @@ for (int index = 0; index < EmpWorkstation!.length; index++) {
            final responsemsg=responseJson["response_msg"];
 
            if(responsemsg=="success"){
-            return ShowSaveError.showAlert(context, "Saved Successfully","Success");
+            return ShowSaveError.showAlert(
+                  context, "Saved Successfully","Success","Success",Colors.green);
            }else{
-            return ShowSaveError.showAlert(context,responsemsg.toString(),"Error");
+            return ShowSaveError.showAlert(context,responsemsg.toString());
            }
           } catch (e) {
             // Handle the case where the response body is not a valid JSON object
-              return ShowSaveError.showAlert(context,e.toString(),"Error");
+              return ShowSaveError.showAlert(context,e.toString());
           }
         } else {
           throw ("Server responded with status code ${response.statusCode}");
@@ -501,8 +505,6 @@ locationDropdown = null; // Set it to null initially
       controller.dispose();
     }
 
-    // Use the stored reference
-    storedListOfProblem.reset(notify: false);
     nonProductionList.reset(notify: false);
     super.dispose();
   }
@@ -526,6 +528,7 @@ locationDropdown = null; // Set it to null initially
         ipdid: widget.ipdid ?? 0,
         deptid: widget.deptid ?? 0,
       );
+
       await editNonProductionListService.getNonProductionList(context:context , ipdid: widget.ipdid ?? 0);
      await editEmpListApiservice.getEditEmplist(context:context , ipdid: widget.ipdid ?? 0,psid: widget.psid ?? 0);
 
@@ -550,6 +553,7 @@ locationDropdown = null; // Set it to null initially
      totime = editEntry?.ipdToTime ;
     
               empTimingUpdation(fromtime! , totime!);
+
                 _storeIncidentList();
                 _storedNonProductionList();
      
@@ -676,6 +680,48 @@ void clearTextFields() {
   overallqty = null;
   seqNo = null;
 }
+
+ void _storedWorkstationProblemList() {
+
+  Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+   final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+        .user
+        ?.resolvedProblemInWs;
+           
+    if (workstationProblem != null) {
+      for (int i = 0; i < workstationProblem.length; i++) {
+         ListOfWorkStationIncident data =
+                                          ListOfWorkStationIncident(
+                                              fromtime: workstationProblem[i].fromTime,
+                                              endtime: workstationProblem[i].endTime,
+                                              productionStoppageId:
+                                                  workstationProblem[i].productionStopageId,
+                                              problemstatusId: workstationProblem[i].problemStatusId,
+                                              problemsolvedName:
+                                                  workstationProblem[i].problemStatus,
+                                              solutionId: workstationProblem[i].solId,
+                                              solutionName: workstationProblem[i].solDesc,
+                                              problemCategoryname:
+                                                 workstationProblem[i].subincidentName,
+                                              problemId: workstationProblem[i].incidentId,
+                                              problemName: workstationProblem[i].incidentName,
+                                              problemCategoryId:
+                                                  workstationProblem[i].subincidentId,
+                                              reasons:
+                                                  workstationProblem[i].ipdincNotes,
+                                              rootCauseId: workstationProblem[i].ipdincIncrcmId,
+                                              rootCausename:
+                                                  workstationProblem[i].incrcmRootcauseBrief,
+                                                  ipdId:workstationProblem[i].ipdincipdid,
+                                                  ipdIncId: workstationProblem[i].ipdincid,
+                                                  assetId:workstationProblem[i].incmAssetId  );
+       Provider.of<ListProblemStoringProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .addIncidentList(data);
+      }
+    }
+  }
 
 
   void updateProductName(String name) {
@@ -1021,6 +1067,9 @@ Future<void> _problemEntrywidget(
   }
 
   void _storeIncidentList() {
+    
+  Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+
     final editIncidentList =
         Provider.of<EditIncidentListProvider>(context, listen: false)
             .user
@@ -1042,7 +1091,8 @@ Future<void> _problemEntrywidget(
           productionStoppageId: editIncidentList[i].ipdincProductionStoppage,
           solutionId: editIncidentList[i].solId,
           ipdId: editIncidentList[i].ipdincIpdId,
-          ipdIncId: editIncidentList[i].ipdincId
+          ipdIncId: editIncidentList[i].ipdincId,
+         
         );
 
         Provider.of<ListProblemStoringProvider>(context, listen: false)
@@ -1093,7 +1143,7 @@ void empTimingUpdation(String startTime, String endTime) {
 
 
 // Access stored data and use it
-final storedListOfProblem =
+final     storedListOfProblem =
     Provider.of<ListProblemStoringProvider>(context, listen: true)
         .getIncidentList;
 
@@ -1177,6 +1227,9 @@ final storedListOfProblem =
                 leading: IconButton(
                     icon: Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
+                         workstationProblemService.getListofProblem(context: context, pwsid: widget.pwsId ?? 0);
+                         _storedWorkstationProblemList();
+                         
                       Navigator.pop(context);
                     }),
                 title: Text(
@@ -3162,6 +3215,16 @@ Container(
                                             final item = storedListOfProblem?[index];
                                             return GestureDetector(
                                                         onTap: () {
+                                                           listofproblemservice
+                                                    .getListofProblem(
+                                                        context: context,
+                                                        processid:
+                                                            widget.processid ?? 0,
+                                                        deptid:
+                                                            widget.deptid ?? 1057,
+                                                            
+                                                            
+                                                                        assetid: int.parse(assetCotroller.text));
                                                           _problemEntrywidget(
                                                             item?.fromtime,
                                                               item?.endtime,

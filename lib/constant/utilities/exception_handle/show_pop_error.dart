@@ -1,4 +1,3 @@
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -93,7 +92,7 @@ class ShowError {
                     ),
                     SizedBox(height: 35.h), // Spacing before button
                     SizedBox(
-                      width: 100.w,
+                      width: 150.w,
                       height: 35.h,
                       child: ElevatedButton(
                         

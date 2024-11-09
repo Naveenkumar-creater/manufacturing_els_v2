@@ -22,7 +22,8 @@ import 'package:prominous/features/presentation_layer/provider/shift_status_prov
 
 
 class MobileMyDrawer extends StatefulWidget {
-  const MobileMyDrawer({Key? key}) : super(key: key);
+  int? deptid;
+   MobileMyDrawer({this.deptid});
   static late String? processName;
 
   @override
@@ -42,38 +43,40 @@ class _MobileMyDrawerState extends State<MobileMyDrawer> {
 
   bool isLoading = false;
   bool isFetching = false;
+  bool isTapped=false;
   DateTime? lastTapTime;
   ScrollController _scrollController = ScrollController();
 
-  @override
-  void initState() {
-    super.initState();
-    getProcess();
-  }
+@override
+void initState() {
+  super.initState();
+  getProcess();
+}
 
-  Future<void> getProcess() async {
-    try {
-      await processApiService.getProcessdetail(
-        context: context,
-        deptid: 1057,
-      );
+Future<void> getProcess() async {
+  try {
+    await processApiService.getProcessdetail(
+      context: context,
+      deptid: widget.deptid ?? 1057,
+    );
+    if (mounted) { // Check if the widget is still mounted
       setState(() {
-        isLoading = true; // Set isLoading to false when data is fetched
+        isLoading = true; // Set isLoading to true when data is fetched
       });
-    } catch (e) {
+    }
+  } catch (e) {
+    if (mounted) { // Check if the widget is still mounted
       setState(() {
-        isLoading = false; // Set isLoading to false even if there's an error
+        isLoading = false; // Set isLoading to false if there's an error
       });
     }
   }
+}
+
 
   int? _selectedIndex; // State variable to store the selected index
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-    String toDate = DateFormat('dd-MM-yyyy ').format(now);
-    String toTime = DateFormat(' HH:mm:ss').format(now);
-
     final processList =
         Provider.of<ProcessProvider>(context).user?.listofProcessEntity;
     final userName =
@@ -194,59 +197,99 @@ class _MobileMyDrawerState extends State<MobileMyDrawer> {
                               ],
                             ),
                           ),
-                          onTap: () async {
-                            setState(() {
-                              _selectedIndex = index;
-                              // Update selected index
-                            });
-                            final processId = processList[index].processId ?? 0;
-                            final deptId = processList[index].deptId ?? 0;
-                            try {
-                              // Perform shiftStatusService first
-                              // Navigator.pop(context);
-                            await shiftStatusService.getShiftStatus(
-                                  context: context,
-                                  deptid: deptId,
-                                  processid: processId);
-                              final psId = Provider.of<ShiftStatusProvider>(
-                                          context,
-                                          listen: false)
-                                      .user
-                                      ?.shiftStatusdetailEntity
-                                      ?.psId ??
-                                  0;
+                 onTap: () async {
 
-                              // Perform employeeApiService next
-                              await employeeApiService.employeeList(
-                                  context: context,
-                                  processid: processId,
-                                  deptid: deptId,
-                                  psid: psId);
-                              await listofworkstationService
-                                  .getListofWorkstation(
-                                      context: context,
-                                      deptid: deptId ?? 1057,
-                                      psid: psId ?? 0,
-                                      processid: processId ?? 0);
+                  if(isTapped){
+                    return;
+                  }
+                  isTapped=true;
 
-                              // Continue with other asynchronous operations sequentially
-                              await attendanceCountService.getAttCount(
-                                  context: context,
-                                  id: processId,
-                                  deptid: deptId,
-                                  psid: psId);
+           
+     
+  // Show loading dialog
+  // showDialog(
+  //   context: context,
+  //   barrierDismissible: false,
+  //   builder: (context) => Center(
+  //     child: CircularProgressIndicator(),
+  //   ),
+  // );
+  Future.microtask(() async {
+  try {
+            setState(() {
+    _selectedIndex = index;
+  });
 
-                              await actualQtyService.getActualQty(
-                                  context: context, id: processId, psid: psId);
+  final processId = processList[index].processId ?? 0;
+  final deptId = processList[index].deptId ?? 0;
 
-                              await planQtyService.getPlanQty(
-                                  context: context, id: processId, psid: psId);
-                              Navigator.pop(context);
-                            } catch (e) {
-                              // Handle any errors that occur during the async operations
-                              print('Error fetching data: $e');
-                            }
-                          },
+    // Fetch shift status
+    await shiftStatusService.getShiftStatus(
+      context: context,
+      deptid: deptId,
+      processid: processId,
+    );
+
+    final psId = Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.psId ??
+        0;
+
+    if (psId == 0) {
+      throw Exception("Invalid psId: $psId");
+    }
+
+    // Fetch employee list
+    await employeeApiService.employeeList(
+      context: context,
+      processid: processId,
+      deptid: deptId,
+      psid: psId,
+    );
+
+    // Fetch list of workstations
+    await listofworkstationService.getListofWorkstation(
+      context: context,
+      deptid: deptId,
+      psid: psId,
+      processid: processId,
+    );
+
+       attendanceCountService
+                                                    .getAttCount(
+                                                        context: context,
+                                                        id: processId,
+                                                                
+                                                        deptid: deptId,
+                                                        psid: psId);
+    // Fetch actual quantity
+    await actualQtyService.getActualQty(
+      context: context,
+      id: processId,
+      psid: psId,
+    );
+
+    // Fetch plan quantity
+    await planQtyService.getPlanQty(
+      context: context,
+      id: processId,
+      psid: psId,
+    );
+   Navigator.pop(context);
+             
+           } catch (e) {
+                print('Error fetching data: $e');
+           }finally{
+   await Future.delayed(Duration(milliseconds: 300));
+      isTapped = false;
+
+           }     
+
+                 });
+
+}
+
                         )),
               ),
             ),

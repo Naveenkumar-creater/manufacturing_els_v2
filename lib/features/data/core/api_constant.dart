@@ -88,9 +88,7 @@ class ApiConstant {
       rethrow;
     }
   }
-
-
-
+  
   static Future<dynamic> loginApiRequest({
     required dynamic requestBody,
     Duration timeoutDuration = const Duration(seconds: 5),

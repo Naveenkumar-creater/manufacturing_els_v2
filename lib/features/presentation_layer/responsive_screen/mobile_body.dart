@@ -80,6 +80,7 @@ class _MobileScaffoldState extends State<MobileScaffold> {
           context: context, id: processId, psid: psId);
       await planQtyService.getPlanQty(
           context: context, id: processId, psid: psId);
+          
 
       setState(() {
         isLoading = false; // Set isLoading to false when data is fetched
@@ -93,61 +94,23 @@ class _MobileScaffoldState extends State<MobileScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<ProcessProvider>(context, listen: true).user;
-    final processname = Provider.of<EmployeeProvider>(context, listen: true)
-                .user
-                ?.listofEmployeeEntity
-                ?.isNotEmpty ??
-            false
-        ? Provider.of<EmployeeProvider>(context, listen: true)
-                .user
-                ?.listofEmployeeEntity
-                ?.first
-                .processName ??
-            "Default"
+   final user = Provider.of<ProcessProvider>(context, listen: true).user;
+
+    final processname = Provider.of<EmployeeProvider>(context, listen: true).user?.listofEmployeeEntity?.isNotEmpty ?? false
+        ? Provider.of<EmployeeProvider>(context, listen: true).user?.listofEmployeeEntity?.first.processName ?? "Default"
         : "Default";
 
-    final processId = Provider.of<EmployeeProvider>(context, listen: true)
-                .user
-                ?.listofEmployeeEntity
-                ?.isNotEmpty ??
-            false
-        ? Provider.of<EmployeeProvider>(context, listen: true)
-                .user
-                ?.listofEmployeeEntity
-                ?.first
-                .processId ??
-            1: 1;
+    final processId = Provider.of<EmployeeProvider>(context, listen: true).user?.listofEmployeeEntity?.isNotEmpty ?? false
+        ? Provider.of<EmployeeProvider>(context, listen: true).user?.listofEmployeeEntity?.first.processId ?? 1
+        : 1;
 
-   final deptid = (user?.listofProcessEntity?.isNotEmpty ?? false) ? user!.listofProcessEntity!.first.deptId : 1057;
-                      
-    final shiftgroupId =  user?.listofProcessEntity?.first?.shiftgroupId ?? 1;
+    // final deptid = user?.listofProcessEntity?.first.deptId ?? 1057;
+    final shiftgroupId = user?.listofProcessEntity?.first.shiftgroupId ?? 1;
 
-    final totalemployee =
-        Provider.of<AttendanceCountProvider>(context, listen: true)
-            .user
-            ?.attendanceEntity
-            ?.totalEmployees;
-
-    final presentees =
-        Provider.of<AttendanceCountProvider>(context, listen: true)
-            .user
-            ?.attendanceEntity
-            ?.presentees;
-
-    final shiftstatus = Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.psShiftStatus ??
-        0;
-
-    final psId = Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.psId ??
-        0;
-
-    final Size size = MediaQuery.of(context).size;
+   
+    final shiftstatus = Provider.of<ShiftStatusProvider>(context, listen: false).user?.shiftStatusdetailEntity?.psShiftStatus ?? 0;
+    final psId = Provider.of<ShiftStatusProvider>(context, listen: false).user?.shiftStatusdetailEntity?.psId ?? 0;
+    final deptid = Provider.of<LoginProvider>(context).user?.userLoginEntity?.deptId;
 
     return  isLoading
                 ? Scaffold(
@@ -162,7 +125,7 @@ class _MobileScaffoldState extends State<MobileScaffold> {
     Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
-      drawer: MobileMyDrawer(),
+      drawer: MobileMyDrawer(deptid: deptid),
       appBar: 
       AppBar(
         toolbarHeight: 60,

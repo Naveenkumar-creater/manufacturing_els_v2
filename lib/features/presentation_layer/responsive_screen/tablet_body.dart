@@ -96,9 +96,7 @@ class _ResponsiveTabletHomepageState extends State<ResponsiveTabletHomepage> {
     final psId = Provider.of<ShiftStatusProvider>(context, listen: false).user?.shiftStatusdetailEntity?.psId ?? 0;
     final deptId = Provider.of<LoginProvider>(context).user?.userLoginEntity?.deptId;
 
-    final Size size = MediaQuery.of(context).size;
-    final h = MediaQuery.of(context).size.height;
-    final w = MediaQuery.of(context).size.width;
+
 
     return WillPopScope(
       onWillPop: () async {

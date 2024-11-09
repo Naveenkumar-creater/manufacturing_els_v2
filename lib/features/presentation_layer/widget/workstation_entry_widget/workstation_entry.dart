@@ -149,6 +149,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   FocusNode cardNoFocusNode = FocusNode();
   // Define the FocusNode for the Item Ref field
   final FocusNode itemRefFocusNode = FocusNode();
+    final FocusNode assetFocusNode = FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -336,8 +337,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
             incendtime: incident.endtime,
             problemStatusId: incident.problemstatusId,
             productionstopageId: incident.productionStoppageId ?? 0,
-            solutionId: incident.solutionId);
-        workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
+            solutionId: incident.solutionId, ipdIncId: incident.ipdIncId, ipdId: incident.ipdId,);
+
+             workStationEntryReq.listOfWorkstationIncident.add(lisofincident);
       }
       for (int index = 0; index < ListofNonProduction.length; index++) {
         final nonProduction = ListofNonProduction[index];
@@ -628,11 +630,8 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    storedListOfProblem =
-        Provider.of<ListProblemStoringProvider>(context, listen: false);
 
-    nonProductionList =
-        Provider.of<NonProductionStoredListProvider>(context, listen: false);
+    nonProductionList =Provider.of<NonProductionStoredListProvider>(context, listen: false);
 
     // Safely trigger the state update after the widget build phase
   }
@@ -650,8 +649,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
     for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
     }
-    // Use the stored reference
-    storedListOfProblem.reset(notify: false);
+  
     nonProductionList.reset(notify: false);
     super.dispose();
   }
@@ -676,7 +674,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
           processid: widget.processid ?? 1,
           pwsId: widget.pwsid ?? 0);
 
-      await workstationProblemService.getListofSolution(
+      await workstationProblemService.getListofProblem(
           context: context, pwsid: widget.pwsid ?? 0);
 
       await productApiService.productList(
@@ -746,12 +744,15 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
       DateTime? shiftToTime;
 
       if (shifttodate != null && shifttodate.isNotEmpty) {
-        if(shiftendTime.hour<12){
-           DateTime parsedShiftToDate = DateTime.parse(shifttodate!);
-           shiftToTime=parsedShiftToDate.add(Duration(days: 1));
-        }else{
-         shiftToTime = DateTime.parse(shifttodate);
-        }
+
+        // if(shiftendTime.hour<12){
+
+        //    DateTime parsedShiftToDate = DateTime.parse(shifttodate!);
+        //    shiftToTime=parsedShiftToDate.add(Duration(days: 1));
+        // }else{
+        //  shiftToTime = DateTime.parse(shifttodate);
+        // }
+          shiftToTime = DateTime.parse(shifttodate);
 
       } else if (shiftToTimeString != null) {
         // Parse the shiftToTimeString if shifttodate is not provided
@@ -797,7 +798,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
         if (shiftFromTime != null &&
             shiftToTime != null &&
             shiftToTime.isBefore(shiftFromTime)) {
-          shiftToTime = shiftToTime.add(Duration(days: 1));
+          shiftToTime = shiftFromTime.add(Duration(days: 1));
         }
 
         // Adjust the date of shiftToTime if it falls on the next day
@@ -849,7 +850,6 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
 
       empTimingUpdation(fromtime!, lastUpdatedTime!);
 
-      Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
 
       _storedWorkstationProblemList();
 
@@ -963,7 +963,6 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                       itemBuilder: (context, index) {
                                         final data = recentActivity?[index];
                                         final totime = data?.ipdtotime;
-
                                         return Container(
                                           width: 300.w,
                                           height: 140.h,
@@ -1049,9 +1048,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                                                       onPressed: () {
                                                         nonProductionList.reset(
                                                             notify: false);
-                                                        storedListOfProblem
-                                                            .reset(
-                                                                notify: false);
+                                                        // storedListOfProblem
+                                                        //     .reset(
+                                                        //         notify: false);
 
                                                         Navigator.push(
                                                             context,
@@ -1711,6 +1710,8 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   }
 
   void _storedWorkstationProblemList() {
+            Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+
     final workstationProblem =
         Provider.of<WorkstationProblemProvider>(context, listen: false)
             .user
@@ -1734,7 +1735,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
             rootCauseId: workstationProblem[i].ipdincIncrcmId,
             rootCausename: workstationProblem[i].incrcmRootcauseBrief,
             ipdId: workstationProblem[i].ipdincipdid,
-            ipdIncId: workstationProblem[i].ipdincid);
+            ipdIncId: workstationProblem[i].ipdincid,
+            assetId:workstationProblem[i].incmAssetId );
+            
         Provider.of<ListProblemStoringProvider>(context, listen: false)
             .addIncidentList(data);
       }
@@ -1958,16 +1961,16 @@ style: ElevatedButton.styleFrom(
         Provider.of<ListofEmpworkstationProvider>(context, listen: false)
             .user
             ?.empWorkstationEntity;
-
-    final StoredListOfProblem =
-        Provider.of<ListProblemStoringProvider>(context, listen: true)
-            .getIncidentList;
+     
 
     print(productionEntry);
 
     // final productname = Provider.of<ProductProvider>(context, listen: false)
     //     .user
     //     ?.listofProductEntity;
+    final ListOfStoredProblem =
+        Provider.of<ListProblemStoringProvider>(context, listen: true)
+            .getIncidentList;
 
     final activity = Provider.of<ActivityProvider>(context, listen: false)
         .user
@@ -2320,170 +2323,110 @@ style: ElevatedButton.styleFrom(
                                                             CrossAxisAlignment
                                                                 .start,
                                                         children: [
-                                                          Row(
-                                                            children: [
-                                                              Text(
-                                                                'Job Card',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize:
-                                                                      16.sp,
-                                                                  color: Colors
-                                                                      .black54,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                ' *',
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontFamily:
-                                                                      "lexend",
-                                                                  fontSize:
-                                                                      16.sp,
-                                                                  color: Colors
-                                                                      .red,
-                                                                ),
-                                                              ),
-                                                              SizedBox(
-                                                                width: 2.w,
-                                                              ),
-                                                              CardNoScanner(
-                                                                // empId: widget.empid,
-                                                                // processId: widget.processid,
-                                                                onCardDataReceived:
-                                                                    (scannedCardNo,
-                                                                        scannedProductName,
-                                                                        itemid,
-                                                                        cardid) {
-                                                                  setState(() {
-                                                                    cardNoController
-                                                                            .text =
-                                                                        scannedCardNo;
-                                                                    productNameController
-                                                                            .text =
-                                                                        scannedProductName;
-                                                                    product_Id =
-                                                                        itemid;
-                                                                    pcid =
-                                                                        cardid;
-                                                                  });
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
-                                                          Focus(
-                                                            focusNode:
-                                                                cardNoFocusNode,
-                                                            onKey:
-                                                                (node, event) {
-                                                              if (event.logicalKey ==
-                                                                      LogicalKeyboardKey
-                                                                          .tab ||
-                                                                  event.logicalKey ==
-                                                                      LogicalKeyboardKey
-                                                                          .enter) {
-                                                                // Trigger the API call when the Tab or Enter key is pressed
-                                                                cardNoApiService
-                                                                    .getCardNo(
-                                                                  context:
-                                                                      context,
-                                                                  cardNo: int.tryParse(
-                                                                          cardNoController
-                                                                              .text) ??
-                                                                      0,
-                                                                )
-                                                                    .then((_) {
-                                                                  final item = Provider.of<
-                                                                              CardNoProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.scanCardForItem;
+                                  Row(
+  children: [
+    Text(
+      'Job Card',
+      style: TextStyle(
+        fontFamily: "lexend",
+        fontSize: 16.sp,
+        color: Colors.black54,
+      ),
+    ),
+    Text(
+      ' *',
+      style: TextStyle(
+        fontFamily: "lexend",
+        fontSize: 16.sp,
+        color: Colors.red,
+      ),
+    ),
+    SizedBox(width: 2.w),
+    CardNoScanner(
+      onCardDataReceived: (scannedCardNo, scannedProductName, itemid, cardid) {
+        setState(() {
+          cardNoController.text = scannedCardNo;
+          productNameController.text = scannedProductName;
+          product_Id = itemid;
+          pcid = cardid;
+        });
+      },
+    ),
+  ],
+),
+SizedBox(width: 50.h),
+Focus(
+  focusNode: cardNoFocusNode,
+  onFocusChange: (hasFocus) {
+    // Trigger only when the focus is lost
+    if (!hasFocus) {
+      final cardNo = int.tryParse(cardNoController.text) ?? 0;
+      if (cardNo != 0) {
+        cardNoApiService.getCardNo(
+          context: context,
+          cardNo: cardNo,
+        ).then((_) {
+          final item = Provider.of<CardNoProvider>(context, listen: false)
+              .user
+              ?.scanCardForItem;
 
-                                                                  if (item !=
-                                                                      null) {
-                                                                    product_Id =
-                                                                        item.pcItemId;
-                                                                    pcid = item
-                                                                        .pcId;
-                                                                    updateProductName(
-                                                                        item.itemName ??
-                                                                            "");
+          if (item != null) {
+            setState(() {
+              product_Id = item.pcItemId;
+              pcid = item.pcId;
+              updateProductName(item.itemName ?? "");
+            });
 
-                                                                    // Move the focus to the Item Ref field
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .requestFocus(
-                                                                            itemRefFocusNode);
-                                                                  }
-                                                                });
-                                                              }
-                                                              return KeyEventResult
-                                                                  .ignored;
-                                                            },
-                                                            child: SizedBox(
-                                                              width: 170.w,
-                                                              height: 40.h,
-                                                              child:
-                                                                  CustomNumField(
-                                                                controller:
-                                                                    cardNoController,
-                                                                hintText:
-                                                                    'Card No',
-                                                                keyboardtype:
-                                                                    TextInputType
-                                                                        .number,
-                                                                validation:
-                                                                    (value) {
-                                                                  if (value ==
-                                                                          null ||
-                                                                      value
-                                                                          .isEmpty) {
-                                                                    return 'Enter card No.';
-                                                                  } else if (RegExp(
-                                                                          r'^0+$')
-                                                                      .hasMatch(
-                                                                          value)) {
-                                                                    return 'Cannot contain zeros';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                                enabled:
-                                                                    reworkValue !=
-                                                                        1,
-                                                                onEditingComplete:
-                                                                    () {
-                                                                  final item = Provider.of<
-                                                                              CardNoProvider>(
-                                                                          context,
-                                                                          listen:
-                                                                              false)
-                                                                      .user
-                                                                      ?.scanCardForItem;
+            // Move the focus to the Item Ref field automatically
+            FocusScope.of(context).requestFocus(itemRefFocusNode);
+          }
+        });
+      }
+    }
+  },
+  child: SizedBox(
+    width: 170.w,
+    height: 40.h,
+    child: CustomNumField(
+      controller: cardNoController,
+      hintText: 'Job Card',
+      keyboardtype: TextInputType.number,
+      validation: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Enter Job Card.';
+        } else if (RegExp(r'^0+$').hasMatch(value)) {
+          return 'Cannot contain zeros';
+        }
+        return null;
+      },
+      enabled: activityDropdown !=null ? false:true,
+      onEditingComplete: () {
+        final cardNo = int.tryParse(cardNoController.text) ?? 0;
+        if (cardNo != 0) {
+          cardNoApiService.getCardNo(
+            context: context,
+            cardNo: cardNo,
+          ).then((_) {
+            final item = Provider.of<CardNoProvider>(context, listen: false)
+                .user
+                ?.scanCardForItem;
 
-                                                                  if (item !=
-                                                                      null) {
-                                                                    product_Id =
-                                                                        item.pcItemId;
-                                                                    pcid = item
-                                                                        .pcId;
-                                                                    updateProductName(
-                                                                        item.itemName ??
-                                                                            "");
+            if (item != null) {
+              setState(() {
+                product_Id = item.pcItemId;
+                pcid = item.pcId;
+                updateProductName(item.itemName ?? "");
+              });
 
-                                                                    // Move the focus to the Item Ref field
-                                                                    FocusScope.of(
-                                                                            context)
-                                                                        .requestFocus(
-                                                                            itemRefFocusNode);
-                                                                  }
-                                                                },
-                                                              ),
-                                                            ),
-                                                          ),
+              // Move the focus to the Item Ref field automatically
+              FocusScope.of(context).requestFocus(itemRefFocusNode);
+            }
+          });
+        }
+      },
+    ),
+  ),
+),
                                                         ]),
                                                     SizedBox(width: 50.h),
                                                     Column(
@@ -2514,7 +2457,7 @@ style: ElevatedButton.styleFrom(
                                                               ),
                                                             ),
                                                             SizedBox(
-                                                                height: 40),
+                                                                height: 30),
                                                           ],
                                                         ),
                                                         SizedBox(
@@ -2756,16 +2699,33 @@ style: ElevatedButton.styleFrom(
                                                             ),
                                                           ],
                                                         ),
-                                                        SizedBox(
-                                                          width: 170.w,
-                                                          height: 42.h,
-                                                          child: CustomNumField(
-                                                            controller:
-                                                                assetCotroller,
-                                                            hintText:
-                                                                'Asset id',
-                                                          ),
-                                                        ),
+                                                        Focus(
+                                                          focusNode: assetFocusNode,
+  onFocusChange: (hasFocus) {
+    if (!hasFocus) {
+      // When focus is lost, submit the value
+      final assetId = assetCotroller.text;
+
+      if (assetId.isNotEmpty) {
+       setState(() {
+         assetCotroller.text=assetId;
+       });
+        print("Asset ID submitted: $assetId");
+      }
+    }
+  },
+  child: SizedBox(
+    width: 170.w,
+    height: 42.h,
+    child: CustomNumField(
+      enabled: activityDropdown != null ? false : true,
+      controller: assetCotroller,
+      hintText: 'Asset id',
+      
+    ),
+  ),
+),
+
                                                       ],
                                                     ),
                                                   ],
@@ -2840,17 +2800,15 @@ style: ElevatedButton.styleFrom(
                                                             hint:
                                                                 Text("Select"),
                                                             isExpanded: true,
-                                                            onChanged: (productNameController
+                                                            onChanged: ((cardNoController.text.isNotEmpty && productNameController
                                                                         .text
-                                                                        .isEmpty ||
-                                                                    reworkValue ==
-                                                                        1)
-                                                                ? null
-                                                                : (String?
+                                                                        .isNotEmpty && assetCotroller.text.isNotEmpty && reworkValue==0) )
+                                                                ? 
+                                                                 (String?
                                                                     newvalue) async {
                                                                     if (newvalue !=
                                                                         null) {
-                                                                      setState(
+                                                                      setState( 
                                                                           () {
                                                                         activityDropdown =
                                                                             newvalue;
@@ -2949,7 +2907,7 @@ style: ElevatedButton.styleFrom(
                                                                             } else if ((seqNo == 1 && overallqty == 0)) {
                                                                               return;
                                                                             } else {
-                                                                              ShowError.showAlert(context, "Rework Qty Not Avilable");
+                                                                              ShowError.showAlert(context, " No Avilable Quantity");
                                                                             }
                                                                           });
                                                                         } else {
@@ -2975,7 +2933,7 @@ style: ElevatedButton.styleFrom(
                                                                             0;
                                                                       });
                                                                     }
-                                                                  },
+                                                                  }:null,
                                                             items: activity?.map(
                                                                     (activityName) {
                                                                   return DropdownMenuItem<
@@ -4098,8 +4056,6 @@ style: ElevatedButton.styleFrom(
                                                                             ?.difference(fromTime!)
                                                                             .inMinutes;
 
-                                                                    
-
                                                                         setState(
                                                                             () {
                                                                                   final enteredMinutes =
@@ -4424,7 +4380,7 @@ style: ElevatedButton.styleFrom(
                                               ],
                                             ),
                                           ),
-                                          (StoredListOfProblem.isNotEmpty)
+                                          (ListOfStoredProblem.isNotEmpty)
                                               ? Container(
                                                   decoration: const BoxDecoration(
                                                       color: Color.fromARGB(
@@ -4442,15 +4398,27 @@ style: ElevatedButton.styleFrom(
                                                   child: ListView.builder(
                                                     shrinkWrap: true,
                                                     itemCount:
-                                                        StoredListOfProblem
+                                                        ListOfStoredProblem
                                                             .length,
                                                     itemBuilder:
                                                         (context, index) {
                                                       final item =
-                                                          StoredListOfProblem[
+                                                          ListOfStoredProblem[
                                                               index];
                                                       return GestureDetector(
-                                                        onTap:assetCotroller.text.isNotEmpty ? () {
+                                                        onTap:() {
+                                                           listofproblemservice
+                                                            .getListofProblem(
+                                                                context:
+                                                                    context,
+                                                                processid: widget
+                                                                        .processid ??
+                                                                    0,
+                                                                deptid: widget
+                                                                        .deptid ??
+                                                                    1057,
+                                                                    
+                                                                        assetid:item.assetId ?? 0  );
                                                         
                                                           _problemEntrywidget(
                                                               item.fromtime,
@@ -4471,8 +4439,6 @@ style: ElevatedButton.styleFrom(
                                                               true,
                                                               fromtime,
                                                               widget.pwsid);
-                                                        }:(){
-ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.orange);
                                                         },
                                                         child: Container(
                                                           decoration:
@@ -4573,7 +4539,7 @@ ShowError.showAlert(context, "Enter the Asset Id", "Alert","Warning",Colors.oran
                                                                           onPressed:
                                                                               () {
                                                                             setState(() {
-                                                                              StoredListOfProblem.removeAt(index);
+                                                                              ListOfStoredProblem.removeAt(index);
                                                                             });
                                                                           },
                                                                           icon:

@@ -9,14 +9,13 @@ import 'package:prominous/features/presentation_layer/api_services/listofworksta
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/presentation_layer/api_services/allocatio_di.dart';
-import 'package:prominous/features/domain/entity/AllocationEntity.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
 import 'package:prominous/features/presentation_layer/provider/allocation_provider.dart';
 import 'package:http/http.dart' as http;
-import '../../../../constant/request_data_model/api_request_model.dart';
+
 import '../../../../constant/utilities/exception_handle/show_pop_error.dart';
 import '../../../data/core/api_constant.dart';
-import '../../api_services/process_di.dart';
+
 
 class EmployeeAllocationPopup extends StatefulWidget {
   final int? empId;
@@ -54,7 +53,7 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
       ListofworkstationService();
     ScrollController _scrollController = ScrollController();
   bool isLoading = true;
-
+bool isTapped = false;
   @override
   void initState() {
     super.initState();
@@ -149,6 +148,7 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
             ?.toSet()
             ?.toList() ??
         [];
+    
 
     return Drawer(backgroundColor: Color.fromARGB(150, 235, 236, 255),
     
@@ -209,6 +209,15 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
                                     ),
                                   ),
                                       onTap: () async {
+                                        if (isTapped) {
+    print("Tap ignored to prevent multiple triggers.");
+    return;
+  }
+
+  // Disable further taps
+  isTapped = true;
+ Future.microtask(() async {
+    try {
                         final processId =
                             productResponse[index].processid ?? 0;
                         if (processId != null) {
@@ -220,7 +229,7 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
                           });
                             
                           await sendProcess();
-                            
+                           
                           await employeeApiService.employeeList(
                               context: context,
                               processid: widget.processid!,
@@ -240,9 +249,19 @@ class _EmployeeAllocationPopupState extends State<EmployeeAllocationPopup> {
             id: widget.processid ?? 0,
             deptid: widget.deptid ?? 0,
             psid: widget.psid ?? 0);   
-                          Navigator.of(context).pop();
+                     Navigator.of(context).pop();  
                         }
-                      },),
+                        } catch (e) {
+      // Handle errors gracefully
+      print("Error during workstation change: $e");
+    } finally {
+      // Reset the tap flag after the transition completes
+      await Future.delayed(Duration(milliseconds: 300));
+      isTapped = false;
+    }
+                      });
+                                      }
+                      ),
                   ),
                 ),
               ),

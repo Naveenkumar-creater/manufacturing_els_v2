@@ -1,13 +1,13 @@
 
 class ListOfWorkStationIncident {
-  ListOfWorkStationIncident({  this.ipdId,this.ipdIncId,this.fromtime, this.endtime,this.solutionName, this.problemsolvedName, this.solutionId, this.problemstatusId, this.productionStoppageId, this.problemName, this.problemCategoryname, this.rootCausename, this.problemId, this.problemCategoryId, this.rootCauseId, this.reasons}
+  ListOfWorkStationIncident({ this.assetId, this.ipdId,this.ipdIncId,this.fromtime, this.endtime,this.solutionName, this.problemsolvedName, this.solutionId, this.problemstatusId, this.productionStoppageId, this.problemName, this.problemCategoryname, this.rootCausename, this.problemId, this.problemCategoryId, this.rootCauseId, this.reasons}
       );
 
 final String?fromtime;
 final String?endtime;
 final String?solutionName;
 final String? problemsolvedName;
-  final String? problemName;
+final String? problemName;
   final String? problemCategoryname;
   final String? rootCausename;
   final int? problemId;
@@ -16,10 +16,10 @@ final String? problemsolvedName;
   final int?solutionId;
 final int?problemstatusId;
 final int?productionStoppageId;
-
   final String ? reasons;
   final int? ipdId;
   final int? ipdIncId;
+  final int?assetId;
 
 Map<String, dynamic> toJson() => {
 "inc_from_time":fromtime,
@@ -37,7 +37,8 @@ Map<String, dynamic> toJson() => {
 "rootcause_id": rootCauseId,
 "reason":reasons,
 "ipdid":ipdId,
-"ipdincid":ipdIncId
+"ipdincid":ipdIncId,
+  "assetid":assetId
                                                       
       };
 }

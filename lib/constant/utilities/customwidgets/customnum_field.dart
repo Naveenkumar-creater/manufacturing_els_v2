@@ -10,6 +10,7 @@ class CustomNumField extends StatelessWidget {
   final String? Function(String?)? validation;
   final String hintText;
   final Function()? onEditingComplete;
+  final Function()? onSubmitted;
    final void Function(String)? onChanged;
   final TextInputType? keyboardtype;
   final bool isAlphanumeric;
@@ -25,6 +26,7 @@ class CustomNumField extends StatelessWidget {
     this.validation,
     required this.hintText,
     this.onEditingComplete,
+    this.onSubmitted,
     this.onChanged,
     this.keyboardtype,
     this.isAlphanumeric = false,
@@ -32,7 +34,7 @@ class CustomNumField extends StatelessWidget {
     this.focusedBorder,
     this.border,
     this.readOnly = false, 
-    this.enabled=true
+    this.enabled=true, 
     // Default to false
   });
 
@@ -74,6 +76,7 @@ class CustomNumField extends StatelessWidget {
             ),
       ),
       onEditingComplete: onEditingComplete,
+      
       onChanged: onChanged,
       validator: validation,
       readOnly: readOnly, 

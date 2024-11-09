@@ -373,23 +373,23 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final ShiftStatus = Provider.of<ShiftStatusProvider>(context, listen: false)
+    final ShiftStatus = Provider.of<ShiftStatusProvider>(context, listen: true)
         .user
         ?.shiftStatusdetailEntity
         ?.psShiftStatus;
-    final Shiftid = Provider.of<ShiftStatusProvider>(context, listen: false)
+    final Shiftid = Provider.of<ShiftStatusProvider>(context, listen: true)
         .user
         ?.shiftStatusdetailEntity
         ?.psShiftId;
 
     final totalemployee =
-        Provider.of<AttendanceCountProvider>(context, listen: false)
+        Provider.of<AttendanceCountProvider>(context, listen: true)
             .user
             ?.attendanceEntity
             ?.totalEmployees;
 
     final presentees =
-        Provider.of<AttendanceCountProvider>(context, listen: false)
+        Provider.of<AttendanceCountProvider>(context, listen: true)
             .user
             ?.attendanceEntity
             ?.presentees;

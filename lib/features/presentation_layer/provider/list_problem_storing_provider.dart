@@ -12,10 +12,10 @@ class ListProblemStoringProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void reset({bool notify = true}) {
+  void reset() {
     _incidentList = [];
-    if (notify) {
-      notifyListeners();
-    }
+
+   notifyListeners();
+    
   }
 }

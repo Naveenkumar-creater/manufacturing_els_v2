@@ -187,7 +187,7 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
   //   await loadEmployeeList();
   // }
 
-  Future<void> sendAttendance(int? index, String? attendanceid,
+   Future<void> sendAttendance(int? index, String? attendanceid,
       int? empPersonid, String? flattdate, int? pwsId) async {
     final process_id = Provider.of<EmployeeProvider>(context, listen: false)
         .user
@@ -494,74 +494,203 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
     }
   }
 
-  void _workstationPopup(
-      {int? empPersonid,
-      int? pwseId,
-      int? processId,
-      int? attid,
-      int? attStatus}) {
-    final listofWorkstation =
-        Provider.of<ListofworkstationProvider>(context, listen: false)
-            .user
-            ?.listOfWorkstation;
+  // void _workstationPopup(
+  //     {int? empPersonid,
+  //     int? pwseId,
+  //     int? processId,
+  //     int? attid,
+  //     int? attStatus}) {
+  //   final listofWorkstation =
+  //       Provider.of<ListofworkstationProvider>(context, listen: false)
+  //           .user
+  //           ?.listOfWorkstation;
 
-    showGeneralDialog(
-      barrierDismissible: true,
-      barrierLabel: '',
-      transitionDuration: const Duration(milliseconds: 400),
-      context: context,
-      pageBuilder: (context, animation1, animation2) {
-        return Container();
-      },
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return SlideTransition(
-          position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
-              .animate(animation),
-          child: FadeTransition(
-            opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
-            child: Align(
-              alignment: Alignment.centerRight, // Align the drawer to the right
-              child: Container(
-                color: Colors.white,
-                width: 250.w, // Set the width to half of the screen
-                height: MediaQuery.of(context)
-                    .size
-                    .height, // Set the height to full screen height
-                child: Drawer(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  backgroundColor: Color.fromARGB(150, 235, 236, 255),
-                  child: SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 16.w),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Select Workstation',
-                            style: TextStyle(
-                                fontSize: 18.sp,
-                                color: Color.fromARGB(255, 80, 96, 203),
-                                fontFamily: "Lexend",
-                                fontWeight: FontWeight.w500),
-                          ),
-                          SizedBox(
-                            height: 20.h,
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: listofWorkstation?.length,
-                              itemBuilder: (context, index) {
-                                final workstation = listofWorkstation?[index];
+  //   showGeneralDialog(
+  //     barrierDismissible: true,
+  //     barrierLabel: '',
+  //     transitionDuration: const Duration(milliseconds: 400),
+  //     context: context,
+  //     pageBuilder: (context, animation1, animation2) {
+  //       return Container();
+  //     },
+  //     transitionBuilder: (context, animation, secondaryAnimation, child) {
+  //       return SlideTransition(
+  //         position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+  //             .animate(animation),
+  //         child: FadeTransition(
+  //           opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+  //           child: Align(
+  //             alignment: Alignment.centerRight, // Align the drawer to the right
+  //             child: Container(
+  //               color: Colors.white,
+  //               width: 250.w, // Set the width to half of the screen
+  //               height: MediaQuery.of(context)
+  //                   .size
+  //                   .height, // Set the height to full screen height
+  //               child: Drawer(
+  //                 shape: RoundedRectangleBorder(
+  //                     borderRadius: BorderRadius.circular(8)),
+  //                 backgroundColor: Color.fromARGB(150, 235, 236, 255),
+  //                 child: SafeArea(
+  //                   child: Padding(
+  //                     padding: EdgeInsets.only(left: 16.w),
+  //                     child: Column(
+  //                       mainAxisAlignment: MainAxisAlignment.start,
+  //                       crossAxisAlignment: CrossAxisAlignment.start,
+  //                       children: [
+  //                         Text(
+  //                           'Select Workstation',
+  //                           style: TextStyle(
+  //                               fontSize: 18.sp,
+  //                               color: Color.fromARGB(255, 80, 96, 203),
+  //                               fontFamily: "Lexend",
+  //                               fontWeight: FontWeight.w500),
+  //                         ),
+  //                         SizedBox(
+  //                           height: 20.h,
+  //                         ),
+  //                         Expanded(
+  //                           child: ListView.builder(
+  //                             itemCount: listofWorkstation?.length,
+  //                             itemBuilder: (context, index) {
+  //                               final workstation = listofWorkstation?[index];
 
-                                return GestureDetector(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 16.h,
-                                    ),
-                                    decoration: BoxDecoration(
-                                        border: Border(
+  //                               return GestureDetector(
+  //                                 child: Container(
+  //                                   padding: EdgeInsets.symmetric(
+  //                                     vertical: 16.h,
+  //                                   ),
+  //                                   decoration: BoxDecoration(
+  //                                       border: Border(
+  //                                     top: (index == 0)
+  //                                         ? BorderSide(
+  //                                             width: 1,
+  //                                             color: Colors.grey.shade300)
+  //                                         : BorderSide.none,
+  //                                     bottom: BorderSide(
+  //                                         width: 1,
+  //                                         color: Colors.grey.shade300),
+  //                                   )), // Set unique background color for selected tile
+  //                                   child: Text(
+  //                                     "${workstation?.pwsName} ",
+  //                                     style: TextStyle(
+  //                                         color: Colors.black54,
+  //                                         fontFamily: "Lexend",
+  //                                         fontSize: 12.sp),
+  //                                   ),
+  //                                 ),
+  //                                 onTap: () async {
+                                    
+  //                                   Navigator.of(context).pop();
+  //                                   await _changeWorkstation(
+  //                                     empPersonid: empPersonid,
+  //                                     pwesId: pwseId,
+  //                                     pwsId: workstation?.pwsId,
+  //                                     attId: attid,
+  //                                     // attstatus: attStatus ?? 0
+  //                                   );
+  //                                   await employeeApiService.employeeList(
+  //                                       context: context,
+  //                                       processid: processId ?? 0,
+  //                                       deptid: widget.deptid ?? 1,
+  //                                       psid: widget.psid ?? 0);
+
+  //                                   await listofworkstationService
+  //                                       .getListofWorkstation(
+  //                                           context: context,
+  //                                           deptid: widget.deptid ?? 1057,
+  //                                           psid: widget.psid ?? 0,
+  //                                           processid: processId ?? 0);
+
+  //                                 },
+  //                               );
+  //                             },
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+
+bool isTapped = false;
+
+void _workstationPopup({
+  int? empPersonid,
+  int? pwseId,
+  int? processId,
+  int? attid,
+  int? attStatus,
+}) {
+  final listofWorkstation =
+      Provider.of<ListofworkstationProvider>(context, listen: false)
+          .user
+          ?.listOfWorkstation;
+
+  // Capture the parent context before starting async operations
+  final parentContext = context;
+
+  showGeneralDialog(
+    barrierDismissible: true,
+    barrierLabel: '',
+    transitionDuration: const Duration(milliseconds: 400),
+    context: parentContext,
+    pageBuilder: (context, animation1, animation2) {
+      return Container();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      return SlideTransition(
+        position: Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
+            .animate(animation),
+        child: FadeTransition(
+          opacity: Tween(begin: 0.5, end: 1.0).animate(animation),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              color: Colors.white,
+              width:250.w,
+              height: MediaQuery.of(context).size.height,
+              child: Drawer(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                backgroundColor: Color.fromARGB(150, 235, 236, 255),
+                child: SafeArea(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 16.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Select Workstation',
+                          style: TextStyle(
+                              fontSize: 18.sp,
+                              color: Color.fromARGB(255, 80, 96, 203),
+                              fontFamily: "Lexend",
+                              fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(height: 20.h),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: listofWorkstation?.length,
+                            itemBuilder: (context, index) {
+                              final workstation = listofWorkstation?[index];
+
+                              return GestureDetector(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 16.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
                                       top: (index == 0)
                                           ? BorderSide(
                                               width: 1,
@@ -570,57 +699,81 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
                                       bottom: BorderSide(
                                           width: 1,
                                           color: Colors.grey.shade300),
-                                    )), // Set unique background color for selected tile
-                                    child: Text(
-                                      "${workstation?.pwsName} ",
-                                      style: TextStyle(
-                                          color: Colors.black54,
-                                          fontFamily: "Lexend",
-                                          fontSize: 12.sp),
                                     ),
                                   ),
-                                  onTap: () async {
-                                    await _changeWorkstation(
-                                      empPersonid: empPersonid,
-                                      pwesId: pwseId,
-                                      pwsId: workstation?.pwsId,
-                                      attId: attid,
-                                      // attstatus: attStatus ?? 0
-                                    );
-                                    await employeeApiService.employeeList(
-                                        context: context,
-                                        processid: processId ?? 0,
-                                        deptid: widget.deptid ?? 1,
-                                        psid: widget.psid ?? 0);
+                                  child: Text(
+                                    "${workstation?.pwsName} ",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontFamily: "Lexend",
+                                        fontSize: 12.sp),
+                                  ),
+                                ),
+onTap: () async {
+  // Prevent multiple taps immediately
+  if (isTapped) {
+    print("Tap ignored to prevent multiple triggers.");
+    return;
+  }
 
-                                    await listofworkstationService
-                                        .getListofWorkstation(
-                                            context: context,
-                                            deptid: widget.deptid ?? 1057,
-                                            psid: widget.psid ?? 0,
-                                            processid: processId ?? 0);
+  // Disable further taps
+  isTapped = true;
 
-                                    Navigator.of(context).pop();
-                                  },
-                                );
-                              },
-                            ),
+  // Use Future.microtask to ensure immediate UI update
+  Future.microtask(() async {
+    try {
+      // Perform your asynchronous operations
+      await _changeWorkstation(
+        empPersonid: empPersonid,
+        pwesId: pwseId,
+        pwsId: workstation?.pwsId,
+        attId: attid,
+      );
+
+      await employeeApiService.employeeList(
+        context: parentContext,
+        processid: processId ?? 0,
+        deptid: widget.deptid ?? 1,
+        psid: widget.psid ?? 0,
+      );
+
+      await listofworkstationService.getListofWorkstation(
+        context: parentContext,
+        deptid: widget.deptid ?? 1057,
+        psid: widget.psid ?? 0,
+        processid: processId ?? 0,
+      );
+
+      // Close the dialog after the operations complete
+      Navigator.of(parentContext).pop();
+    } catch (e) {
+      // Handle errors gracefully
+      print("Error during workstation change: $e");
+    } finally {
+      // Reset the tap flag after the transition completes
+      await Future.delayed(Duration(milliseconds: 300));
+      isTapped = false;
+    }
+  });
+},
+
+
+                              );
+                            },
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
           ),
-        );
-      },
-    );
-  }
-
-
-
+        ),
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -759,47 +912,44 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
                                                   ? null
                                                   : () async {
                                                       await sendAttendance(
-                                                          1,
-                                                          employee?.attendanceid ??
-                                                              "",
-                                                          employee.empPersonid,
-                                                          employee.flattdate,
-                                                          employee.pwsId);
-              
-                                                      await employeeApiService
-                                                          .employeeList(
-                                                              context: context,
-                                                              processid: employee
-                                                                      .processId ??
-                                                                  0,
-                                                              deptid:
-                                                                  widget.deptid ??
-                                                                      1,
-                                                              psid: widget.psid ??
-                                                                  0);
-                                                      await listofworkstationService
-                                                          .getListofWorkstation(
-                                                              context: context,
-                                                              deptid:
-                                                                  widget.deptid ??
-                                                                      1057,
-                                                              psid: widget.psid ??
-                                                                  0,
-                                                              processid: employee
-                                                                      .processId ??
-                                                                  0);
-              
-                                                      await attendanceCountService
-                                                          .getAttCount(
-                                                              context: context,
-                                                              id: employee
-                                                                      .processId ??
-                                                                  0,
-                                                              deptid:
-                                                                  widget.deptid,
-                                                              psid: widget.psid ??
-                                                                  0);
-                                                    },
+                                                    1,
+                                                    employee?.attendanceid ??
+                                                        "",
+                                                    employee.empPersonid,
+                                                    employee.flattdate,
+                                                    employee.pwsId);
+                                                    
+                                                     await attendanceCountService
+                                                    .getAttCount(
+                                                        context: context,
+                                                        id: employee
+                                                                .processId ??
+                                                            0,
+                                                        deptid: widget.deptid,
+                                                        psid: widget.psid ?? 0);
+
+                                                await employeeApiService
+                                                    .employeeList(
+                                                        context: context,
+                                                        processid: employee
+                                                                .processId ??
+                                                            0,
+                                                        deptid:
+                                                            widget.deptid ?? 1,
+                                                        psid: widget.psid ?? 0);
+
+                                                await listofworkstationService
+                                                    .getListofWorkstation(
+                                                        context: context,
+                                                        deptid: widget.deptid ??
+                                                            1057,
+                                                        psid: widget.psid ?? 0,
+                                                        processid: employee
+                                                                .processId ??
+                                                            0);
+
+                                               
+                                                  }
                                             )),
                                       )
                                     else if (initialindex == 1)
@@ -825,46 +975,44 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
                                                   ? null
                                                   : () async {
                                                       await sendAttendance(
-                                                          0,
-                                                          employee?.attendanceid ??
-                                                              "",
-                                                          employee.empPersonid,
-                                                          employee.flattdate,
-                                                          employee.pwsId);
-              
-                                                      await employeeApiService
-                                                          .employeeList(
-                                                              context: context,
-                                                              processid: employee
-                                                                      .processId ??
-                                                                  0,
-                                                              deptid:
-                                                                  widget.deptid ??
-                                                                      1,
-                                                              psid: widget.psid ??
-                                                                  0);
-                                                      await listofworkstationService
-                                                          .getListofWorkstation(
-                                                              context: context,
-                                                              deptid:
-                                                                  widget.deptid ??
-                                                                      1057,
-                                                              psid: widget.psid ??
-                                                                  0,
-                                                              processid: employee
-                                                                      .processId ??
-                                                                  0);
-              
-                                                      await attendanceCountService
-                                                          .getAttCount(
-                                                              context: context,
-                                                              id: employee
-                                                                      .processId ??
-                                                                  0,
-                                                              deptid:
-                                                                  widget.deptid,
-                                                              psid: widget.psid ??
-                                                                  0);
+                                                    0,
+                                                    employee?.attendanceid ??
+                                                        "",
+                                                    employee.empPersonid,
+                                                    employee.flattdate,
+                                                    employee.pwsId);
+
+                                                    await attendanceCountService
+                                                    .getAttCount(
+                                                        context: context,
+                                                        id: employee
+                                                                .processId ??
+                                                            0,
+                                                        deptid: widget.deptid,
+                                                        psid: widget.psid ?? 0);
+
+                                                await employeeApiService
+                                                    .employeeList(
+                                                        context: context,
+                                                        processid: employee
+                                                                .processId ??
+                                                            0,
+                                                        deptid:
+                                                            widget.deptid ?? 1,
+                                                        psid: widget.psid ?? 0);
+                                                        
+                                                await listofworkstationService
+                                                    .getListofWorkstation(
+                                                        context: context,
+                                                        deptid: widget.deptid ??
+                                                            1057,
+                                                        psid: widget.psid ?? 0,
+                                                        processid: employee
+                                                                .processId ??
+                                                            0);
+
+                                                
+                                              
                                                     },
                                             )),
                                       ),
