@@ -10,6 +10,7 @@ import 'package:prominous/constant/request_data_model/update_problem_request_mod
 import 'package:prominous/constant/utilities/customwidgets/custom_textform_field.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
 import 'package:prominous/features/data/core/api_constant.dart';
 import 'package:prominous/features/data/model/listof_problem_category_model.dart';
 import 'package:prominous/features/data/model/listof_problem_model.dart';
@@ -34,6 +35,7 @@ import 'package:prominous/features/presentation_layer/provider/login_provider.da
 import 'package:prominous/features/presentation_layer/provider/problem_status_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/rootcause_solution_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/shift_status_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/timing_widget/update_time.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -42,6 +44,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ProblemEntryPopup extends StatefulWidget {
   ProblemEntryPopup(
       {super.key,
+     required  this.processid,
+     required this.deptid,
+     required this.assetid,
       this.SelectProblemId,
       this.rootcauseid,
       this.problemCategoryId,
@@ -71,6 +76,9 @@ class ProblemEntryPopup extends StatefulWidget {
   final int? ipdid;
   final String? closestartTime;
   final int? pwsId;
+  final int processid;
+  final int deptid;
+  final int assetid;
 
   @override
   State<ProblemEntryPopup> createState() => _ProblemEntryPopupState();
@@ -79,8 +87,7 @@ class ProblemEntryPopup extends StatefulWidget {
 class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
   final ListofproblemCategoryservice listofproblemCategoryservice =
       ListofproblemCategoryservice();
-  final ListofRootCauseService listofRootCauseService =
-      ListofRootCauseService();
+  final ListofRootCauseService listofRootCauseService =ListofRootCauseService();
   final RootcauseSolutionService rootcauseSolutionService =
       RootcauseSolutionService();
   final TextEditingController incidentReasonController =
@@ -120,6 +127,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
   List<ListrootcauseEntity>? listofrootcause;
   List<SolutionEntity>? listofrootcausesolution;
 
+
   late DateTime now;
   late int currentYear;
   late int currentMonth;
@@ -145,6 +153,21 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
 
 
       await problemStatusService.getProblemStatus(context: context);
+
+if(widget.showButton==true){
+ listofproblemservice
+                                                            .getListofProblem(
+                                                                context:
+                                                                    context,
+                                                                processid: widget
+                                                                        .processid ??
+                                                                    0,
+                                                                deptid: widget
+                                                                        .deptid ??
+                                                                    1057,
+                                                                assetid: widget.assetid);
+}
+
 
       // Fetch problem details if needed
       await _fetchProblemDetails();
@@ -228,6 +251,47 @@ String? shiftTime;
   lastupdatedTime = widget.shiftToTime;
 }
 
+void _storedWorkstationProblemList() {
+
+  Provider.of<ListProblemStoringProvider>(context, listen: false).reset();
+   final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+        .user
+        ?.resolvedProblemInWs;
+           
+    if (workstationProblem != null) {
+      for (int i = 0; i < workstationProblem.length; i++) {
+         ListOfWorkStationIncident data =
+                                          ListOfWorkStationIncident(
+                                              fromtime: workstationProblem[i].fromTime,
+                                              endtime: workstationProblem[i].endTime,
+                                              productionStoppageId:
+                                                  workstationProblem[i].productionStopageId,
+                                              problemstatusId: workstationProblem[i].problemStatusId,
+                                              problemsolvedName:
+                                                  workstationProblem[i].problemStatus,
+                                              solutionId: workstationProblem[i].solId,
+                                              solutionName: workstationProblem[i].solDesc,
+                                              problemCategoryname:
+                                                 workstationProblem[i].subincidentName,
+                                              problemId: workstationProblem[i].incidentId,
+                                              problemName: workstationProblem[i].incidentName,
+                                              problemCategoryId:
+                                                  workstationProblem[i].subincidentId,
+                                              reasons:
+                                                  workstationProblem[i].ipdincNotes,
+                                              rootCauseId: workstationProblem[i].ipdincIncrcmId,
+                                              rootCausename:
+                                                  workstationProblem[i].incrcmRootcauseBrief,
+                                                  ipdId:workstationProblem[i].ipdincipdid,
+                                                  ipdIncId: workstationProblem[i].ipdincid,
+                                                  assetId:workstationProblem[i].incmAssetId  );
+       Provider.of<ListProblemStoringProvider>(
+                                                    context,
+                                                    listen: false)
+                                                .addIncidentList(data);
+      }
+    }
+  }
 
 
 Future<void> _fetchProblemDetails() async {
@@ -408,45 +472,53 @@ updateProblemList({
     productionStopage:productionstopage ,
     rootcauseId: rootcauseid,solutionId:solutionid ,
     subincidentId: subincidentId
-       
-        );
+      );
     final requestBodyjson = jsonEncode(requestBody);
 
     print(requestBodyjson);
 
-    const timeoutDuration = Duration(seconds: 30);
-    try {
-      http.Response response = await http
-          .post(
-            Uri.parse(ApiConstant.baseUrl),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: requestBodyjson,
-          )
-          .timeout(timeoutDuration);
+  const timeoutDuration = Duration(seconds: 30);
+      try {
+        http.Response response = await http
+            .post(
+              Uri.parse(ApiConstant.baseUrl),
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: requestBodyjson,
+            )
+            .timeout(timeoutDuration);
 
-      // ignore: avoid_print
-      print(response.body);
+        // ignore: avoid_print
+        print(response.body);
 
-      if (response.statusCode == 200) {
-        try {
-          final responseJson = jsonDecode(response.body);
-          // loadEmployeeList();
-          print(responseJson);
-          return responseJson;
-        } catch (e) {
-          // Handle the case where the response body is not a valid JSON object
-          throw ("Invalid JSON response from the server");
+        if (response.statusCode == 200) {
+          try {
+            final responseJson = jsonDecode(response.body);
+
+            final responseMsg = responseJson["response_msg"];
+            print(responseJson);
+
+            if (responseMsg == "success") {
+              return ShowSaveError.showAlert(
+                  context, "Updated Successfully", "Success","Success",Colors.green);
+            } else {
+              return ShowSaveError.showAlert(context, responseMsg);
+            }
+          } catch (e) {
+            // Handle the case where the response body is not a valid JSON object
+            ShowSaveError.showAlert(context, e.toString());
+          }
+        } else {
+          throw ("Server responded with status code ${response.statusCode}");
         }
-      } else {
-        throw ("Server responded with status code ${response.statusCode}");
+      } on TimeoutException {
+        throw ('Connection timed out. Please check your internet connection.');
+      } catch (e) {
+        ShowError.showAlert(context, e.toString());
       }
-    } on TimeoutException {
-      throw ('Connection timed out. Please check your internet connection.');
-    } catch (e) {
-      ShowError.showAlert(context, e.toString());
-    }
+      // Handle response if needed
+    
   }
 
   @override
@@ -1176,24 +1248,63 @@ updateProblemList({
                              width: screenSize.width < 572 ? 80.w : 130.w,
                             height: screenSize.height < 572 ? 30.h : 50.h,
                             onPressed:() async {
+try {
+  await updateProblemList(
+    endTime: lastupdatedTime,
+    fromtime: fromTime,
+    incidentid: problemid,
+    ipdincIpdid: widget.ipdid,
+    ipdincid: widget.ipdincid,
+    note: incidentReasonController.text,
+    problemSolvedstatus: problemStatusid,
+    productionstopage: productionStoppageid,
+    rootcauseid: rootCauseid,
+    solutionid: solutionid,
+    subincidentId: problemCategoryid,
+  );
 
-                                      await updateProblemList(
-                                        endTime: lastupdatedTime,
-                                        fromtime: fromTime,
-                                        incidentid: problemid,
-                                        ipdincIpdid: widget.ipdid,
-                                        ipdincid: widget.ipdincid,
-                                        note: incidentReasonController.text,
-                                        problemSolvedstatus: problemStatusid,
-                                        productionstopage: productionStoppageid,
-                                        rootcauseid: rootCauseid,
-                                        solutionid: solutionid,
-                                        subincidentId: problemCategoryid,
-                                      );
+  print("Problem list updated");
 
-                                      print(updateProblemList);
-                                     workstationProblemService.getListofProblem(context: context, pwsid: widget.pwsId ?? 0);
-                                    Navigator.pop(context);
+  // // Reset and update the list
+  // final problemProvider = Provider.of<ListProblemStoringProvider>(context, listen: false);
+  
+  // problemProvider.reset();
+
+  // final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+  //     .user
+  //     ?.resolvedProblemInWs;
+
+  // if (workstationProblem != null) {
+  //   for (int i = 0; i < workstationProblem.length; i++) {
+  //     ListOfWorkStationIncident data = ListOfWorkStationIncident(
+  //       fromtime: workstationProblem[i].fromTime,
+  //       endtime: workstationProblem[i].endTime,
+  //       productionStoppageId: workstationProblem[i].productionStopageId,
+  //       problemstatusId: workstationProblem[i].problemStatusId,
+  //       problemsolvedName: workstationProblem[i].problemStatus,
+  //       solutionId: workstationProblem[i].solId,
+  //       solutionName: workstationProblem[i].solDesc,
+  //       problemCategoryname: workstationProblem[i].subincidentName,
+  //       problemId: workstationProblem[i].incidentId,
+  //       problemName: workstationProblem[i].incidentName,
+  //       problemCategoryId: workstationProblem[i].subincidentId,
+  //       reasons: workstationProblem[i].ipdincNotes,
+  //       rootCauseId: workstationProblem[i].ipdincIncrcmId,
+  //       rootCausename: workstationProblem[i].incrcmRootcauseBrief,
+  //       ipdId: workstationProblem[i].ipdincipdid,
+  //       ipdIncId: workstationProblem[i].ipdincid,
+  //       assetId: workstationProblem[i].incmAssetId,
+  //     );
+  //     problemProvider.addIncidentList(data);
+  //   }
+  // }
+} catch (e) {
+  print("Error: $e");
+}
+
+                                      
+
+                                   
                                   },
                                 
                             child: Text(
@@ -1243,7 +1354,8 @@ updateProblemList({
                                               rootCausename:
                                                   selectrootcausename,
                                               ipdId: 0,
-                                              ipdIncId: 0);
+                                              ipdIncId: 0,
+                                              assetId: widget.assetid);
                                       // final data = {
                                       //   "problemname":
                                       //       selectproblemname,

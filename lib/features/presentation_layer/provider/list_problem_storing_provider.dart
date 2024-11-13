@@ -8,14 +8,13 @@ class ListProblemStoringProvider extends ChangeNotifier {
 
   void addIncidentList(ListOfWorkStationIncident data) {
     _incidentList.add(data);
-    print(_incidentList);
-    notifyListeners();
+    notifyListeners(); // Notify listeners after adding data
   }
 
   void reset() {
-    _incidentList = [];
-
-   notifyListeners();
-    
+    _incidentList.clear();
+    notifyListeners(); // Notify listeners after resetting the list
   }
 }
+
+

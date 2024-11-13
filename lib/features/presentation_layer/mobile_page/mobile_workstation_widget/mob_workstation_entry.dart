@@ -14,6 +14,7 @@ import 'package:prominous/constant/request_data_model/incident_entry_model.dart'
 import 'package:prominous/constant/request_data_model/workstation_close_shift_model.dart';
 import 'package:prominous/constant/request_data_model/workstation_entry_model.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
+import 'package:prominous/constant/utilities/exception_handle/show_deletepopup_error.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_save_error.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
@@ -762,14 +763,19 @@ Future<void> updateproduction(int? processid) async {
       print(response.body);
 
       if (response.statusCode == 200) {
-        try {
+       try {
           final responseJson = jsonDecode(response.body);
-          // loadEmployeeList();
-          print(responseJson);
-          return responseJson;
+
+          final responsemsg=responseJson["response_msg"];
+          if(responsemsg=="success"){
+           return ShowDeleteError.showAlert(context, "Workstation Closed successfully","Success","Success",Colors.green);
+          }else{
+ return ShowError.showAlert(context, "Workstation Not Closed","Error");
+          }
+       
         } catch (e) {
           // Handle the case where the response body is not a valid JSON object
-          throw ("Invalid JSON response from the server");
+           return ShowError.showAlert(context,e.toString(),"Error");
         }
       } else {
         throw ("Server responded with status code ${response.statusCode}");
@@ -866,55 +872,77 @@ Future<void> updateproduction(int? processid) async {
             ?.shiftStatusdetailEntity
             ?.shiftToTime;
 
-    DateTime? shiftToTime;
-    if (shifttodate != null && shifttodate.isNotEmpty) {
-      // Parse shifttodate if it's not empty
-      shiftToTime = DateTime.parse(shifttodate);
-    } else if (shiftToTimeString != null) {
-      // Parse the shiftToTimeString if shifttodate is not provided
-      final shiftToTimeParts = shiftToTimeString.split(':');
-      final now = DateTime.now();
-      shiftToTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftToTimeParts[0]),
-        int.parse(shiftToTimeParts[1]),
-        int.parse(shiftToTimeParts[2]),
-      );
-    }
+       TimeOfDay shiftendTime = TimeOfDay(
+    hour: int.parse(shiftToTimeString!.split(":")[0]),
+    minute: int.parse(shiftToTimeString!.split(":")[1]),
+  );
 
-// Get the current time
-    final currentTime = DateTime.now();
+      DateTime? shiftToTime;
+if (shifttodate != null && shifttodate.isNotEmpty) {
+  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
 
-// Retrieve the shift start time
-    final shiftFromTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftFromTime;
+  // Create a DateTime object for the shift end time using the parsed date
+  DateTime shiftEndDateTime = DateTime(
+    parsedShiftToDate.year,
+    parsedShiftToDate.month,
+    parsedShiftToDate.day,
+    shiftendTime.hour,
+    shiftendTime.minute,
+  );
 
-    DateTime? shiftFromTime;
-    if (shiftFromTimeString != null && shiftToTime != null) {
-      // Parse the shiftFromTime but using the same date as shiftToTime
-      final shiftFromTimeParts = shiftFromTimeString.split(':');
+  // Check if parsedShiftToDate is before the shift end time (08:00)
+  if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
+    // Do not add a day, keep the same date
+    shiftToTime = parsedShiftToDate;
+  } else {
+    // Add one day if the parsed date is after the shift end time
+    shiftToTime = parsedShiftToDate.add(Duration(days: 1));
+  }
+} else {
+  // Parse the shiftToTimeString if shifttodate is not provided
+  final shiftToTimeParts = shiftToTimeString.split(':');
+  final now = DateTime.now();
+  shiftToTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(shiftToTimeParts[0]),
+    int.parse(shiftToTimeParts[1]),
+    int.parse(shiftToTimeParts[2]),
+  );
+}
 
-      shiftFromTime = DateTime(
-        shiftToTime.year, // Use the same year as shiftToTime
-        shiftToTime.month, // Use the same month as shiftToTime
-        shiftToTime.day, // Use the same day as shiftToTime
-        int.parse(shiftFromTimeParts[0]),
-        int.parse(shiftFromTimeParts[1]),
-        int.parse(shiftFromTimeParts[2]),
-      );
 
-      // Adjust the date of shiftToTime if it falls on the next day
-      if (shiftFromTime != null &&
-          shiftToTime != null &&
-          shiftToTime.isBefore(shiftFromTime)) {
-        shiftToTime = shiftToTime.add(Duration(days: 1));
-      }
+      final shiftFromTimeString =
+          Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftFromTime;
 
+      DateTime? shiftFromTime;
+
+      if (shiftFromTimeString != null && shiftToTime != null) {
+        // Parse the shiftFromTime but using the same date as shiftToTime
+        final shiftFromTimeParts = shiftFromTimeString.split(':');
+
+        shiftFromTime = DateTime(
+          shiftToTime.year, // Use the same year as shiftToTime
+          shiftToTime.month, // Use the same month as shiftToTime
+          shiftToTime.day, // Use the same day as shiftToTime
+          int.parse(shiftFromTimeParts[0]),
+          int.parse(shiftFromTimeParts[1]),
+          int.parse(shiftFromTimeParts[2]),
+          
+        );
+
+       
+        if (shiftFromTime != null &&
+            shiftToTime != null &&
+            shiftToTime.isBefore(shiftFromTime)) {
+          shiftToTime = shiftFromTime.add(Duration(days: 1));
+        }
+
+      
       //         if (shiftFromTime != null &&
       //       shiftToTime != null ){
       //       if((shiftToTime.day == DateTime.now().day &&
@@ -962,52 +990,110 @@ Future<void> updateproduction(int? processid) async {
     shiftEndtTime = DateTime.parse(lastUpdatedTime!);
   }
 
-  void submitGoodQuantity() {
+
+    void submitGoodQuantity() {
     final value = goodQController.text;
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
-      if (currentValue > (overallqty ?? 0)) {
+
+       if (currentValue == previousGoodValue) {
+      errorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        errorMessage = 'Value must be 0';
+      } else {
+        errorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        errorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
         errorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         errorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousGoodValue = currentValue;
       }
+    }
+    
     });
   }
 
-  void submitRejectedQuantity() {
-    final value = rejectedQController.text;
-    final currentValue = int.tryParse(value) ?? 0;
+ void submitRejectedQuantity() {
+  final value = rejectedQController.text;
+  final currentValue = int.tryParse(value) ?? 0;
 
-    setState(() {
-      if (currentValue > (overallqty ?? 0)) {
+  setState(() {
+    // Skip validation if the value has not changed
+    if (currentValue == previousRejectedValue) {
+      rejectederrorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        rejectederrorMessage = 'Value must be 0';
+      } else {
+        rejectederrorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        rejectederrorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
         rejectederrorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         rejectederrorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousRejectedValue = currentValue;
       }
-    });
-  }
+    }
+  });
+}
+
 
   void submitReworkQuantity() {
     final value = reworkQtyController.text;
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
-      if (currentValue > (overallqty ?? 0)) {
+        if (currentValue == previousReworkValue) {
+      reworkerrorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        reworkerrorMessage = 'Value must be 0';
+      } else {
+        reworkerrorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        reworkerrorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
         reworkerrorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         reworkerrorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousReworkValue = currentValue;
       }
+    }
+
     });
   }
-
-
     void validateProductName() {
     // Get the list of products
     final productList = Provider.of<ProductProvider>(context, listen: false)
@@ -1164,39 +1250,47 @@ Future<void> updateproduction(int? processid) async {
               ?.shiftStatusdetailEntity
               ?.shiftToTime;
               
-    TimeOfDay shiftendTime = TimeOfDay(
+       TimeOfDay shiftendTime = TimeOfDay(
     hour: int.parse(shiftToTimeString!.split(":")[0]),
     minute: int.parse(shiftToTimeString!.split(":")[1]),
   );
 
       DateTime? shiftToTime;
+if (shifttodate != null && shifttodate.isNotEmpty) {
+  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
 
-      if (shifttodate != null && shifttodate.isNotEmpty) {
-        if(shiftendTime.hour<12){
-           DateTime parsedShiftToDate = DateTime.parse(shifttodate!);
-           shiftToTime=parsedShiftToDate.add(Duration(days: 1));
-        }else{
-         shiftToTime = DateTime.parse(shifttodate);
-        }
+  // Create a DateTime object for the shift end time using the parsed date
+  DateTime shiftEndDateTime = DateTime(
+    parsedShiftToDate.year,
+    parsedShiftToDate.month,
+    parsedShiftToDate.day,
+    shiftendTime.hour,
+    shiftendTime.minute,
+  );
 
-      } else if (shiftToTimeString != null) {
-        // Parse the shiftToTimeString if shifttodate is not provided
-        final shiftToTimeParts = shiftToTimeString.split(':');
-        final now = DateTime.now();
-        shiftToTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(shiftToTimeParts[0]),
-          int.parse(shiftToTimeParts[1]),
-          int.parse(shiftToTimeParts[2]),
-        );
-      }
+  // Check if parsedShiftToDate is before the shift end time (08:00)
+  if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
+    // Do not add a day, keep the same date
+    shiftToTime = parsedShiftToDate;
+  } else {
+    // Add one day if the parsed date is after the shift end time
+    shiftToTime = parsedShiftToDate.add(Duration(days: 1));
+  }
+} else {
+  // Parse the shiftToTimeString if shifttodate is not provided
+  final shiftToTimeParts = shiftToTimeString.split(':');
+  final now = DateTime.now();
+  shiftToTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(shiftToTimeParts[0]),
+    int.parse(shiftToTimeParts[1]),
+    int.parse(shiftToTimeParts[2]),
+  );
+}
 
-// Get the current time
-      final currentTime = DateTime.now();
 
-// Retrieve the shift start time
       final shiftFromTimeString =
           Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
@@ -1223,8 +1317,10 @@ Future<void> updateproduction(int? processid) async {
         if (shiftFromTime != null &&
             shiftToTime != null &&
             shiftToTime.isBefore(shiftFromTime)) {
-          shiftToTime = shiftToTime.add(Duration(days: 1));
+          shiftToTime = shiftFromTime.add(Duration(days: 1));
         }
+
+      
 
         // Adjust the date of shiftToTime if it falls on the next day
         //   if (shiftFromTime != null &&
@@ -1408,6 +1504,7 @@ Future<void> updateproduction(int? processid) async {
   Future<void> _problemEntrywidget(
      String ? shiftFromTime,
       String ? shiftToTime,
+     processid,deptid,assetid,
       [
       int? selectproblemid,
       int? problemCategoryId,
@@ -1459,7 +1556,7 @@ Future<void> updateproduction(int? processid) async {
                     ipdid: ipdId,
                     ipdincid:ipdincId ,
                   closestartTime: closeStartTime,
-                  pwsId:pwsid
+                  pwsId:pwsid, processid: processid,assetid:assetid ,deptid: deptid,
 
                   )),
             ),
@@ -1998,13 +2095,13 @@ void addFocusListeners() {
                                                   shiftDate: actualdate,
                                                 ),
                                               SizedBox(
-                                                width: 10.w,
+                                                width: 30.w,
                                               ),
                                               SizedBox(
                                                 height: 35.h,
                                                 child: CustomButton(
-                                                  width: 100.w,
-                                                  height: 50.h,
+                                                  width: 80.w,
+                                                  height: 30.h,
                                                   onPressed: () {
                                                     _WorkStationcloseShiftPop(
                                                         context);
@@ -2963,17 +3060,13 @@ void addFocusListeners() {
                                                                           .white,
                                                                       width: 1),
                                                             ),
-                                                            
-                                                                          validation:
-                                                                              (value) {
-                                                                            if (value == null ||
-                                                                                value.isEmpty) {
-                                                                              return 'Enter good qty';
-                                                                            } else if (RegExp(r'^0+$').hasMatch(value)) {
-                                                                              return 'Cannot contain zeros';
-                                                                            }
-                                                                            return null; // Return null if no validation errors
-                                                                          },
+                                                            validation: (value) {
+    // This validation runs during form submission
+    if (value == null || value.isEmpty) {
+      return 'Enter good qty or 0';
+    }
+    return null;
+  },
                                            
                                                                           controller:
                                                                               goodQController,
@@ -2988,30 +3081,38 @@ void addFocusListeners() {
                                                                                   ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
                                                                               ? true
                                                                               : false,
-                                                                          onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                              ? (value) {
-                                                                                  final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-                                          
-                                                                                  setState(() {
-                                                                                    // Restore previous good value to overallqty if it was already subtracted
-                                                                                    if (previousGoodValue != null) {
-                                                                                      overallqty = (overallqty ?? 0) + previousGoodValue!;
-                                                                                      previousGoodValue = null; // Reset the previous value after restoring
-                                                                                    }
-                                          
-                                                                                    // Validate the entered value against overallqty
-                                                                                    if (currentValue < 0) {
-                                                                                      errorMessage = 'Value must be greater than 0.';
-                                                                                    } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                      errorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                    } else if ((overallqty ?? 0) == 0) {
-                                                                                      errorMessage = 'Overallqty is 0 so enter 0';
-                                                                                    } else {
-                                                                                      errorMessage = null; // Clear the error message if valid
-                                                                                    }
-                                                                                  });
-                                                                                }
-                                                                              : null),
+                                                                           onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ?
+  
+  (value) {
+    final currentValue = int.tryParse(value) ?? 0;
+
+    // Clear validation error when user starts typing
+    if (errorMessage != null) {
+      setState(() {
+        errorMessage = null;
+      });
+    }
+
+    setState(() {
+      // Restore previous good value to overallqty if it was already subtracted
+      if (previousGoodValue != null) {
+        overallqty = (overallqty ?? 0) + previousGoodValue!;
+        previousGoodValue = null;
+      }
+
+      // Custom validation for the input value
+      if (currentValue < 0) {
+        errorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+        errorMessage = 'Value must be between 1 and $overallqty.';
+      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+        errorMessage = 'Value must be 0';
+      } else {
+        errorMessage = null; // Clear the error message if valid
+      }
+    });
+  }:null,
+),
                                                                 ),
                                                                 if (errorMessage !=
                                                                     null)
@@ -3079,13 +3180,13 @@ void addFocusListeners() {
                                                           height: 50.h,
                                                           child: CustomNumField(
                                                                           validation:
-                                                                              (value) {
-                                                                            if (value == null ||
-                                                                                value.isEmpty) {
-                                                                              return 'Enter Rejected qty';
-                                                                            }
-                                                                            return null; // Return null if no validation errors
-                                                                          },
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return 'Enter Rejected qty or 0';
+                                                                          }
+                                                                          return null; // Return null if no validation errors
+                                                                        },
                                                                             enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderRadius:
@@ -3133,30 +3234,30 @@ void addFocusListeners() {
                                                                                   ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
                                                                               ? true
                                                                               : false,
-                                                                          onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                              ? (value) {
-                                                                                  final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-                                          
-                                                                                  setState(() {
-                                                                                    // Restore previous rejected value to overallqty if it was already subtracted
-                                                                                    if (previousRejectedValue != null) {
-                                                                                      overallqty = (overallqty ?? 0) + previousRejectedValue!;
-                                                                                      previousRejectedValue = null; // Reset the previous value after restoring
-                                                                                    }
-                                          
-                                                                                    // Validate the entered value against overallqty
-                                                                                    if (currentValue < 0) {
-                                                                                      rejectederrorMessage = 'Value must be greater than 0.';
-                                                                                    } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                      rejectederrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                    } else if ((overallqty ?? 0) == 0) {
-                                                                                      rejectederrorMessage = 'Overallqty is 0 so enter 0';
-                                                                                    } else {
-                                                                                      rejectederrorMessage = null; // Clear the error message if valid
-                                                                                    }
-                                                                                  });
-                                                                                }
-                                                                              : null),
+                                                                       onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+
+                                                                                setState(() {
+                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                  if (previousRejectedValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousRejectedValue!;
+                                                                                    previousRejectedValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    rejectederrorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  }  else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+                                                                                       rejectederrorMessage = 'Value must be 0';
+                                                                                  } else {
+                                                                                    rejectederrorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                                 ),
                                                                 if (rejectederrorMessage !=
                                                                     null)
@@ -3214,14 +3315,14 @@ void addFocusListeners() {
                                                           width: 150.w,
                                                           height: 50.h,
                                                           child:   CustomNumField(
-                                                                          validation:
-                                                                              (value) {
-                                                                            if (value == null ||
-                                                                                value.isEmpty) {
-                                                                              return ' Enter rework qty';
-                                                                            }
-                                                                            return null;
-                                                                          },
+                                                                            validation:
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return 'Enter rework qty or 0';
+                                                                          }
+                                                                          return null;
+                                                                        },
                                                                             enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderRadius:
@@ -3269,30 +3370,30 @@ void addFocusListeners() {
                                                                                   ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
                                                                               ? true
                                                                               : false,
-                                                                          onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                              ? (value) {
-                                                                                  final currentValue = int.tryParse(value) ?? 0;
-                                          
-                                                                                  setState(() {
-                                                                                    // Restore previous rejected value to overallqty if it was already subtracted
-                                                                                    if (previousReworkValue != null) {
-                                                                                      overallqty = (overallqty ?? 0) + previousReworkValue!;
-                                                                                      previousReworkValue = null; // Reset the previous value after restoring
-                                                                                    }
-                                          
-                                                                                    // Validate the entered value against overallqty
-                                                                                    if (currentValue < 0) {
-                                                                                      reworkerrorMessage = 'Value must be greater than 0.';
-                                                                                    } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                      reworkerrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                    } else if ((overallqty ?? 0) == 0) {
-                                                                                      reworkerrorMessage = 'Overallqty is 0 so enter 0';
-                                                                                    } else {
-                                                                                      reworkerrorMessage = null; // Clear the error message if valid
-                                                                                    }
-                                                                                  });
-                                                                                }
-                                                                              : null),
+                                                                            onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0;
+
+                                                                                setState(() {
+                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                  if (previousReworkValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousReworkValue!;
+                                                                                    previousReworkValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    reworkerrorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+                                                                                       reworkerrorMessage = 'Value must be 0';
+                                                                                  } else { 
+                                                                                    reworkerrorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                                 ),
                                                                 if (reworkerrorMessage !=
                                                                     null)
@@ -3587,15 +3688,16 @@ void addFocusListeners() {
   child: CustomButton(
     width: 100.w,
     height: 50.h,
-    onPressed: 
-    selectedName != null &&
+   onPressed: selectedName != null &&
             locationDropdown != null &&
-            assetCotroller.text.isNotEmpty
+            assetCotroller.text.isNotEmpty && errorMessage==null &&rejectederrorMessage==null && reworkerrorMessage==null
         ? () {
             if (_formkey.currentState?.validate() ?? false) {
               // If the form is valid, perform your actions
               print('Form is valid');
-
+        if (goodQController.text !="0" || rejectedQController.text!="0"|| reworkQtyController.text!="0"){
+               
+            
               // Check if any TextFormField is empty or has an error message before submitting
               if (fromtime != lastUpdatedTime) {
                 bool hasError = false;
@@ -3631,7 +3733,18 @@ void addFocusListeners() {
                   Colors.orange,
                 );
               }
-            } else {
+}
+else{
+   ShowError.showAlert(
+                  context,
+                  "Every value not allow to the 0",
+                  "Alert",
+                  "Warning",
+                  Colors.orange,
+                );
+}
+            }
+            else {
               // Handle the invalid form case
               print('Form is not valid');
             }
@@ -3757,7 +3870,7 @@ void addFocusListeners() {
                                           final workstaion =
                                               listofempworkstation?[index];
                                           return Container(
-                                            height: 100.h,
+                                            height: 110.h,
                                             decoration: BoxDecoration(
                                                 color: index % 2 == 0
                                                     ? Color.fromARGB(
@@ -3898,7 +4011,7 @@ void addFocusListeners() {
                                                                         style:
                                                                             TextStyle(
                                                                           fontSize:
-                                                                              9.0, // Adjust the font size as needed
+                                                                              8.0, // Adjust the font size as needed
                                                                           color:
                                                                               Colors.red,
                                                                           height:
@@ -3928,7 +4041,7 @@ void addFocusListeners() {
                                                     child: Center(
                                                       child: CustomButton(
                                                              width: 80.w,
-                                                      height: 35.h,
+                                                      height: 30.h,
                                                         onPressed: () {
                                                           _closeShiftPop(
                                                               context,
@@ -4039,7 +4152,10 @@ void addFocusListeners() {
 
                                                         _problemEntrywidget(
                                                             fromtime,
-                                                            lastUpdatedTime);
+                                                            lastUpdatedTime,
+                                                            widget.processid,widget.deptid,int.tryParse(
+                                                                    assetCotroller
+                                                                        .text ?? ""));
                                              
                                           
                                   
@@ -4161,6 +4277,9 @@ void addFocusListeners() {
                                                           _problemEntrywidget(
                                                               item.fromtime,
                                                               lastUpdatedTime,
+                                                              widget.processid,
+                                                              widget.deptid,
+                                                              item.assetId,
                                                               item.problemId,
                                                               item.problemCategoryId,
                                                               item.rootCauseId,
@@ -4281,8 +4400,8 @@ void addFocusListeners() {
                                                     color: Colors.black54,
                                                     fontFamily: "Lexend")),
                                             CustomButton(
-                                                width: 100.w,
-                                                height: 35.h,
+                                                width: 80.w,
+                                                height: 30.h,
                                                 borderRadius:
                                                     BorderRadius.circular(50.r),
                                                 backgroundColor: Colors.green,

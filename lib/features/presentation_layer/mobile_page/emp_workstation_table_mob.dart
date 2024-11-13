@@ -395,7 +395,7 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
                                                   ),
                                                 );
                                               },
-                                              width: 40.w,
+                                              width: 80.w,
                                               height: 40.h,
                                               backgroundColor: Colors.green,
                                               borderRadius:
@@ -849,6 +849,10 @@ onTap: () async {
                                 shape: Border(bottom: BorderSide.none),
                                 childrenPadding: EdgeInsets.symmetric(
                                     horizontal: 8.w, vertical: 8.h),
+                                     trailing: Icon(
+    Icons.expand_more,
+    size: 15.sp, // Set your custom icon size here
+  ),
                                 title: Row(
                                   children: [
                                     SizedBox(
@@ -863,7 +867,7 @@ onTap: () async {
                                       width: 5.w,
                                     ),
                                     SizedBox(
-                                      width: 150.w,
+                                      width: 160.w,
                                       child: Text(
                                           employee!.personFname![0]
                                                       .toUpperCase() +
@@ -887,7 +891,7 @@ onTap: () async {
                                               fontSize: 14.sp)),
                                     ),
                                     SizedBox(
-                                      width: 8.w,
+                                      width: 15.w,
                                     ),
                                     if (initialindex == 0)
                                       SizedBox(
@@ -1125,17 +1129,21 @@ onTap: () async {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                 
                     children: [
                       Text("Workstation",
                           style: TextStyle(
                               fontSize: 16.sp,
                               color: Colors.black54,
                               fontFamily: "Lexend")),
+
+                              SizedBox(width: 110.w,),
                       CustomButton(
-                          width: 100.w,
-                          height: 35.h,
-                          borderRadius: BorderRadius.circular(50),
+                             height: 30.h,
+                                              width: 80.w,
+                                              borderRadius:
+                                                  BorderRadius.circular(50.r),
+                      
                           backgroundColor: Colors.green,
                           onPressed: () {
                             _openWorkstationBottomSheet(process_id);

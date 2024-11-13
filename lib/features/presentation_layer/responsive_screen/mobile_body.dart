@@ -183,6 +183,7 @@ class _MobileScaffoldState extends State<MobileScaffold> {
                 ? Padding(
                     padding: EdgeInsets.only(
                       top: 10.h,
+                         bottom: 10.h,
                  
                     ),
                     child: Column(

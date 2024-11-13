@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 class CustomNumField extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
@@ -11,14 +8,15 @@ class CustomNumField extends StatelessWidget {
   final String hintText;
   final Function()? onEditingComplete;
   final Function()? onSubmitted;
-   final void Function(String)? onChanged;
+  final void Function(String)? onChanged;
+  final void Function(bool)? onFocusChange; // Add this parameter for focus change callback
   final TextInputType? keyboardtype;
   final bool isAlphanumeric;
   final OutlineInputBorder? enabledBorder;
   final OutlineInputBorder? focusedBorder;
   final OutlineInputBorder? border;
   final bool readOnly;
-  final bool enabled; // Add this parameter for read-only functionality
+  final bool enabled;
 
   const CustomNumField({
     required this.controller,
@@ -28,21 +26,32 @@ class CustomNumField extends StatelessWidget {
     this.onEditingComplete,
     this.onSubmitted,
     this.onChanged,
+    this.onFocusChange, // Include onFocusChange in the constructor
     this.keyboardtype,
     this.isAlphanumeric = false,
     this.enabledBorder,
     this.focusedBorder,
     this.border,
-    this.readOnly = false, 
-    this.enabled=true, 
-    // Default to false
+    this.readOnly = false,
+    this.enabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Use a local FocusNode if one is not provided
+    final effectiveFocusNode = focusNode ?? FocusNode();
+
+    // Listen to focus changes
+    effectiveFocusNode.addListener(() {
+      if (onFocusChange != null) {
+        onFocusChange!(effectiveFocusNode.hasFocus);
+      }
+    });
+
     return TextFormField(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       controller: controller,
-      focusNode: focusNode,
+      focusNode: effectiveFocusNode,
       keyboardType: keyboardtype ?? TextInputType.number,
       inputFormatters: [
         if (!isAlphanumeric) FilteringTextInputFormatter.digitsOnly,
@@ -76,11 +85,10 @@ class CustomNumField extends StatelessWidget {
             ),
       ),
       onEditingComplete: onEditingComplete,
-      
       onChanged: onChanged,
       validator: validation,
-      readOnly: readOnly, 
-      enabled:enabled ,// Pass the readOnly parameter to TextFormField
+      readOnly: readOnly,
+      enabled: enabled,
     );
   }
 }

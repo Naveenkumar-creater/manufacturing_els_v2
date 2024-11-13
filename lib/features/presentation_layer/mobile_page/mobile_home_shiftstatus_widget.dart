@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
@@ -455,46 +456,85 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
                 ],
               ),
               SizedBox(height: 5.h,),
-              Row(children: [StreamBuilder<String>(
-                stream: current,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(
-                      '${snapshot.data}',
-                      style: TextStyle(fontFamily: 'Lexend',
-                          fontWeight: FontWeight.w400,
-                         color: Colors.black87, fontSize: 16.sp,),
-                    );
-                  } else
-                    return Text(
-                      'Loading',
-                      style: TextStyle(color: Colors.black87, fontSize: 18.sp,fontFamily: 'Lexend',),
-                    );
-                },
-              ),SizedBox(width: 16.w,),  Column(
+              Row( 
+                
+                children: [
+
+
+               Container(
+                height: 20,
+                width: 200,
+                 child: StreamBuilder<String>(
+                   stream: Stream.periodic(Duration(seconds: 1), (_) {
+                     // Get the current date and time as a string
+                     return DateTime.now().toString();
+                   }),
+                   builder: (context, snapshot) {
+                     if (snapshot.connectionState == ConnectionState.waiting) {
+                       return Text(
+                         'Loading...',
+                         style: TextStyle(
+                           color: Colors.black87,
+                           fontSize: 18.sp,
+                           fontFamily: 'Lexend',
+                         ),
+                       );
+                     } else if (snapshot.hasData) {
+                       // Format the date and time according to your needs
+                       DateTime currentDateTime = DateTime.parse(snapshot.data!);
+                      String formattedDateTime = "${currentDateTime.day}/${currentDateTime.month}/${currentDateTime.year} "
+                     "${currentDateTime.hour}:${currentDateTime.minute}:${currentDateTime.second}";
+                 
+                 
+                       return Text(
+                         '$formattedDateTime',
+                         style: TextStyle(
+                           fontFamily: 'Lexend',
+                           fontWeight: FontWeight.w400,
+                           color: Colors.black87,
+                           fontSize: 16.sp,
+                         ),
+                       );
+                     } else {
+                       return Text(
+                         'Error fetching time',
+                         style: TextStyle(
+                           color: Colors.black87,
+                           fontSize: 18.sp,
+                           fontFamily: 'Lexend',
+                         ),
+                       );
+                     }
+                   },
+                 ),
+               )
+,
+              
+              SizedBox(width: 8.w,),
+              
+                Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ShiftStatus == 1
-                  ? ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.green),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                ),
+                  ? CustomButton(
+                  height: 30.h,
+                                              width: 80.w,
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                                  backgroundColor: Colors.green,
                 onPressed: () {
                   closeShiftPop(context);
                 },
-                child: Text('Close Shift',style:TextStyle(color: Colors.white, fontSize: 12.sp,fontFamily: 'Lexend',) ,))
+                child: Text('Close Shift' ,style: TextStyle(
+                                                    color: Colors.white,fontSize: 12.sp,fontFamily: "Lexend"),))
             :  
             
-            ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.red),
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Colors.white),
-                ),
+            CustomButton(
+              backgroundColor: Colors.red,
+                                              height: 30.h,
+                                              width: 80.w,
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
                 onPressed: () async {
                   setState(() {
                     isLoading = true; // Indicate loading
@@ -532,7 +572,9 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
                     });
                   }
                 },
-                child: Text('Open Shift'),
+               
+                child: Text('Open Shift',style: TextStyle(
+                                                    color: Colors.white,fontSize: 12.sp,fontFamily: "Lexend"),),
               )
             ],
           )],),

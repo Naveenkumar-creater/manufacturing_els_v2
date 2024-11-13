@@ -97,7 +97,8 @@ class _MobileProcessQtyWidgetState extends State<MobileProcessQtyWidget> {
                 ),
               ),
               Text(
-                'Planned Qty',
+                'Planned\nQuantity',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Colors.black54,
@@ -139,11 +140,13 @@ class _MobileProcessQtyWidgetState extends State<MobileProcessQtyWidget> {
                 ),
               ),
               Text(
-                'Actual Qty',
+              'Actual\nQuantity',
+               textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: Colors.black54,
                   fontFamily: 'Lexend',
+                 
                 ),
               ),
             ],
@@ -177,7 +180,8 @@ class _MobileProcessQtyWidgetState extends State<MobileProcessQtyWidget> {
                           Text("0",
                               style:
                                   TextStyle(fontSize: 22.sp, color: Colors.black,fontFamily: 'Lexend')),
-                          Text('Team Productivity',
+                          Text('Team\nProductivity',
+                          textAlign: TextAlign.center,
                               style:
                                    TextStyle(fontSize: 14.sp, color: Colors.black54,fontFamily: 'Lexend')),
                         ],
@@ -205,7 +209,8 @@ class _MobileProcessQtyWidgetState extends State<MobileProcessQtyWidget> {
                         children: [
                           Text("0%",
                               style:  TextStyle(fontSize: 22.sp, color: Colors.black,fontFamily: 'Lexend')),
-                          Text('Forecast Completion %',
+                          Text('Forecast\nCompletion %',
+                          textAlign: TextAlign.center,
                               style:  TextStyle(fontSize: 14.sp, color: Colors.black54,fontFamily: 'Lexend')),
                         ],
                       ),

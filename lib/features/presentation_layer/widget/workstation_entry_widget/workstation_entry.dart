@@ -219,6 +219,8 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   String? reworkerrorMessage;
   String? itemerrorMessage;
  GlobalKey _updateTimeKey = GlobalKey();
+  GlobalKey _problemkey = GlobalKey();
+
 
 
   Future<void> updateproduction(int? processid) async {
@@ -446,139 +448,170 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
     });
     reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
     // Get the current time details
-    currentDateTime = DateTime.now();
-    now = DateTime.now();
-    currentYear = now.year;
-    currentMonth = now.month;
-    currentDay = now.day;
-    currentHour = now.hour;
-    currentMinute = now.minute;
-    currentSecond = now.second;
-    String? shiftTime;
-    final productionEntry =
-        Provider.of<EmpProductionEntryProvider>(context, listen: false)
-            .user
-            ?.empProductionEntity;
+  currentDateTime = DateTime.now();
+      now = DateTime.now();
+      currentYear = now.year;
+      currentMonth = now.month;
+      currentDay = now.day;
+      currentHour = now.hour;
+      currentMinute = now.minute;
+      currentSecond = now.second;
 
-    String? shifttodate = productionEntry?.ipdtotime;
+      String? shiftTime;
 
-    final shiftFromtime =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftFromTime;
+      final productionEntry = Provider.of<EmpProductionEntryProvider>(context, listen: false)
+              .user
+              ?.empProductionEntity;
+
+     
+      
+
+      final shiftfromtime =  Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftFromTime;
 
 // Construct the shift start date with current time
-    final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
-        '${currentMonth.toString().padLeft(2, '0')}-'
-        '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
+      final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
+          '${currentMonth.toString().padLeft(2, '0')}-'
+          '${currentDay.toString().padLeft(2, '0')} $shiftfromtime';
 
 // Reassign the current fromtime value based on the condition
-    fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
-        ? shiftStartDateTiming
-        : productionEntry?.ipdtotime;
+      fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+          ? shiftStartDateTiming
+          : productionEntry?.ipdtotime;
+
+
 
 // Retrieve shift details
-    final shiftToTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftToTime;
+ // Retrieve shift details
+      final shiftToTimeString = Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftToTime;
 
-    DateTime? shiftToTime;
-    if (shifttodate != null && shifttodate.isNotEmpty) {
-      // Parse shifttodate if it's not empty
-      shiftToTime = DateTime.parse(shifttodate);
-    } else if (shiftToTimeString != null) {
-      // Parse the shiftToTimeString if shifttodate is not provided
-      final shiftToTimeParts = shiftToTimeString.split(':');
-      final now = DateTime.now();
-      shiftToTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        int.parse(shiftToTimeParts[0]),
-        int.parse(shiftToTimeParts[1]),
-        int.parse(shiftToTimeParts[2]),
-      );
-    }
+      String? shifttodate = productionEntry?.ipdtotime;
+    TimeOfDay shiftendTime = TimeOfDay(
+    hour: int.parse(shiftToTimeString!.split(":")[0]),
+    minute: int.parse(shiftToTimeString!.split(":")[1]),
+  );
 
-// Get the current time
-    final currentTime = DateTime.now();
+      DateTime? shiftToTime;
 
-// Retrieve the shift start time
-    final shiftFromTimeString =
-        Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.shiftFromTime;
+if (shifttodate != null && shifttodate.isNotEmpty) {
+  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
 
-    DateTime? shiftFromTime;
-    if (shiftFromTimeString != null && shiftToTime != null) {
-      // Parse the shiftFromTime but using the same date as shiftToTime
-      final shiftFromTimeParts = shiftFromTimeString.split(':');
+  // Create a DateTime object for the shift end time using the parsed date
+  DateTime shiftEndDateTime = DateTime(
+    parsedShiftToDate.year,
+    parsedShiftToDate.month,
+    parsedShiftToDate.day,
+    shiftendTime.hour,
+    shiftendTime.minute,
+  );
 
-      shiftFromTime = DateTime(
-        shiftToTime.year, // Use the same year as shiftToTime
-        shiftToTime.month, // Use the same month as shiftToTime
-        shiftToTime.day, // Use the same day as shiftToTime
-        int.parse(shiftFromTimeParts[0]),
-        int.parse(shiftFromTimeParts[1]),
-        int.parse(shiftFromTimeParts[2]),
-      );
+  // Check if parsedShiftToDate is before the shift end time (08:00)
+  if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
+    // Do not add a day, keep the same date
+    shiftToTime = parsedShiftToDate;
+  } else {
+    // Add one day if the parsed date is after the shift end time
+    shiftToTime = parsedShiftToDate.add(Duration(days: 1));
+  }
+} else {
+  // Parse the shiftToTimeString if shifttodate is not provided
+  final shiftToTimeParts = shiftToTimeString.split(':');
+  final now = DateTime.now();
+  shiftToTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(shiftToTimeParts[0]),
+    int.parse(shiftToTimeParts[1]),
+    int.parse(shiftToTimeParts[2]),
+  );
+}
 
-      // Adjust the date of shiftToTime if it falls on the next day
-      if (shiftFromTime != null &&
-          shiftToTime != null &&
-          shiftToTime.isBefore(shiftFromTime)) {
-        shiftToTime = shiftToTime.add(Duration(days: 1));
+
+      final shiftFromTimeString =
+          Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.shiftFromTime;
+
+      DateTime? shiftFromTime;
+
+      if (shiftFromTimeString != null && shiftToTime != null) {
+        // Parse the shiftFromTime but using the same date as shiftToTime
+        final shiftFromTimeParts = shiftFromTimeString.split(':');
+
+        shiftFromTime = DateTime(
+          shiftToTime.year, // Use the same year as shiftToTime
+          shiftToTime.month, // Use the same month as shiftToTime
+          shiftToTime.day, // Use the same day as shiftToTime
+          int.parse(shiftFromTimeParts[0]),
+          int.parse(shiftFromTimeParts[1]),
+          int.parse(shiftFromTimeParts[2]),
+          
+        );
+
+       
+        if (shiftFromTime != null &&
+            shiftToTime != null &&
+            shiftToTime.isBefore(shiftFromTime)) {
+          shiftToTime = shiftFromTime.add(Duration(days: 1));
+        }
+
+      
+
+
+        // Adjust the date of shiftToTime if it falls on the next day
+        //   if (shiftFromTime != null &&
+        //       shiftToTime != null ){
+        //       if((shiftToTime.day == DateTime.now().day &&
+        //          shiftToTime.month == DateTime.now().month &&
+        //          shiftToTime.year == DateTime.now().year &&
+        //          shiftToTime.isAfter(shiftFromTime)) ){
+        //        shiftToTime = shiftToTime;
+        //          }
+        //      else {
+        //     shiftToTime = shiftToTime.add(Duration(days: 1));
+
+        // }
+        //       }
       }
 
-      //         if (shiftFromTime != null &&
-      //       shiftToTime != null ){
-      //       if((shiftToTime.day == DateTime.now().day &&
-      //          shiftToTime.month == DateTime.now().month &&
-      //          shiftToTime.year == DateTime.now().year &&
-      //          shiftToTime.isAfter(shiftFromTime)) ){
-      //        shiftToTime = shiftToTime;
-      //          }
-      //      else {
-      //     shiftToTime = shiftToTime.add(Duration(days: 1));
+      if (shiftFromTime != null && shiftToTime != null) {
+        // No adjustment of shiftToTime date, keeping it as-is
+        // if (currentTime.isAfter(shiftFromTime) &&
+        //     currentTime.isBefore(shiftToTime)) {
+        //   // Current time is within the shift time
+        //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+        //       '${currentTime.minute.toString().padLeft(2, '0')}:'
+        //       '${currentTime.second.toString().padLeft(2, '0')}';
+        //   shiftTime = timeString;
+        // } else {
+        //   // Current time is outside the shift time
+        shiftTime = shiftToTimeString;
 
-      // }
-      //       }
-    }
+        if (shiftToTime != null) {
+          setState(() {
+            lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
+                '${shiftToTime.month.toString().padLeft(2, '0')}-'
+                '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
 
-    if (shiftFromTime != null && shiftToTime != null) {
-      // No adjustment of shiftToTime date, keeping it as-is
-      // if (currentTime.isAfter(shiftFromTime) &&
-      //     currentTime.isBefore(shiftToTime)) {
-      //   // Current time is within the shift time
-      //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
-      //       '${currentTime.minute.toString().padLeft(2, '0')}:'
-      //       '${currentTime.second.toString().padLeft(2, '0')}';
-      //   shiftTime = timeString;
-      // } else {
-      // Current time is outside the shift time
-      shiftTime = shiftToTimeString;
-
-      if (shiftToTime != null) {
-        setState(() {
-          lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
-              '${shiftToTime.month.toString().padLeft(2, '0')}-'
-              '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
-
-          print(lastUpdatedTime);
-        });
+            print(lastUpdatedTime);
+          });
+        } else {
+          print("Shift To time is not available.");
+        }
       } else {
-        print("Shift To time is not available.");
+        print("Shift From or To time is not available.");
       }
-    } else {
-      print("Shift From or To time is not available.");
-    }
 
-    shiftStartTime = DateTime.parse(fromtime!);
-    shiftEndtTime = DateTime.parse(lastUpdatedTime!);
+      shiftStartTime = DateTime.parse(fromtime!);
+      shiftEndtTime = DateTime.parse(lastUpdatedTime!);
+
   }
 
   void submitGoodQuantity() {
@@ -586,43 +619,102 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
-      if (currentValue > (overallqty ?? 0)) {
+
+       if (currentValue == previousGoodValue) {
+      errorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        errorMessage = 'Value must be 0';
+      } else {
+        errorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        errorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
         errorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         errorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousGoodValue = currentValue;
       }
+    }
+    
     });
   }
 
-  void submitRejectedQuantity() {
-    final value = rejectedQController.text;
-    final currentValue = int.tryParse(value) ?? 0;
+ void submitRejectedQuantity() {
+  final value = rejectedQController.text;
+  final currentValue = int.tryParse(value) ?? 0;
 
-    setState(() {
-      if (currentValue > (overallqty ?? 0)) {
+  setState(() {
+    // Skip validation if the value has not changed
+    if (currentValue == previousRejectedValue) {
+      rejectederrorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        rejectederrorMessage = 'Value must be 0';
+      } else {
+        rejectederrorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        rejectederrorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
         rejectederrorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         rejectederrorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousRejectedValue = currentValue;
       }
-    });
-  }
+    }
+  });
+}
+
 
   void submitReworkQuantity() {
     final value = reworkQtyController.text;
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
-      if (currentValue > (overallqty ?? 0)) {
+        if (currentValue == previousReworkValue) {
+      reworkerrorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        reworkerrorMessage = 'Value must be 0';
+      } else {
+        reworkerrorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        reworkerrorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
         reworkerrorMessage = 'Value must be between 1 and $overallqty.';
       } else {
         reworkerrorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousReworkValue = currentValue;
       }
+    }
+
     });
   }
 
@@ -710,7 +802,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
               .user
               ?.empProductionEntity;
 
-      String? shifttodate = productionEntry?.ipdtotime;
+     
       
 
       final shiftfromtime =  Provider.of<ShiftStatusProvider>(context, listen: false)
@@ -735,43 +827,49 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
               .user
               ?.shiftStatusdetailEntity
               ?.shiftToTime;
-              
+
+      String? shifttodate = productionEntry?.ipdtotime;
     TimeOfDay shiftendTime = TimeOfDay(
     hour: int.parse(shiftToTimeString!.split(":")[0]),
     minute: int.parse(shiftToTimeString!.split(":")[1]),
   );
 
       DateTime? shiftToTime;
+if (shifttodate != null && shifttodate.isNotEmpty) {
+  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
 
-      if (shifttodate != null && shifttodate.isNotEmpty) {
+  // Create a DateTime object for the shift end time using the parsed date
+  DateTime shiftEndDateTime = DateTime(
+    parsedShiftToDate.year,
+    parsedShiftToDate.month,
+    parsedShiftToDate.day,
+    shiftendTime.hour,
+    shiftendTime.minute,
+  );
 
-        // if(shiftendTime.hour<12){
+  // Check if parsedShiftToDate is before the shift end time (08:00)
+  if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
+    // Do not add a day, keep the same date
+    shiftToTime = parsedShiftToDate;
+  } else {
+    // Add one day if the parsed date is after the shift end time
+    shiftToTime = parsedShiftToDate.add(Duration(days: 1));
+  }
+} else {
+  // Parse the shiftToTimeString if shifttodate is not provided
+  final shiftToTimeParts = shiftToTimeString.split(':');
+  final now = DateTime.now();
+  shiftToTime = DateTime(
+    now.year,
+    now.month,
+    now.day,
+    int.parse(shiftToTimeParts[0]),
+    int.parse(shiftToTimeParts[1]),
+    int.parse(shiftToTimeParts[2]),
+  );
+}
 
-        //    DateTime parsedShiftToDate = DateTime.parse(shifttodate!);
-        //    shiftToTime=parsedShiftToDate.add(Duration(days: 1));
-        // }else{
-        //  shiftToTime = DateTime.parse(shifttodate);
-        // }
-          shiftToTime = DateTime.parse(shifttodate);
 
-      } else if (shiftToTimeString != null) {
-        // Parse the shiftToTimeString if shifttodate is not provided
-        final shiftToTimeParts = shiftToTimeString.split(':');
-        final now = DateTime.now();
-        shiftToTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          int.parse(shiftToTimeParts[0]),
-          int.parse(shiftToTimeParts[1]),
-          int.parse(shiftToTimeParts[2]),
-        );
-      }
-
-// Get the current time
-      final currentTime = DateTime.now();
-
-// Retrieve the shift start time
       final shiftFromTimeString =
           Provider.of<ShiftStatusProvider>(context, listen: false)
               .user
@@ -801,33 +899,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
           shiftToTime = shiftFromTime.add(Duration(days: 1));
         }
 
-        // Adjust the date of shiftToTime if it falls on the next day
-        //   if (shiftFromTime != null &&
-        //       shiftToTime != null ){
-        //       if((shiftToTime.day == DateTime.now().day &&
-        //          shiftToTime.month == DateTime.now().month &&
-        //          shiftToTime.year == DateTime.now().year &&
-        //          shiftToTime.isAfter(shiftFromTime)) ){
-        //        shiftToTime = shiftToTime;
-        //          }
-        //      else {
-        //     shiftToTime = shiftToTime.add(Duration(days: 1));
-
-        // }
-        //       }
       }
 
       if (shiftFromTime != null && shiftToTime != null) {
-        // No adjustment of shiftToTime date, keeping it as-is
-        // if (currentTime.isAfter(shiftFromTime) &&
-        //     currentTime.isBefore(shiftToTime)) {
-        //   // Current time is within the shift time
-        //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
-        //       '${currentTime.minute.toString().padLeft(2, '0')}:'
-        //       '${currentTime.second.toString().padLeft(2, '0')}';
-        //   shiftTime = timeString;
-        // } else {
-        //   // Current time is outside the shift time
         shiftTime = shiftToTimeString;
 
         if (shiftToTime != null) {
@@ -1213,7 +1287,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
     );
   }
 
-  Future<void> _problemEntrywidget(String? shiftFromTime, String? shiftToTime,
+  Future<void> _problemEntrywidget(String? shiftFromTime, String? shiftToTime, int ? processid,int? deptid,int? assetid,
       [int? selectproblemid,
       int? problemCategoryId,
       int? rootcauseid,
@@ -1263,7 +1337,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
                       ipdid: ipdId,
                       ipdincid: ipdincId,
                       closestartTime: closeStartTime,
-                      pwsId: pwsid)),
+                      pwsId: pwsid, processid:processid ?? 0 ,assetid:assetid?? 0 ,deptid:deptid?? 0 ,)),
             ),
           ),
         );
@@ -1968,9 +2042,11 @@ style: ElevatedButton.styleFrom(
     // final productname = Provider.of<ProductProvider>(context, listen: false)
     //     .user
     //     ?.listofProductEntity;
-    final ListOfStoredProblem =
-        Provider.of<ListProblemStoringProvider>(context, listen: true)
-            .getIncidentList;
+    // final ListOfStoredProblem = Provider.of<ListProblemStoringProvider>(context, listen: true)
+    //         .getIncidentList;
+    
+  final provider = context.watch<ListProblemStoringProvider>();
+  final ListOfStoredProblem = provider.getIncidentList;
 
     final activity = Provider.of<ActivityProvider>(context, listen: false)
         .user
@@ -2202,12 +2278,14 @@ style: ElevatedButton.styleFrom(
     height: 50.h,
     onPressed: selectedName != null &&
             locationDropdown != null &&
-            assetCotroller.text.isNotEmpty
+            assetCotroller.text.isNotEmpty && errorMessage==null &&rejectederrorMessage==null && reworkerrorMessage==null
         ? () {
             if (_formkey.currentState?.validate() ?? false) {
               // If the form is valid, perform your actions
               print('Form is valid');
-
+        if (goodQController.text !="0" || rejectedQController.text!="0"|| reworkQtyController.text!="0"){
+               
+            
               // Check if any TextFormField is empty or has an error message before submitting
               if (fromtime != lastUpdatedTime) {
                 bool hasError = false;
@@ -2243,7 +2321,18 @@ style: ElevatedButton.styleFrom(
                   Colors.orange,
                 );
               }
-            } else {
+}
+else{
+   ShowError.showAlert(
+                  context,
+                  "Every value not allow to the 0",
+                  "Alert",
+                  "Warning",
+                  Colors.orange,
+                );
+}
+            }
+            else {
               // Handle the invalid form case
               print('Form is not valid');
             }
@@ -2907,7 +2996,7 @@ Focus(
                                                                             } else if ((seqNo == 1 && overallqty == 0)) {
                                                                               return;
                                                                             } else {
-                                                                              ShowError.showAlert(context, " No Avilable Quantity");
+                                                                              ShowError.showAlert(context, "No Avilable Quantity");
                                                                             }
                                                                           });
                                                                         } else {
@@ -3197,54 +3286,58 @@ Focus(
                                                                     .infinity, // Take full width
                                                                 height: 45.h,
                                                                 child:
-                                                                    CustomNumField(
-                                                                        validation:
-                                                                            (value) {
-                                                                          if (value == null ||
-                                                                              value.isEmpty) {
-                                                                            return 'Enter good qty';
-                                                                          } else if (RegExp(r'^0+$').hasMatch(value)) {
-                                                                            return 'Cannot contain zeros';
-                                                                          }
-                                                                          return null; // Return null if no validation errors
-                                                                        },
-                                                                        controller:
-                                                                            goodQController,
-                                                                        focusNode:
-                                                                            goodQtyFocusNode,
-                                                                        isAlphanumeric:
-                                                                            false,
-                                                                        hintText:
-                                                                            'Good Quantity',
-                                                                        enabled: (selectedName != null &&
-                                                                                cardNoController.text.isNotEmpty &&
-                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
-                                                                            ? true
-                                                                            : false,
-                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
-                                                                            ? (value) {
-                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+                                                      CustomNumField(
+                                                       
+  validation: (value) {
+    // This validation runs during form submission
+    if (value == null || value.isEmpty) {
+      return 'Enter good qty or 0';
+    }
+    return null;
+  },
+  controller: goodQController,
+  focusNode: goodQtyFocusNode,
+  isAlphanumeric: false,
+  hintText: 'Good Quantity',
+  enabled: (selectedName != null &&
+          cardNoController.text.isNotEmpty &&
+          ((seqNo == 1 && reworkValue == 0) ||
+           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
+           (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+      ? true
+      : false,
+  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ?
+  
+  (value) {
+    final currentValue = int.tryParse(value) ?? 0;
 
-                                                                                setState(() {
-                                                                                  // Restore previous good value to overallqty if it was already subtracted
-                                                                                  if (previousGoodValue != null) {
-                                                                                    overallqty = (overallqty ?? 0) + previousGoodValue!;
-                                                                                    previousGoodValue = null; // Reset the previous value after restoring
-                                                                                  }
+    // Clear validation error when user starts typing
+    if (errorMessage != null) {
+      setState(() {
+        errorMessage = null;
+      });
+    }
 
-                                                                                  // Validate the entered value against overallqty
-                                                                                  if (currentValue < 0) {
-                                                                                    errorMessage = 'Value must be greater than 0.';
-                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
-                                                                                    errorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                  } else if ((overallqty ?? 0) == 0) {
-                                                                                    errorMessage = 'Overallqty is 0 so enter 0';
-                                                                                  } else {
-                                                                                    errorMessage = null; // Clear the error message if valid
-                                                                                  }
-                                                                                });
-                                                                              }
-                                                                            : null),
+    setState(() {
+      // Restore previous good value to overallqty if it was already subtracted
+      if (previousGoodValue != null) {
+        overallqty = (overallqty ?? 0) + previousGoodValue!;
+        previousGoodValue = null;
+      }
+
+      // Custom validation for the input value
+      if (currentValue < 0) {
+        errorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+        errorMessage = 'Value must be between 1 and $overallqty.';
+      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+        errorMessage = 'Value must be 0';
+      } else {
+        errorMessage = null; // Clear the error message if valid
+      }
+    });
+  }:null,
+),
                                                               ),
                                                               if (errorMessage !=
                                                                   null)
@@ -3326,7 +3419,7 @@ Focus(
                                                                             (value) {
                                                                           if (value == null ||
                                                                               value.isEmpty) {
-                                                                            return 'Enter Rejected qty';
+                                                                            return 'Enter Rejected qty or 0';
                                                                           }
                                                                           return null; // Return null if no validation errors
                                                                         },
@@ -3359,8 +3452,8 @@ Focus(
                                                                                     rejectederrorMessage = 'Value must be greater than 0.';
                                                                                   } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
                                                                                     rejectederrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                  } else if ((overallqty ?? 0) == 0) {
-                                                                                    rejectederrorMessage = 'Overallqty is 0 so enter 0';
+                                                                                  }  else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+                                                                                       rejectederrorMessage = 'Value must be 0';
                                                                                   } else {
                                                                                     rejectederrorMessage = null; // Clear the error message if valid
                                                                                   }
@@ -3441,7 +3534,7 @@ Focus(
                                                                             (value) {
                                                                           if (value == null ||
                                                                               value.isEmpty) {
-                                                                            return ' Enter rework qty';
+                                                                            return 'Enter rework qty or 0';
                                                                           }
                                                                           return null;
                                                                         },
@@ -3452,7 +3545,7 @@ Focus(
                                                                         isAlphanumeric:
                                                                             false,
                                                                         hintText:
-                                                                            'rework qty  ',
+                                                                            'Rework qty  ',
                                                                         enabled: (selectedName != null &&
                                                                                 cardNoController.text.isNotEmpty &&
                                                                                 ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
@@ -3474,9 +3567,9 @@ Focus(
                                                                                     reworkerrorMessage = 'Value must be greater than 0.';
                                                                                   } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
                                                                                     reworkerrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                                  } else if ((overallqty ?? 0) == 0) {
-                                                                                    reworkerrorMessage = 'Overallqty is 0 so enter 0';
-                                                                                  } else {
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+                                                                                       reworkerrorMessage = 'Value must be 0';
+                                                                                  } else { 
                                                                                     reworkerrorMessage = null; // Clear the error message if valid
                                                                                   }
                                                                                 });
@@ -4306,7 +4399,12 @@ Focus(
 
                                                         _problemEntrywidget(
                                                             fromtime,
-                                                            lastUpdatedTime);
+                                                            lastUpdatedTime,
+                                                            widget.processid,
+                                                            widget.deptid,
+                                                            int.parse(
+                                                                    assetCotroller
+                                                                        .text));
                                                       });
 
                                                       // Update time after each change
@@ -4396,6 +4494,7 @@ Focus(
                                                   width: double.infinity,
                                                   height: 240.h,
                                                   child: ListView.builder(
+                                                   
                                                     shrinkWrap: true,
                                                     itemCount:
                                                         ListOfStoredProblem
@@ -4423,6 +4522,8 @@ Focus(
                                                           _problemEntrywidget(
                                                               item.fromtime,
                                                               lastUpdatedTime,
+                                                              widget.processid,widget.deptid,
+                                                              item.assetId,
                                                               item.problemId,
                                                               item
                                                                   .problemCategoryId,

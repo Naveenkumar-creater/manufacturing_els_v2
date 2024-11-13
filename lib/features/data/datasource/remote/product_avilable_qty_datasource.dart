@@ -1,6 +1,4 @@
 import 'package:prominous/features/data/model/product_avilable_qty_model.dart';
-import 'package:prominous/features/data/model/recent_activity_model.dart';
-
 import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
@@ -19,6 +17,6 @@ class ProductAvilableQtyDatasourceImpl extends ProductAvilableQtyDatasource {
      final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
     final result = ProductAvilableQtyModel.fromJson(response);
    
-        return result;
+    return result;
   }
 }

@@ -1,10 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:async';
 import 'dart:convert';
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -565,7 +563,7 @@ reworkValue ??=0;
              fromtime = editEntry?.ipdFromTime ;
      totime = editEntry?.ipdToTime ;
     
-              empTimingUpdation(fromtime! , totime!);
+              empTimingUpdation(fromtime!, totime!);
                 _storeIncidentList();
                 _storedNonProductionList();
      
@@ -575,16 +573,16 @@ reworkValue ??=0;
   fromMinutes = endTime.difference(StartfromTime).inMinutes ?? 0;
     // Initialize controllers and error messages based on list length
  
-        final listofeditempworkstation =Provider.of<EditEmpListProvider>(context, listen: false)
-            .user
-            ?.editEmplistEntity;
+    //     final listofeditempworkstation =Provider.of<EditEmpListProvider>(context, listen: false)
+    //         .user
+    //         ?.editEmplistEntity;
 
-      if(listofeditempworkstation !=null){
-      for (int i = 0; i < listofeditempworkstation.length; i++) {
-      empTimingTextEditingControllers.add(TextEditingController());
-      errorMessages.add(null); // Initially no error
-    }
-      }
+    //   if(listofeditempworkstation !=null){
+    //   for (int i = 0; i < listofeditempworkstation.length; i++) {
+    //   empTimingTextEditingControllers.add(TextEditingController());
+    //   errorMessages.add(null); // Initially no error
+    // }
+    //   }
 
 
    
@@ -625,45 +623,105 @@ reworkValue ??=0;
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
-     if (currentValue > (overallqty ?? 0)) {
-        errorMessage = 'Value must be between 0 and $overallqty.';
+
+       if (currentValue == previousGoodValue) {
+      errorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        errorMessage = 'Value must be 0';
       } else {
         errorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        errorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
+        errorMessage = 'Value must be between 1 and $overallqty.';
+      } else {
+        errorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousGoodValue = currentValue;
       }
+    }
+    
     });
   }
 
-  void submitRejectedQuantity() {
-    final value = rejectedQController.text;
-    final currentValue = int.tryParse(value) ?? 0;
+ void submitRejectedQuantity() {
+  final value = rejectedQController.text;
+  final currentValue = int.tryParse(value) ?? 0;
 
-    setState(() {
-      if (currentValue > (overallqty ?? 0)) {
-        rejectederrorMessage = 'Value must be between 0 and $overallqty.';
+  setState(() {
+    // Skip validation if the value has not changed
+    if (currentValue == previousRejectedValue) {
+      rejectederrorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        rejectederrorMessage = 'Value must be 0';
       } else {
         rejectederrorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        rejectederrorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
+        rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+      } else {
+        rejectederrorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousRejectedValue = currentValue;
       }
-    });
-  }
+    }
+  });
+}
+
 
   void submitReworkQuantity() {
     final value = reworkQtyController.text;
     final currentValue = int.tryParse(value) ?? 0;
 
     setState(() {
- if (currentValue > (overallqty ?? 0)) {
-        reworkerrorMessage = 'Value must be between 0 and $overallqty.';
+        if (currentValue == previousReworkValue) {
+      reworkerrorMessage = null;
+      return;
+    }
+
+    if (overallqty == 0) {
+      // When overallqty is 0, the only valid input should be 0
+      if (currentValue != 0) {
+        reworkerrorMessage = 'Value must be 0';
       } else {
         reworkerrorMessage = null;
+      }
+    } else {
+      // Validate the entered value against overallqty
+      if (currentValue < 0) {
+        reworkerrorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0)) {
+        reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+      } else {
+        reworkerrorMessage = null;
+        // Update overallqty and store the validated value
         overallqty = (overallqty ?? 0) - currentValue;
         previousReworkValue = currentValue;
       }
+    }
+
     });
   }
+
 
 void addFocusListeners() {
   goodQtyFocusNode.addListener(() {
@@ -804,7 +862,7 @@ void clearTextFields() {
 
   
 
-  Future<void> _problemEntrywidget(String? shiftFromTime, String? shiftToTime,
+  Future<void> _problemEntrywidget(String? shiftFromTime, String? shiftToTime, processid,deptid,assetid,
       [int? selectproblemid,
       int? problemCategoryId,
       int? rootcauseid,
@@ -854,6 +912,7 @@ void clearTextFields() {
                     ipdid: ipdId,
                     ipdincid:ipdincId ,
                     closestartTime: closeStartTime,
+                    processid:processid ,assetid:assetid ,deptid:deptid
 
                   )),
             ),
@@ -909,6 +968,9 @@ void clearTextFields() {
                                                                         Navigator.pop(context);
 
                                   await updateproduction(widget.processid);
+
+                                   workstationProblemService.getListofProblem(context: context, pwsid: widget.pwsId ?? 0);
+                                   _storedWorkstationProblemList();
 
                                   // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>
 
@@ -1076,26 +1138,29 @@ Future<void> _nonProductionActivityPopup(
     }
   }
 
-void empTimingUpdation(String startTime, String endTime) {
+  void empTimingUpdation(String startTime, String endTime) {
   DateTime fromDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(startTime);
   DateTime toDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(endTime);
 
   Duration timeoutDuration = toDate.difference(fromDate);
   int minutes = timeoutDuration.inMinutes;
 
-  final listofempworkstation = Provider.of<EditEmpListProvider>(context, listen: false)
-      .user
-      ?.editEmplistEntity;
+  final listofempworkstation =
+      Provider.of<EditEmpListProvider>(context, listen: false)
+          .user
+          ?.editEmplistEntity;
 
   if (listofempworkstation != null) {
     setState(() {
-      // Ensure empTimingTextEditingControllers has the correct number of controllers
-      empTimingTextEditingControllers.clear();  // Clear previous controllers
+      // Clear previous controllers and messages to avoid duplicates
+      empTimingTextEditingControllers.clear();
+      errorMessages.clear();
 
-      for (int i = 0; i <=listofempworkstation.length; i++) {
+      for (int i = 0; i < listofempworkstation.length; i++) {
         TextEditingController controller = TextEditingController();
         controller.text = minutes.toString();
         empTimingTextEditingControllers.add(controller);
+        errorMessages.add(null); // No initial error
       }
     });
   } else {
@@ -1285,25 +1350,68 @@ final ListOfStoredProblem =
                                           child: CustomButton(
                                             width: 150,
                                             height: 50,
-                                            onPressed: selectedName != null && locationDropdown!=null&& assetCotroller.text.isNotEmpty
-                                                ? () {
-                                                    if (_formkey.currentState
-                                                            ?.validate() ??
-                                                        false) {
-                                                      // If the form is valid, perform your actions
-                                                      print('Form is valid');
+                                            onPressed:  selectedName != null &&
+            locationDropdown != null &&
+            assetCotroller.text.isNotEmpty && errorMessage==null &&rejectederrorMessage==null && reworkerrorMessage==null
+        ? () {
+            if (_formkey.currentState?.validate() ?? false) {
+              // If the form is valid, perform your actions
+              print('Form is valid');
+        if (goodQController.text !="0" || rejectedQController.text!="0"|| reworkQtyController.text!="0"){
+               
+            
+              // Check if any TextFormField is empty or has an error message before submitting
+              if (fromtime != totime) {
+                bool hasError = false;
 
-    _submitPop(context);
-                                                        }
- 
-                                                     else {
-                                                      // If the form is not valid, you can handle this case as needed
-                                                      print(
-                                                          'Form is not valid');
-                                                      // Optionally, show an error message or handle the invalid case
-                                                    }
-                                                  }
-                                                : null,
+                for (var i = 0; i < empTimingTextEditingControllers.length; i++) {
+                  String controllerText = empTimingTextEditingControllers[i].text;
+                  String? errorMessage = (i < errorMessages.length) ? errorMessages[i] : null;
+
+                  // Only trigger hasError if the field is empty or errorMessage contains text
+                  if (controllerText.isEmpty || (errorMessage != null && errorMessage.isNotEmpty)) {
+                    hasError = true;
+                    break;
+                  }
+                }
+
+                if (hasError) {
+                  ShowError.showAlert(
+                    context,
+                    "Enter Valid Employee Worked Minutes",
+                    "Alert",
+                    "Warning",
+                    Colors.orange,
+                  );
+                } else {
+                  _submitPop(context);
+                }
+              } else {
+                ShowError.showAlert(
+                  context,
+                  "The fromtime and totime are the same, so you cannot submit any values.",
+                  "Alert",
+                  "Warning",
+                  Colors.orange,
+                );
+              }
+}
+else{
+   ShowError.showAlert(
+                  context,
+                  "Every value not allow to the 0",
+                  "Alert",
+                  "Warning",
+                  Colors.orange,
+                );
+}
+            }
+            else {
+              // Handle the invalid form case
+              print('Form is not valid');
+            }
+          }
+        : null,
                                             child: Text(
                                               'Submit',
                                               style: TextStyle(
@@ -2010,47 +2118,58 @@ final ListOfStoredProblem =
                                                        SizedBox(
                                                                 width: 170.w, // Take full width
                                                                 height: 45.h,
-                                                                child: CustomNumField(
-                                                                  validation: (value) {
-                                                                    if (value == null || value.isEmpty) {
-                                                                      return 'Enter good qty';
-                                                                    } else if (RegExp(r'^0+$').hasMatch(value)) {
-                                                                      return 'Cannot contain zeros';
-                                                                    }
-                                                                    return null; // Return null if no validation errors
-                                                                  },
-                                                                  controller: goodQController,
-                                                                  focusNode: goodQtyFocusNode,
-                                                                  isAlphanumeric: false,
-                                                                  hintText: 'Good Quantity',
-                              enabled:(selectedName != null &&
-                                                                                ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0)))
-                                                                            ? true
-                                                                            : false,
-                      
-                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))?  (value) {
-                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-                                                  
-                                                                    setState(() {
-                                                                      // Restore previous good value to overallqty if it was already subtracted
-                                                                      if (previousGoodValue != null) {
-                                                                        overallqty = (overallqty ?? 0) + previousGoodValue!;
-                                                                        previousGoodValue = null; // Reset the previous value after restoring
-                                                                      }
-                                                  
-                                                                      // Validate the entered value against overallqty
-                                                                       if (currentValue < 0) {
-                                                                        errorMessage = 'Value must be greater than 0.';
-                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
-                                                                        errorMessage = 'Value must be between 1 and $overallqty.';
-                                                                      }else if ((overallqty ?? 0)==0) {
-                                                                        errorMessage = 'Overallqty is 0 so enter 0';
-                                                                      }  else {
-                                                                        errorMessage = null; // Clear the error message if valid
-                                                                      }
-                                                                    });
-                                                                  }:null
-                                                                ),
+                                                                child:   CustomNumField(
+                                                       
+  validation: (value) {
+    // This validation runs during form submission
+    if (value == null || value.isEmpty) {
+      return 'Enter good qty or 0';
+    }
+    return null;
+  },
+  controller: goodQController,
+  focusNode: goodQtyFocusNode,
+  isAlphanumeric: false,
+  hintText: 'Good Quantity',
+  enabled: (selectedName != null &&
+          cardNoController.text.isNotEmpty &&
+          ((seqNo == 1 && reworkValue == 0) ||
+           (seqNo == 1 && reworkValue == 1 && avilableqty != 0) ||
+           (seqNo != 1 && avilableqty != 0) && avilableqty != null))
+      ? true
+      : false,
+  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ?
+  
+  (value) {
+    final currentValue = int.tryParse(value) ?? 0;
+
+    // Clear validation error when user starts typing
+    if (errorMessage != null) {
+      setState(() {
+        errorMessage = null;
+      });
+    }
+
+    setState(() {
+      // Restore previous good value to overallqty if it was already subtracted
+      if (previousGoodValue != null) {
+        overallqty = (overallqty ?? 0) + previousGoodValue!;
+        previousGoodValue = null;
+      }
+
+      // Custom validation for the input value
+      if (currentValue < 0) {
+        errorMessage = 'Value must be greater than 0.';
+      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+        errorMessage = 'Value must be between 1 and $overallqty.';
+      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+        errorMessage = 'Value must be 0';
+      } else {
+        errorMessage = null; // Clear the error message if valid
+      }
+    });
+  }:null,
+),
                                                               ),
                                                               if (errorMessage != null)
                                                                 Padding(
@@ -2103,45 +2222,52 @@ final ListOfStoredProblem =
                                                            SizedBox(
                                                                 width: 170.h, // Take full width
                                                                 height: 45.h,
-                                                                child: CustomNumField(
-                                                                  validation: (value) {
-                                                                    if (value == null || value.isEmpty) {
-                                                                      return 'Enter Rejected qty';
-                                                                    }
-                                                                    return null; // Return null if no validation errors
-                                                                  },
-                                                                  focusNode: rejectedQtyFocusNode,
-                                                                  controller: rejectedQController,
-                                                                  isAlphanumeric: false,
-                                                                  hintText: 'Rejected Quantity',
-                                          enabled:(selectedName != null &&
+                                                                child:  CustomNumField(
+                                                                        validation:
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return 'Enter Rejected qty or 0';
+                                                                          }
+                                                                          return null; // Return null if no validation errors
+                                                                        },
+                                                                        focusNode:
+                                                                            rejectedQtyFocusNode,
+                                                                        controller:
+                                                                            rejectedQController,
+                                                                        isAlphanumeric:
+                                                                            false,
+                                                                        hintText:
+                                                                            'Rejected Quantity',
+                                                                        enabled: (selectedName != null &&
                                                                                 cardNoController.text.isNotEmpty &&
                                                                                 ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
                                                                             ? true
                                                                             : false,
-                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
-                                                                    final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
-                                                  
-                                                                    setState(() {
-                                                                      // Restore previous rejected value to overallqty if it was already subtracted
-                                                                      if (previousRejectedValue != null) {
-                                                                        overallqty = (overallqty ?? 0) + previousRejectedValue!;
-                                                                        previousRejectedValue = null; // Reset the previous value after restoring
-                                                                      }
-                                                  
-                                                                      // Validate the entered value against overallqty
-                                                                         if (currentValue < 0) {
-                                                                        rejectederrorMessage = 'Value must be greater than 0.';
-                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
-                                                                        rejectederrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                      }else if ((overallqty ?? 0)==0) {
-                                                                        rejectederrorMessage = 'Overallqty is 0 so enter 0';
-                                                                      } else {
-                                                                        rejectederrorMessage = null; // Clear the error message if valid
-                                                                      }
-                                                                    });
-                                                                  }:null
-                                                                ),
+                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0; // Parse the entered value
+
+                                                                                setState(() {
+                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                  if (previousRejectedValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousRejectedValue!;
+                                                                                    previousRejectedValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    rejectederrorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    rejectederrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  }  else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+                                                                                       rejectederrorMessage = 'Value must be 0';
+                                                                                  } else {
+                                                                                    rejectederrorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                               ),
                                                               if (rejectederrorMessage != null)
                                                                 Padding(
@@ -2194,59 +2320,52 @@ final ListOfStoredProblem =
                                                       SizedBox(
                                                                 width:170.h ,
                                                                 height: 45.h,
-                                                                child: CustomNumField(
-                                                                  validation:
-                                                                      (value) {
-                                                                    if (value ==
-                                                                            null ||
-                                                                        value
-                                                                            .isEmpty) {
-                                                                      return ' Enter rework qty';
-                                                                    }
-                                                                    return null;
-                                                                  },
-                                                                  focusNode:
-                                                                      reworkFocusNode,
-                                                                  controller:
-                                                                      reworkQtyController,
-                                                                  isAlphanumeric:
-                                                                      true,
-                                                                  hintText:
-                                                                      'rework qty  ',
-                                                                      enabled:(selectedName != null &&
+                                                                child:  CustomNumField(
+                                                                        validation:
+                                                                            (value) {
+                                                                          if (value == null ||
+                                                                              value.isEmpty) {
+                                                                            return 'Enter rework qty or 0';
+                                                                          }
+                                                                          return null;
+                                                                        },
+                                                                        focusNode:
+                                                                            reworkFocusNode,
+                                                                        controller:
+                                                                            reworkQtyController,
+                                                                        isAlphanumeric:
+                                                                            false,
+                                                                        hintText:
+                                                                            'Rework qty  ',
+                                                                        enabled: (selectedName != null &&
                                                                                 cardNoController.text.isNotEmpty &&
                                                                                 ((seqNo == 1 && reworkValue == 0) || (seqNo == 1 && reworkValue == 1 && avilableqty != 0) || (seqNo != 1 && avilableqty != 0) && avilableqty != null))
                                                                             ? true
                                                                             : false,
-                                                                  onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1)) ? (value) {
-                                                                 final currentValue = int.tryParse(value) ?? 0;
-                                                          
-                                                                    setState(() {
-                                                                      // Restore previous rejected value to overallqty if it was already subtracted
-                                                                      if (previousReworkValue !=
-                                                                          null) {
-                                                                        overallqty =
-                                                                            (overallqty ??
-                                                                                    0) +
-                                                                                previousReworkValue!;
-                                                                        previousReworkValue =
-                                                                            null; // Reset the previous value after restoring
-                                                                      }
-                                                          
-                                                                      // Validate the entered value against overallqty
-                                                                         if (currentValue < 0) {
-                                                                        reworkerrorMessage = 'Value must be greater than 0.';
-                                                                      } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0)!=0) {
-                                                                        reworkerrorMessage = 'Value must be between 1 and $overallqty.';
-                                                                      }else if ((overallqty ?? 0)==0) {
-                                                                        reworkerrorMessage = 'Overallqty is 0 so enter 0';
-                                                                      } else {
-                                                                        reworkerrorMessage =
-                                                                            null; // Clear the error message if valid
-                                                                      }
-                                                                    });
-                                                                  }: null
-                                                                ),
+                                                                        onChanged: (seqNo != 1 || (seqNo == 1 && reworkValue == 1))
+                                                                            ? (value) {
+                                                                                final currentValue = int.tryParse(value) ?? 0;
+
+                                                                                setState(() {
+                                                                                  // Restore previous rejected value to overallqty if it was already subtracted
+                                                                                  if (previousReworkValue != null) {
+                                                                                    overallqty = (overallqty ?? 0) + previousReworkValue!;
+                                                                                    previousReworkValue = null; // Reset the previous value after restoring
+                                                                                  }
+
+                                                                                  // Validate the entered value against overallqty
+                                                                                  if (currentValue < 0) {
+                                                                                    reworkerrorMessage = 'Value must be greater than 0.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) != 0) {
+                                                                                    reworkerrorMessage = 'Value must be between 1 and $overallqty.';
+                                                                                  } else if (currentValue > (overallqty ?? 0) && (overallqty ?? 0) == 0) {
+                                                                                       reworkerrorMessage = 'Value must be 0';
+                                                                                  } else { 
+                                                                                    reworkerrorMessage = null; // Clear the error message if valid
+                                                                                  }
+                                                                                });
+                                                                              }
+                                                                            : null),
                                                               ),
                                                               if (reworkerrorMessage !=
                                                                   null)
@@ -2733,50 +2852,67 @@ Container(
             ),
           ),
           onChanged: (value) {
-     DateTime startTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
-                                                                        DateTime endTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
-                                                                        fromMinutes = endTime
-                                                                            ?.difference(startTime!)
+                            DateTime fromTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(fromtime!);
+                                                                        DateTime toTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(totime!);
+                                                                        fromMinutes = toTime
+                                                                            ?.difference(fromTime!)
                                                                             .inMinutes;
 
-      
-            setState(() {
-              
-            final enteredMinutes = int.tryParse(value) ?? 0;
-              if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-                errorMessages[index] = 'Value b/w 0 to $fromMinutes minutes.';
-              } else {
-                errorMessages[index] = null; // Clear error message if valid
-              }
-            });
-          },
-          // onEditingComplete: () {
-          //   final value = empTimingTextEditingControllers[index].text;
-          //   final enteredMinutes = int.tryParse(value) ?? -1;
-      
-          //   setState(() {
-          //     if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
-          //       errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
-          //     } else {
-          //       errorMessages[index] = null; // Clear error message if valid
-          //     }
-          //   });
-          // },
-        ),
-      ),
-      // This space will display the error message but won't change the TextFormField size
-      if (errorMessages[index] != null) 
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 2.0),
-          child: Text(
-            errorMessages[index]!,
-            style: TextStyle(
-              fontSize: 9.0, // Adjust the font size as needed
-              color: Colors.red,
-              height: 1.0, // Adjust the height to control spacing
-            ),
-          ),
-        ),
+                                                                        setState(
+                                                                            () {
+                                                                                  final enteredMinutes =
+                                                                            int.tryParse(value) ??
+                                                                               0 ;
+                                                                          if (enteredMinutes < 0 ||
+                                                                              enteredMinutes > fromMinutes!) {
+                                                                            errorMessages[index] =
+                                                                                'Value b/w 0 to $fromMinutes minutes.';
+                                                                          } else {
+                                                                            errorMessages[index] =
+                                                                                null; // Clear error message if valid
+                                                                          }
+                                                                        });
+                                                                      },
+                                                                      // onEditingComplete: () {
+                                                                      //   final value = empTimingTextEditingControllers[index].text;
+                                                                      //   final enteredMinutes = int.tryParse(value) ?? -1;
+
+                                                                      //   setState(() {
+                                                                      //     if (enteredMinutes < 0 || enteredMinutes > fromMinutes!) {
+                                                                      //       errorMessages[index] = 'Value 0 to $fromMinutes minutes.';
+                                                                      //     } else {
+                                                                      //       errorMessages[index] = null; // Clear error message if valid
+                                                                      //     }
+                                                                      //   });
+                                                                      // },
+                                                                    ),
+                                                                  ),
+                                                                  // This space will display the error message but won't change the TextFormField size
+                                                                  if (errorMessages[
+                                                                          index] !=
+                                                                      null)
+                                                                    Padding(
+                                                                      padding: const EdgeInsets
+                                                                          .only(
+                                                                          left:
+                                                                              8.0,
+                                                                          top:
+                                                                              2.0),
+                                                                      child:
+                                                                          Text(
+                                                                        errorMessages[
+                                                                            index]!,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              9.0, // Adjust the font size as needed
+                                                                          color:
+                                                                              Colors.red,
+                                                                          height:
+                                                                              1.0, // Adjust the height to control spacing
+                                                                        ),
+                                                                      ),
+                                                                    ),
     ],
   ),
 ),
@@ -2978,8 +3114,16 @@ Container(
                                                                     
                                                                         assetid: int.parse(assetCotroller.text)
                                                                     );
-                                                         _problemEntrywidget(fromtime,totime);
+                                                        _problemEntrywidget(
+                                                            fromtime,
+                                                            totime,
+                                                            widget.processid,
+                                                            widget.deptid,
+                                                            int.parse(
+                                                                    assetCotroller
+                                                                        .text));
                                                       });
+                                                  
 
                                                       // Update time after each change
                                                     },
@@ -3077,6 +3221,9 @@ Container(
                                                           _problemEntrywidget(
                                                             incidentlist.fromtime,
                                                               incidentlist.endtime,
+                                                              widget.processid,
+                                                              widget.deptid,
+                                                              incidentlist.assetId,
                                                               incidentlist.problemId,
                                                               incidentlist.problemCategoryId,
                                                               incidentlist.rootCauseId,

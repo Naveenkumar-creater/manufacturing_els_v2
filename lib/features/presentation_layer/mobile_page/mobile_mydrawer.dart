@@ -85,6 +85,7 @@ Future<void> getProcess() async {
     return Drawer(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       backgroundColor: Colors.white,
+
       elevation: 0,
       width: 250.w,
       child: SingleChildScrollView(
@@ -197,98 +198,99 @@ Future<void> getProcess() async {
                               ],
                             ),
                           ),
-                 onTap: () async {
+                onTap: () async {
+  if (isTapped) {
+    return;
+  }
+  isTapped = true;
 
-                  if(isTapped){
-                    return;
-                  }
-                  isTapped=true;
-
-           
-     
-  // Show loading dialog
-  // showDialog(
-  //   context: context,
-  //   barrierDismissible: false,
-  //   builder: (context) => Center(
-  //     child: CircularProgressIndicator(),
-  //   ),
-  // );
   Future.microtask(() async {
-  try {
-            setState(() {
-    _selectedIndex = index;
-  });
+    try {
+      if (!mounted) return; // Check if the widget is still mounted
+      setState(() {
+        _selectedIndex = index;
+      });
 
-  final processId = processList[index].processId ?? 0;
-  final deptId = processList[index].deptId ?? 0;
+      final processId = processList[index].processId ?? 0;
+      final deptId = processList[index].deptId ?? 0;
 
-    // Fetch shift status
-    await shiftStatusService.getShiftStatus(
-      context: context,
-      deptid: deptId,
-      processid: processId,
-    );
+    
 
-    final psId = Provider.of<ShiftStatusProvider>(context, listen: false)
-            .user
-            ?.shiftStatusdetailEntity
-            ?.psId ??
-        0;
+      // Fetch shift status
+      if (!mounted) return;
+      await shiftStatusService.getShiftStatus(
+        context: context,
+        deptid: deptId,
+        processid: processId,
+      );
 
-    if (psId == 0) {
-      throw Exception("Invalid psId: $psId");
+      final psId = Provider.of<ShiftStatusProvider>(context, listen: false)
+              .user
+              ?.shiftStatusdetailEntity
+              ?.psId ??
+          0;
+
+      if (psId == 0) {
+        throw Exception("Invalid psId: $psId");
+      }
+
+      // Fetch employee list
+      if (!mounted) return;
+      await employeeApiService.employeeList(
+        context: context,
+        processid: processId,
+        deptid: deptId,
+        psid: psId,
+      );
+
+      // Fetch list of workstations
+      if (!mounted) return;
+      await listofworkstationService.getListofWorkstation(
+        context: context,
+        deptid: deptId,
+        psid: psId,
+        processid: processId,
+      );
+
+      // Fetch attendance count
+      if (!mounted) return;
+      await attendanceCountService.getAttCount(
+        context: context,
+        id: processId,
+        deptid: deptId,
+        psid: psId,
+      );
+
+      // Fetch actual quantity
+      if (!mounted) return;
+      await actualQtyService.getActualQty(
+        context: context,
+        id: processId,
+        psid: psId,
+      );
+
+      // Fetch plan quantity
+      if (!mounted) return;
+      await planQtyService.getPlanQty(
+        context: context,
+        id: processId,
+        psid: psId,
+      );
+
+        Navigator.pop(context);
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      await Future.delayed(Duration(milliseconds: 200));
+      if (mounted) {
+        setState(() {
+          isTapped = false;
+        });
+      }
     }
-
-    // Fetch employee list
-    await employeeApiService.employeeList(
-      context: context,
-      processid: processId,
-      deptid: deptId,
-      psid: psId,
-    );
-
-    // Fetch list of workstations
-    await listofworkstationService.getListofWorkstation(
-      context: context,
-      deptid: deptId,
-      psid: psId,
-      processid: processId,
-    );
-
-       attendanceCountService
-                                                    .getAttCount(
-                                                        context: context,
-                                                        id: processId,
-                                                                
-                                                        deptid: deptId,
-                                                        psid: psId);
-    // Fetch actual quantity
-    await actualQtyService.getActualQty(
-      context: context,
-      id: processId,
-      psid: psId,
-    );
-
-    // Fetch plan quantity
-    await planQtyService.getPlanQty(
-      context: context,
-      id: processId,
-      psid: psId,
-    );
-   Navigator.pop(context);
-             
-           } catch (e) {
-                print('Error fetching data: $e');
-           }finally{
-   await Future.delayed(Duration(milliseconds: 300));
-      isTapped = false;
-
-           }     
-
-                 });
-
+  });
 }
+
 
                         )),
               ),
