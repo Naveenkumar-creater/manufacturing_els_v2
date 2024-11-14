@@ -368,44 +368,41 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
                                       Padding(
                                         padding: EdgeInsets.symmetric(
                                             vertical: 8.h, horizontal: 20.w),
-                                        child: Container(
-                                            width: 90.w,
-                                            height: 35.h,
-                                            child: CustomButton(
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        MobileEmpWorkstationProductionEntryPage(
-                                                      // empid: employee.empPersonid!,
-                                                      processid: processid ?? 1,
-                                                      deptid: widget.deptid,
-                                                      isload: true,
-                                                      pwsid: workstaion?.pwsId,
-                                                      workstationName:
-                                                          workstaion?.pwsName,
-                                                      // attenceid:
-                                                      //     employee.attendanceid,
-                                                      // attendceStatus:
-                                                      //     employee.flattstatus,
-                                                      // shiftId: widget.shiftid,
-                                                      psid: widget.psid,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              width: 80.w,
-                                              height: 40.h,
-                                              backgroundColor: Colors.green,
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                              child: Text("Add",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontFamily: "lexend",
-                                                      fontSize: 12.sp)),
-                                            )),
+                                        child: CustomButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    MobileEmpWorkstationProductionEntryPage(
+                                                  // empid: employee.empPersonid!,
+                                                  processid: processid ?? 1,
+                                                  deptid: widget.deptid,
+                                                  isload: true,
+                                                  pwsid: workstaion?.pwsId,
+                                                  workstationName:
+                                                      workstaion?.pwsName,
+                                                  // attenceid:
+                                                  //     employee.attendanceid,
+                                                  // attendceStatus:
+                                                  //     employee.flattstatus,
+                                                  // shiftId: widget.shiftid,
+                                                  psid: widget.psid,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          width: 80.w,
+                                          height: 30.h,
+                                          backgroundColor: Colors.green,
+                                          borderRadius:
+                                              BorderRadius.circular(50.r),
+                                          child: Text("Add",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: "lexend",
+                                                  fontSize: 12.sp)),
+                                        ),
                                       ),
                                     ],
                                   )
@@ -658,111 +655,117 @@ void _workstationPopup({
               color: Colors.white,
               width:250.w,
               height: MediaQuery.of(context).size.height,
-              child: Drawer(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                backgroundColor: Color.fromARGB(150, 235, 236, 255),
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 16.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Select Workstation',
-                          style: TextStyle(
-                              fontSize: 18.sp,
-                              color: Color.fromARGB(255, 80, 96, 203),
-                              fontFamily: "Lexend",
-                              fontWeight: FontWeight.w500),
-                        ),
-                        SizedBox(height: 20.h),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: listofWorkstation?.length,
-                            itemBuilder: (context, index) {
-                              final workstation = listofWorkstation?[index];
-
-                              return GestureDetector(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 16.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      top: (index == 0)
-                                          ? BorderSide(
-                                              width: 1,
-                                              color: Colors.grey.shade300)
-                                          : BorderSide.none,
-                                      bottom: BorderSide(
-                                          width: 1,
-                                          color: Colors.grey.shade300),
+              child: WillPopScope(
+  onWillPop: () async {
+    // Disable closing the drawer when `isTapped` is true.
+    return !isTapped;
+  },
+                child: Drawer(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: Color.fromARGB(150, 235, 236, 255),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 16.w),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Select Workstation',
+                            style: TextStyle(
+                                fontSize: 18.sp,
+                                color: Color.fromARGB(255, 80, 96, 203),
+                                fontFamily: "Lexend",
+                                fontWeight: FontWeight.w500),
+                          ),
+                          SizedBox(height: 20.h),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: listofWorkstation?.length,
+                              itemBuilder: (context, index) {
+                                final workstation = listofWorkstation?[index];
+                
+                                return GestureDetector(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 16.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        top: (index == 0)
+                                            ? BorderSide(
+                                                width: 1,
+                                                color: Colors.grey.shade300)
+                                            : BorderSide.none,
+                                        bottom: BorderSide(
+                                            width: 1,
+                                            color: Colors.grey.shade300),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "${workstation?.pwsName} ",
+                                      style: TextStyle(
+                                          color: Colors.black54,
+                                          fontFamily: "Lexend",
+                                          fontSize: 12.sp),
                                     ),
                                   ),
-                                  child: Text(
-                                    "${workstation?.pwsName} ",
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontFamily: "Lexend",
-                                        fontSize: 12.sp),
-                                  ),
-                                ),
-onTap: () async {
-  // Prevent multiple taps immediately
-  if (isTapped) {
-    print("Tap ignored to prevent multiple triggers.");
-    return;
-  }
-
-  // Disable further taps
-  isTapped = true;
-
-  // Use Future.microtask to ensure immediate UI update
-  Future.microtask(() async {
-    try {
-      // Perform your asynchronous operations
-      await _changeWorkstation(
-        empPersonid: empPersonid,
-        pwesId: pwseId,
-        pwsId: workstation?.pwsId,
-        attId: attid,
-      );
-
-      await employeeApiService.employeeList(
-        context: parentContext,
-        processid: processId ?? 0,
-        deptid: widget.deptid ?? 1,
-        psid: widget.psid ?? 0,
-      );
-
-      await listofworkstationService.getListofWorkstation(
-        context: parentContext,
-        deptid: widget.deptid ?? 1057,
-        psid: widget.psid ?? 0,
-        processid: processId ?? 0,
-      );
-
-      // Close the dialog after the operations complete
-      Navigator.of(parentContext).pop();
-    } catch (e) {
-      // Handle errors gracefully
-      print("Error during workstation change: $e");
-    } finally {
-      // Reset the tap flag after the transition completes
-      await Future.delayed(Duration(milliseconds: 300));
-      isTapped = false;
-    }
-  });
-},
-
-
-                              );
-                            },
+                onTap: () async {
+                  // Prevent multiple taps immediately
+                  if (isTapped) {
+                    print("Tap ignored to prevent multiple triggers.");
+                    return;
+                  }
+                
+                  // Disable further taps
+                  isTapped = true;
+                
+                  // Use Future.microtask to ensure immediate UI update
+                  Future.microtask(() async {
+                    try {
+                      // Perform your asynchronous operations
+                      await _changeWorkstation(
+                        empPersonid: empPersonid,
+                        pwesId: pwseId,
+                        pwsId: workstation?.pwsId,
+                        attId: attid,
+                      );
+                
+                      await employeeApiService.employeeList(
+                        context: parentContext,
+                        processid: processId ?? 0,
+                        deptid: widget.deptid ?? 1,
+                        psid: widget.psid ?? 0,
+                      );
+                
+                      await listofworkstationService.getListofWorkstation(
+                        context: parentContext,
+                        deptid: widget.deptid ?? 1057,
+                        psid: widget.psid ?? 0,
+                        processid: processId ?? 0,
+                      );
+                
+                      // Close the dialog after the operations complete
+                      Navigator.of(parentContext).pop();
+                    } catch (e) {
+                      // Handle errors gracefully
+                      print("Error during workstation change: $e");
+                    } finally {
+                      // Reset the tap flag after the transition completes
+                      await Future.delayed(Duration(milliseconds: 300));
+                      isTapped = false;
+                    }
+                  });
+                },
+                
+                
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -798,7 +801,7 @@ onTap: () async {
     final Size size = MediaQuery.of(context).size;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
       child: Container(
         height: 300.h,
         decoration: BoxDecoration(
@@ -848,7 +851,7 @@ onTap: () async {
                             child: ExpansionTile(
                                 shape: Border(bottom: BorderSide.none),
                                 childrenPadding: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 8.h),
+                                    horizontal: 4.w, vertical: 4.h),
                                      trailing: Icon(
     Icons.expand_more,
     size: 15.sp, // Set your custom icon size here
@@ -891,7 +894,7 @@ onTap: () async {
                                               fontSize: 14.sp)),
                                     ),
                                     SizedBox(
-                                      width: 15.w,
+                                      width: 20.w,
                                     ),
                                     if (initialindex == 0)
                                       SizedBox(
@@ -1023,87 +1026,91 @@ onTap: () async {
                                   ],
                                 ),
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceAround,
-                                    children: [
-                                      SizedBox(
-                                        width: 120.w,
-                                        child: ElevatedButton(
-                                            onPressed: () {
-                                              //  showAnimatedDialog(context);
-              
-                                              _workstationPopup(
-                                                empPersonid: employee.empPersonid,
-                                                processId: employee.processId,
-                                                pwseId: employee.pwseid,
-                                                attid: int.tryParse(employee
-                                                                .attendanceid
-                                                                ?.isEmpty ??
-                                                            true
-                                                        ? '0'
-                                                        : employee.attendanceid ??
-                                                            '0') ??
-                                                    0,
-                                                attStatus: initialindex ?? 0,
-                                              );
-                                            },
-                                            child: Text(
-                                              (employee?.pwsName?.isEmpty ??
-                                                      true)
-                                                  ? "Select_WS"
-                                                  : employee!.pwsName!,
-                                              style: TextStyle(
-                                                color: Color.fromARGB(
-                                                    255, 80, 96, 203),
-                                                fontFamily: "lexend",
-                                                fontSize: 12.sp,
-                                              ),
-                                            )),
-                                      ),
-                                      Container(
-                                        alignment: Alignment.center,
-                                        width: 100.w,
-                                        child: ElevatedButton(
-                                          child: Text(
-                                            "Reassign",
-                                            style: TextStyle(fontSize: 12.sp),
-                                          ),
-                                          onPressed: initialindex == 0
-                                              ? null
-                                              : () {
-                                                  setState(() {
-                                                    showEmployeeAllocationPopup(
-                                                      attId:
-                                                          employee.attendanceid,
-                                                      deptid:
-                                                          widget.deptid ?? 0,
-                                                      empPersonid:
-                                                          employee.empPersonid,
-                                                      mfgpeId:
-                                                          employee.mfgpempid,
-                                      
-                                                      processId:
-                                                          employee.processId,
-                                      
-                                                      // widget?.shiftid ??0,
-                                                    );
-                                                    employeeApiService
-                                                        .employeeList(
-                                                            context: context,
-                                                            processid: employee
-                                                                    .processId ??
-                                                                0,
-                                                            deptid: widget
-                                                                    .deptid ??
-                                                                1,
-                                                            psid: widget.psid ??
-                                                                0);
-                                                  });
-                                                },
+                                  Padding(
+                                    padding:  EdgeInsets.only(left: 25.w,right: 8.w),
+                                    child: Row(
+                                                                     
+                                      children: [
+                                        SizedBox(
+                                          width: 120.w,
+                                          child: ElevatedButton(
+                                              onPressed: () {
+                                                //  showAnimatedDialog(context);
+                                                  
+                                                _workstationPopup(
+                                                  empPersonid: employee.empPersonid,
+                                                  processId: employee.processId,
+                                                  pwseId: employee.pwseid,
+                                                  attid: int.tryParse(employee
+                                                                  .attendanceid
+                                                                  ?.isEmpty ??
+                                                              true
+                                                          ? '0'
+                                                          : employee.attendanceid ??
+                                                              '0') ??
+                                                      0,
+                                                  attStatus: initialindex ?? 0,
+                                                );
+                                              },
+                                              child: Text(
+                                                (employee?.pwsName?.isEmpty ??
+                                                        true)
+                                                    ? "Select_WS"
+                                                    : employee!.pwsName!,
+                                                style: TextStyle(
+                                                  color: Color.fromARGB(
+                                                      255, 80, 96, 203),
+                                                  fontFamily: "lexend",
+                                                  fontSize: 12.sp,
+                                                ),
+                                              )),
                                         ),
-                                      ),
-                                    ],
+
+                                        SizedBox(width: 62.w,),
+                                        Container(
+                                          alignment: Alignment.center,
+                                          width:100.w,
+                                          child: ElevatedButton(
+                                            child: Text(
+                                              "Reassign",
+                                              style: TextStyle(fontSize: 12.sp),
+                                            ),
+                                            onPressed: initialindex == 0
+                                                ? null
+                                                : () {
+                                                    setState(() {
+                                                      showEmployeeAllocationPopup(
+                                                        attId:
+                                                            employee.attendanceid,
+                                                        deptid:
+                                                            widget.deptid ?? 0,
+                                                        empPersonid:
+                                                            employee.empPersonid,
+                                                        mfgpeId:
+                                                            employee.mfgpempid,
+                                        
+                                                        processId:
+                                                            employee.processId,
+                                        
+                                                        // widget?.shiftid ??0,
+                                                      );
+                                                      employeeApiService
+                                                          .employeeList(
+                                                              context: context,
+                                                              processid: employee
+                                                                      .processId ??
+                                                                  0,
+                                                              deptid: widget
+                                                                      .deptid ??
+                                                                  1,
+                                                              psid: widget.psid ??
+                                                                  0);
+                                                    });
+                                                  },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ]),
                           );
@@ -1137,7 +1144,7 @@ onTap: () async {
                               color: Colors.black54,
                               fontFamily: "Lexend")),
 
-                              SizedBox(width: 110.w,),
+                              SizedBox(width: 115.w,),
                       CustomButton(
                              height: 30.h,
                                               width: 80.w,

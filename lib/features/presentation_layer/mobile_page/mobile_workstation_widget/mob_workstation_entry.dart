@@ -2098,7 +2098,7 @@ void addFocusListeners() {
                                                 width: 30.w,
                                               ),
                                               SizedBox(
-                                                height: 35.h,
+                                                height: 30.h,
                                                 child: CustomButton(
                                                   width: 80.w,
                                                   height: 30.h,
@@ -3684,10 +3684,10 @@ void addFocusListeners() {
                                                       MainAxisAlignment.center,
                                                   children: [
                                                     SizedBox(
-  height: 35.h,
+  height: 30.h,
   child: CustomButton(
-    width: 100.w,
-    height: 50.h,
+    width: 80.w,
+    height: 30.h,
    onPressed: selectedName != null &&
             locationDropdown != null &&
             assetCotroller.text.isNotEmpty && errorMessage==null &&rejectederrorMessage==null && reworkerrorMessage==null
@@ -3716,7 +3716,7 @@ void addFocusListeners() {
                 if (hasError) {
                   ShowError.showAlert(
                     context,
-                    "Enter Valid Employee Worked Minutes",
+                    "Enter Valid Employee Working Minutes",
                     "Alert",
                     "Warning",
                     Colors.orange,
@@ -3754,12 +3754,12 @@ else{
       'Submit',
       style: TextStyle(
         fontFamily: "lexend",
-        fontSize: 14.sp,
+        fontSize: 12.sp,
         color: Colors.white,
       ),
     ),
     backgroundColor: Colors.green,
-    borderRadius: BorderRadius.circular(50),
+    borderRadius: BorderRadius.circular(50.r),
   ),
 ),
                                                   ],
@@ -3787,8 +3787,8 @@ else{
                                  ), ),
 
                                  Padding(
-                                  padding:EdgeInsets.only(left: 8.w, right: 8.w),
-                                   child: Container(height: 80.h,
+                                  padding:EdgeInsets.only(top:10, left: 8.w, right: 8.w),
+                                   child: Container(height: 60.h,
                                                                   decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.only(
                                                       topLeft: Radius.circular(5.r),
@@ -3870,7 +3870,7 @@ else{
                                           final workstaion =
                                               listofempworkstation?[index];
                                           return Container(
-                                            height: 110.h,
+                                            height: 80.h,
                                             decoration: BoxDecoration(
                                                 color: index % 2 == 0
                                                     ? Color.fromARGB(
@@ -3926,14 +3926,14 @@ else{
                                                               Container(
                                                                 alignment: Alignment.center,
                                                                 width: 105.w,
-                                                                height: 50, // Container height remains fixed
+                                                                height: 60, // Container height remains fixed
                                                                 child: Column(
                                                                   crossAxisAlignment: CrossAxisAlignment.center,
                                                                   mainAxisAlignment: MainAxisAlignment.center,
                                                                   children: [
                                                                     SizedBox(
                                                                       width: 90.w,
-                                                                      height: 35, // Keep the size fixed for the TextFormField
+                                                                      height: 35.h, // Keep the size fixed for the TextFormField
                                                                       child: TextFormField(
                                                                         keyboardType: TextInputType.number,
                                                                         controller: empTimingTextEditingControllers[index],
@@ -4037,7 +4037,7 @@ else{
                                                     1)
                                                   SizedBox(
                                                          width: 80.w,
-                                                      height: 35.h,
+                                                      height: 30.h,
                                                     child: Center(
                                                       child: CustomButton(
                                                              width: 80.w,
@@ -4173,7 +4173,7 @@ else{
                                 ),
                                  Padding(
                                   padding:EdgeInsets.only(left: 8.w, right: 8.w),
-                                   child: Container(height: 80.h,
+                                   child: Container(height: 60.h,
                                                                   decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.only(
                                                       topLeft: Radius.circular(5.r),

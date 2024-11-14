@@ -8,7 +8,7 @@ import '../../../constant/utilities/exception_handle/network_exception.dart';
 
 class ApiConstant {
   
-  static String baseUrl ="http://192.168.1.32:8080/AtmaIntegrationAPI/wsservice";
+  static String baseUrl ="http://95.217.19.73:8080/AtmaIntegrationAPI/wsservice";
   
   //  static String baseUrl ="http://159.69.188.148:8080/AtmaInterfaceAPI/wsservice";
 

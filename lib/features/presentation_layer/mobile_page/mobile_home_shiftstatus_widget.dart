@@ -463,7 +463,7 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
 
                Container(
                 height: 20,
-                width: 200,
+                width: 180,
                  child: StreamBuilder<String>(
                    stream: Stream.periodic(Duration(seconds: 1), (_) {
                      // Get the current date and time as a string
@@ -510,7 +510,7 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
                )
 ,
               
-              SizedBox(width: 8.w,),
+              SizedBox(width: 15.w,),
               
                 Column(
             mainAxisAlignment: MainAxisAlignment.center,

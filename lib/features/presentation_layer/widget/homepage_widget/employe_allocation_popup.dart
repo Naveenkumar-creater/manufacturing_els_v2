@@ -150,123 +150,129 @@ bool isTapped = false;
         [];
     
 
-    return Drawer(backgroundColor: Color.fromARGB(150, 235, 236, 255),
-    
-      child: SafeArea(
-        child: Padding(
-          padding:  EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.start,
-            children: [
+    return WillPopScope(
+  onWillPop: () async {
+    // Disable closing the drawer when `isTapped` is true.
+    return !isTapped;
+  },
+      child: Drawer(backgroundColor: Color.fromARGB(150, 235, 236, 255),
+      
+        child: SafeArea(
+          child: Padding(
+            padding:  EdgeInsets.symmetric(horizontal: 16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+              
+              
+                 Text(
+                    'Process Area',style: TextStyle(fontSize: MediaQuery.of(context)
+                      .size .width>572 ?24.sp:18.sp,
+                      
+                                      color: Color.fromARGB(255, 80, 96, 203),
+                                      fontFamily: "Lexend",
+                                      fontWeight: FontWeight.w500),
+                   
+                  ),
+                SizedBox(height: 20.h,),
             
-            
-               Text(
-                  'Process Area',style: TextStyle(fontSize: MediaQuery.of(context)
-                    .size .width>572 ?24.sp:18.sp,
-                    
-                                    color: Color.fromARGB(255, 80, 96, 203),
-                                    fontFamily: "Lexend",
-                                    fontWeight: FontWeight.w500),
-                 
-                ),
-              SizedBox(height: 20.h,),
-          
-              Container(
-                padding: EdgeInsets.zero,
-              margin: EdgeInsets.zero,
-              width: double.infinity,
-              height: 600.h,
-                child: Scrollbar(
-                controller: _scrollController,
-                radius: Radius.circular(8),
-                thickness: 6,
-                thumbVisibility: true,
-                
-                  child: ListView.builder(
-                             controller: _scrollController,
-                    itemCount: productResponse?.length ?? 0,
-                    itemBuilder: (context, index) => GestureDetector(
-                                  child: Padding(
-                                    padding:  EdgeInsets.only(right: 16.w),
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 16.h, ),
-                                      decoration:
-                                          BoxDecoration( border: Border(
-    top: (index == 0)
-        ? BorderSide(width: 1, color: Colors.grey.shade300)
-        : BorderSide.none,
-    bottom: BorderSide(width: 1, color: Colors.grey.shade300),
-  ),), // Set unique background color for selected tile
-                                      child: Text(
-                                       productResponse![index].processname ?? "",
-                                        style: TextStyle(color: Colors.black54,
-                                    fontFamily: "Lexend",
-                                    fontSize: MediaQuery.of(context)
-                    .size
-                    .width>572 ? 15.sp:12.sp,),
+                Container(
+                  padding: EdgeInsets.zero,
+                margin: EdgeInsets.zero,
+                width: double.infinity,
+                height: 600.h,
+                  child: Scrollbar(
+                  controller: _scrollController,
+                  radius: Radius.circular(8),
+                  thickness: 6,
+                  thumbVisibility: true,
+                  
+                    child: ListView.builder(
+                               controller: _scrollController,
+                      itemCount: productResponse?.length ?? 0,
+                      itemBuilder: (context, index) => GestureDetector(
+                                    child: Padding(
+                                      padding:  EdgeInsets.only(right: 16.w),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            vertical: 16.h, ),
+                                        decoration:
+                                            BoxDecoration( border: Border(
+      top: (index == 0)
+          ? BorderSide(width: 1, color: Colors.grey.shade300)
+          : BorderSide.none,
+      bottom: BorderSide(width: 1, color: Colors.grey.shade300),
+        ),), // Set unique background color for selected tile
+                                        child: Text(
+                                         productResponse![index].processname ?? "",
+                                          style: TextStyle(color: Colors.black54,
+                                      fontFamily: "Lexend",
+                                      fontSize: MediaQuery.of(context)
+                      .size
+                      .width>572 ? 15.sp:12.sp,),
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                      onTap: () async {
-                                        if (isTapped) {
-    print("Tap ignored to prevent multiple triggers.");
-    return;
-  }
-
-  // Disable further taps
-  isTapped = true;
- Future.microtask(() async {
-    try {
-                        final processId =
-                            productResponse[index].processid ?? 0;
-                        if (processId != null) {
-                          setState(() {
-                            selectedProcessId = productResponse
-                                ?.firstWhere((process) =>
-                                    process.processid == processId)
-                                ?.processid;
-                          });
-                            
-                          await sendProcess();
-                           
-                          await employeeApiService.employeeList(
-                              context: context,
-                              processid: widget.processid!,
-                              deptid: widget.deptid ?? 1,
-                              psid: widget.psid ?? 0);
-
-                                   await listofworkstationService
-            .getListofWorkstation(
-                context: context,
-                deptid: widget.deptid ?? 1057,
-                psid: widget.psid ?? 0,
-                processid:
-                   widget.processid?? 0);
-    
-      await attendanceCountService.getAttCount(
-            context: context,
-            id: widget.processid ?? 0,
-            deptid: widget.deptid ?? 0,
-            psid: widget.psid ?? 0);   
-                     Navigator.of(context).pop();  
-                        }
-                        } catch (e) {
-      // Handle errors gracefully
-      print("Error during workstation change: $e");
-    } finally {
-      // Reset the tap flag after the transition completes
-      await Future.delayed(Duration(milliseconds: 300));
-      isTapped = false;
-    }
-                      });
-                                      }
-                      ),
+                                        onTap: () async {
+                                          if (isTapped) {
+      print("Tap ignored to prevent multiple triggers.");
+      return;
+        }
+      
+        // Disable further taps
+        isTapped = true;
+       Future.microtask(() async {
+      try {
+                          final processId =
+                              productResponse[index].processid ?? 0;
+                          if (processId != null) {
+                            setState(() {
+                              selectedProcessId = productResponse
+                                  ?.firstWhere((process) =>
+                                      process.processid == processId)
+                                  ?.processid;
+                            });
+                              
+                            await sendProcess();
+                             
+                            await employeeApiService.employeeList(
+                                context: context,
+                                processid: widget.processid!,
+                                deptid: widget.deptid ?? 1,
+                                psid: widget.psid ?? 0);
+      
+                                     await listofworkstationService
+              .getListofWorkstation(
+                  context: context,
+                  deptid: widget.deptid ?? 1057,
+                  psid: widget.psid ?? 0,
+                  processid:
+                     widget.processid?? 0);
+      
+        await attendanceCountService.getAttCount(
+              context: context,
+              id: widget.processid ?? 0,
+              deptid: widget.deptid ?? 0,
+              psid: widget.psid ?? 0);   
+                       Navigator.of(context).pop();  
+                          }
+                          } catch (e) {
+        // Handle errors gracefully
+        print("Error during workstation change: $e");
+      } finally {
+        // Reset the tap flag after the transition completes
+        await Future.delayed(Duration(milliseconds: 300));
+        isTapped = false;
+      }
+                        });
+                                        }
+                        ),
+                    ),
                   ),
                 ),
-              ),
-           
-            ],
+             
+              ],
+            ),
           ),
         ),
       ),

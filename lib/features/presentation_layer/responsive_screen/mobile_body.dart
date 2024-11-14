@@ -125,7 +125,8 @@ class _MobileScaffoldState extends State<MobileScaffold> {
     Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.white,
-      drawer: MobileMyDrawer(deptid: deptid),
+      
+      drawer: MobileMyDrawer(deptid: deptid, scaffoldKey: _scaffoldKey,),
       appBar: 
       AppBar(
         toolbarHeight: 60,

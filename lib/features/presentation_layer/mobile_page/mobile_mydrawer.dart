@@ -22,8 +22,9 @@ import 'package:prominous/features/presentation_layer/provider/shift_status_prov
 
 
 class MobileMyDrawer extends StatefulWidget {
-  int? deptid;
-   MobileMyDrawer({this.deptid});
+   final GlobalKey<ScaffoldState> scaffoldKey; 
+  final int? deptid;
+  MobileMyDrawer({this.deptid,required this.scaffoldKey});
   static late String? processName;
 
   @override
@@ -31,193 +32,60 @@ class MobileMyDrawer extends StatefulWidget {
 }
 
 class _MobileMyDrawerState extends State<MobileMyDrawer> {
-  ProcessApiService processApiService = ProcessApiService();
-  EmployeeApiService employeeApiService = EmployeeApiService();
-  LoginApiService logout = LoginApiService();
+  final ProcessApiService processApiService = ProcessApiService();
+  final EmployeeApiService employeeApiService = EmployeeApiService();
+  final LoginApiService logout = LoginApiService();
   final ActualQtyService actualQtyService = ActualQtyService();
-  AttendanceCountService attendanceCountService = AttendanceCountService();
-  PlanQtyService planQtyService = PlanQtyService();
-  ShiftStatusService shiftStatusService = ShiftStatusService();
-    ListofworkstationService listofworkstationService =
-      ListofworkstationService();
+  final AttendanceCountService attendanceCountService = AttendanceCountService();
+  final PlanQtyService planQtyService = PlanQtyService();
+  final ShiftStatusService shiftStatusService = ShiftStatusService();
+  final ListofworkstationService listofworkstationService = ListofworkstationService();
 
   bool isLoading = false;
-  bool isFetching = false;
-  bool isTapped=false;
+  bool isTapped = false;
   DateTime? lastTapTime;
   ScrollController _scrollController = ScrollController();
+  int? _selectedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    getProcess();
+  }
 
 @override
-void initState() {
-  super.initState();
-  getProcess();
+void dispose() {
+  _scrollController.dispose();
+  super.dispose();
 }
 
-Future<void> getProcess() async {
-  try {
-    await processApiService.getProcessdetail(
-      context: context,
-      deptid: widget.deptid ?? 1057,
-    );
-    if (mounted) { // Check if the widget is still mounted
-      setState(() {
-        isLoading = true; // Set isLoading to true when data is fetched
-      });
-    }
-  } catch (e) {
-    if (mounted) { // Check if the widget is still mounted
-      setState(() {
-        isLoading = false; // Set isLoading to false if there's an error
-      });
-    }
-  }
-}
-
-
-  int? _selectedIndex; // State variable to store the selected index
-  @override
-  Widget build(BuildContext context) {
-    final processList =
-        Provider.of<ProcessProvider>(context).user?.listofProcessEntity;
-    final userName =
-        Provider.of<LoginProvider>(context).user?.userLoginEntity?.loginId;
-
-    return Drawer(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      backgroundColor: Colors.white,
-
-      elevation: 0,
-      width: 250.w,
-      child: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 70.h, left: 10.w),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 30.r, // Adjust the radius as needed
-                        backgroundColor: Color.fromARGB(
-                            255, 80, 96, 203), // Background color
-                        child: Icon(
-                          Icons.person, // Profile icon
-                          size: 30, // Icon size
-                          color: Colors.white, // Icon color
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10.w,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Hello,',
-                            style: TextStyle(
-                                fontSize: 14.w,
-                                color: Color.fromARGB(255, 80, 96, 203),
-                                fontFamily: "Lexend"),
-                          ),
-                          Text(
-                            '${userName}',
-                            style: TextStyle(
-                                fontSize: 20.w,
-                                color: Color.fromARGB(255, 80, 96, 203),
-                                fontFamily: "Lexend",
-                                fontWeight: FontWeight.w500),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            ListTile(
-              title: Text(
-                'PROCESS AREA ',
-                style: const TextStyle(
-                    fontSize: 16, color: Colors.black, fontFamily: "Lexend"),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.zero,
-              margin: EdgeInsets.zero,
-              width: double.infinity,
-              height: 450.h,
-              child: Scrollbar(
-                controller: _scrollController,
-
-                radius: Radius.circular(8),
-                thickness: 8.w,
-                thumbVisibility: true,
-                child: ListView.builder(
-                    controller: _scrollController,
-                    padding: EdgeInsets.zero,
-                    itemCount: processList?.length ?? 0,
-                    itemBuilder: (context, index) => GestureDetector(
-                          child: Container(
-                            padding:
-                                EdgeInsets.only(bottom: 12, top: 12, left: 16),
-                            decoration: BoxDecoration(
-                              color: _selectedIndex == index
-                                  ? Color.fromARGB(110, 163, 173, 236)
-                                  : null,
-                            ), // Set unique background color for selected tile
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  processList![index].processName ?? "",
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontFamily: "Lexend"),
-                                ),
-                                SizedBox(
-                                  height: 15.h,
-                                ),
-                                _selectedIndex != index
-                                    ? Container(
-                                        width: double.infinity,
-                                        height: 1.h,
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade100),
-                                      )
-                                    : Container(
-                                        width: double.infinity,
-                                        height: 0,
-                                        decoration: BoxDecoration(
-                                            color: Colors.grey.shade100),
-                                      )
-                              ],
-                            ),
-                          ),
-                onTap: () async {
-  if (isTapped) {
-    return;
-  }
-  isTapped = true;
-
-  Future.microtask(() async {
+  Future<void> getProcess() async {
     try {
-      if (!mounted) return; // Check if the widget is still mounted
-      setState(() {
-        _selectedIndex = index;
-      });
+      await processApiService.getProcessdetail(
+        context: context,
+        deptid: widget.deptid ?? 1057,
+      );
+      if (mounted) {
+        setState(() {
+          isLoading = true;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
-      final processId = processList[index].processId ?? 0;
-      final deptId = processList[index].deptId ?? 0;
+  Future<void> fetchData(int index) async {
+    try {
+      final processList = Provider.of<ProcessProvider>(context, listen: false).user?.listofProcessEntity;
+      final processId = processList?[index].processId ?? 0;
+      final deptId = processList?[index].deptId ?? 0;
 
-    
-
-      // Fetch shift status
-      if (!mounted) return;
+      // Perform API calls here
       await shiftStatusService.getShiftStatus(
         context: context,
         deptid: deptId,
@@ -230,12 +98,8 @@ Future<void> getProcess() async {
               ?.psId ??
           0;
 
-      if (psId == 0) {
-        throw Exception("Invalid psId: $psId");
-      }
+      if (psId == 0) throw Exception("Invalid psId: $psId");
 
-      // Fetch employee list
-      if (!mounted) return;
       await employeeApiService.employeeList(
         context: context,
         processid: processId,
@@ -243,8 +107,6 @@ Future<void> getProcess() async {
         psid: psId,
       );
 
-      // Fetch list of workstations
-      if (!mounted) return;
       await listofworkstationService.getListofWorkstation(
         context: context,
         deptid: deptId,
@@ -252,8 +114,6 @@ Future<void> getProcess() async {
         processid: processId,
       );
 
-      // Fetch attendance count
-      if (!mounted) return;
       await attendanceCountService.getAttCount(
         context: context,
         id: processId,
@@ -261,61 +121,189 @@ Future<void> getProcess() async {
         psid: psId,
       );
 
-      // Fetch actual quantity
-      if (!mounted) return;
       await actualQtyService.getActualQty(
         context: context,
         id: processId,
         psid: psId,
       );
 
-      // Fetch plan quantity
-      if (!mounted) return;
       await planQtyService.getPlanQty(
         context: context,
         id: processId,
         psid: psId,
       );
 
-        Navigator.pop(context);
+   if (Navigator.of(context).canPop()) {
+      Navigator.pop(context);
+    }
+
     } catch (e) {
       print('Error fetching data: $e');
-    } finally {
-      await Future.delayed(Duration(milliseconds: 200));
-      if (mounted) {
-        setState(() {
-          isTapped = false;
-        });
-      }
     }
-  });
-}
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    final processList = Provider.of<ProcessProvider>(context).user?.listofProcessEntity;
+    final userName = Provider.of<LoginProvider>(context).user?.userLoginEntity?.loginId;
 
-                        )),
+    return Stack(
+  children: [
+    Drawer(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      width: 250.w,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 70.h, left: 10.w),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30.r,
+                      backgroundColor: Color.fromARGB(255, 80, 96, 203),
+                      child: Icon(
+                        Icons.person,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hello,',
+                          style: TextStyle(
+                            fontSize: 14.w,
+                            color: Color.fromARGB(255, 80, 96, 203),
+                            fontFamily: "Lexend",
+                          ),
+                        ),
+                        Text(
+                          '$userName',
+                          style: TextStyle(
+                            fontSize: 20.w,
+                            color: Color.fromARGB(255, 80, 96, 203),
+                            fontFamily: "Lexend",
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 20.h),
+          ListTile(
+            title: Text(
+              'PROCESS AREA ',
+              style: const TextStyle(
+                fontSize: 16, color: Colors.black, fontFamily: "Lexend"),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.zero,
+            margin: EdgeInsets.zero,
+            width: double.infinity,
+            height: 450.h,
+            child: Scrollbar(
+              controller: _scrollController,
+              radius: Radius.circular(8),
+              thickness: 8.w,
+              thumbVisibility: true,
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.zero,
+                itemCount: processList?.length ?? 0,
+                itemBuilder: (context, index) => GestureDetector(
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 12, top: 12, left: 16),
+                    decoration: BoxDecoration(
+                      color: _selectedIndex == index
+                          ? Color.fromARGB(110, 163, 173, 236)
+                          : null,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          processList![index].processName ?? "",
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontFamily: "Lexend",
+                          ),
+                        ),
+                        SizedBox(height: 15.h),
+                        _selectedIndex != index
+                            ? Container(
+                                width: double.infinity,
+                                height: 1.h,
+                                decoration: BoxDecoration(color: Colors.grey.shade100),
+                              )
+                            : Container(
+                                width: double.infinity,
+                                height: 0,
+                                decoration: BoxDecoration(color: Colors.grey.shade100),
+                              ),
+                      ],
+                    ),
+                  ),
+                  onTap: () async {
+                    if (isTapped) return;
+                    isTapped = true;
+                  
+                    try {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                  
+                      // Run the API call in the background after popping the drawer.
+                      await fetchData(index);
+                    } catch (e) {
+                      print('Error fetching data: $e');
+                    } finally {
+                      if (mounted) {
+                        setState(() {
+                          isTapped = false;
+                        });
+                      }
+                    }
+                  },
+                ),
               ),
             ),
-            SizedBox(
-              height: 30.h
+          ),
+          SizedBox(height: 30.h),
+          ListTile(
+            leading: SvgPicture.asset(
+              'assets/svg/log-out.svg',
+              color: Colors.red,
+              width: 25.w,
             ),
-            ListTile(
-              leading: SvgPicture.asset(
-                'assets/svg/log-out.svg',
-                color: Colors.red,
-                width: 25.w,
-              ),
-              title: Text(
-                'LOGOUT',
-                style:  TextStyle(
-                    fontSize: 16.sp, color: Colors.black, fontFamily: "Lexend"),
-              ),
-              onTap: () {
-                logout.logOutUser(context);
-              },
+            title: Text(
+              'LOGOUT',
+              style: TextStyle(fontSize: 16.sp, color: Colors.black, fontFamily: "Lexend"),
             ),
-          ],
-        ),
+            onTap: () {
+              logout.logOutUser(context);
+            },
+          ),
+        ],
       ),
-    );
+    ),
+    if (isTapped)
+      ModalBarrier(
+   
+        dismissible: false,
+      ),
+  ],
+);
+
   }
 }

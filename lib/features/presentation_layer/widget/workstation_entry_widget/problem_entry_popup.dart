@@ -595,7 +595,7 @@ updateProblemList({
                   Row(
                     children: [
                       Text(
-                        ' From Time :',
+                        'From Time :',
                         style: TextStyle(
                           fontFamily: "lexend",
                           fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
@@ -1242,158 +1242,153 @@ updateProblemList({
                     height: 20.w,
                   ),
                   (widget.showButton == true && widget.ipdincid!=0)
-                      ? SizedBox(
-                          height: 40.h,
-                          child: CustomButton(
-                             width: screenSize.width < 572 ? 80.w : 130.w,
-                            height: screenSize.height < 572 ? 30.h : 50.h,
-                            onPressed:() async {
-try {
-  await updateProblemList(
-    endTime: lastupdatedTime,
-    fromtime: fromTime,
-    incidentid: problemid,
-    ipdincIpdid: widget.ipdid,
-    ipdincid: widget.ipdincid,
-    note: incidentReasonController.text,
-    problemSolvedstatus: problemStatusid,
-    productionstopage: productionStoppageid,
-    rootcauseid: rootCauseid,
-    solutionid: solutionid,
-    subincidentId: problemCategoryid,
-  );
-
-  print("Problem list updated");
-
-  // // Reset and update the list
-  // final problemProvider = Provider.of<ListProblemStoringProvider>(context, listen: false);
-  
-  // problemProvider.reset();
-
-  // final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
-  //     .user
-  //     ?.resolvedProblemInWs;
-
-  // if (workstationProblem != null) {
-  //   for (int i = 0; i < workstationProblem.length; i++) {
-  //     ListOfWorkStationIncident data = ListOfWorkStationIncident(
-  //       fromtime: workstationProblem[i].fromTime,
-  //       endtime: workstationProblem[i].endTime,
-  //       productionStoppageId: workstationProblem[i].productionStopageId,
-  //       problemstatusId: workstationProblem[i].problemStatusId,
-  //       problemsolvedName: workstationProblem[i].problemStatus,
-  //       solutionId: workstationProblem[i].solId,
-  //       solutionName: workstationProblem[i].solDesc,
-  //       problemCategoryname: workstationProblem[i].subincidentName,
-  //       problemId: workstationProblem[i].incidentId,
-  //       problemName: workstationProblem[i].incidentName,
-  //       problemCategoryId: workstationProblem[i].subincidentId,
-  //       reasons: workstationProblem[i].ipdincNotes,
-  //       rootCauseId: workstationProblem[i].ipdincIncrcmId,
-  //       rootCausename: workstationProblem[i].incrcmRootcauseBrief,
-  //       ipdId: workstationProblem[i].ipdincipdid,
-  //       ipdIncId: workstationProblem[i].ipdincid,
-  //       assetId: workstationProblem[i].incmAssetId,
-  //     );
-  //     problemProvider.addIncidentList(data);
-  //   }
-  // }
-} catch (e) {
-  print("Error: $e");
-}
-
-                                      
-
-                                   
-                                  },
-                                
-                            child: Text(
-                              'Update',
-                              style: TextStyle(
-                                  fontFamily: "lexend",
-                                  fontSize:
-                                      screenSize.width < 572 ? 12.w : 16.w,
-                                  color: Colors.white),
-                            ),
-                            backgroundColor: Colors.green,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        )
+                      ? 
+                      CustomButton(
+                       width: 80.h,
+                        height:30.w,
+                        onPressed:() async {
+                      try {
+                        await updateProblemList(
+                          endTime: lastupdatedTime,
+                          fromtime: fromTime,
+                          incidentid: problemid,
+                          ipdincIpdid: widget.ipdid,
+                          ipdincid: widget.ipdincid,
+                          note: incidentReasonController.text,
+                          problemSolvedstatus: problemStatusid,
+                          productionstopage: productionStoppageid,
+                          rootcauseid: rootCauseid,
+                          solutionid: solutionid,
+                          subincidentId: problemCategoryid,
+                        );
+                      
+                        print("Problem list updated");
+                      
+                        // // Reset and update the list
+                        // final problemProvider = Provider.of<ListProblemStoringProvider>(context, listen: false);
+                        
+                        // problemProvider.reset();
+                      
+                        // final workstationProblem = Provider.of<WorkstationProblemProvider>(context, listen: false)
+                        //     .user
+                        //     ?.resolvedProblemInWs;
+                      
+                        // if (workstationProblem != null) {
+                        //   for (int i = 0; i < workstationProblem.length; i++) {
+                        //     ListOfWorkStationIncident data = ListOfWorkStationIncident(
+                        //       fromtime: workstationProblem[i].fromTime,
+                        //       endtime: workstationProblem[i].endTime,
+                        //       productionStoppageId: workstationProblem[i].productionStopageId,
+                        //       problemstatusId: workstationProblem[i].problemStatusId,
+                        //       problemsolvedName: workstationProblem[i].problemStatus,
+                        //       solutionId: workstationProblem[i].solId,
+                        //       solutionName: workstationProblem[i].solDesc,
+                        //       problemCategoryname: workstationProblem[i].subincidentName,
+                        //       problemId: workstationProblem[i].incidentId,
+                        //       problemName: workstationProblem[i].incidentName,
+                        //       problemCategoryId: workstationProblem[i].subincidentId,
+                        //       reasons: workstationProblem[i].ipdincNotes,
+                        //       rootCauseId: workstationProblem[i].ipdincIncrcmId,
+                        //       rootCausename: workstationProblem[i].incrcmRootcauseBrief,
+                        //       ipdId: workstationProblem[i].ipdincipdid,
+                        //       ipdIncId: workstationProblem[i].ipdincid,
+                        //       assetId: workstationProblem[i].incmAssetId,
+                        //     );
+                        //     problemProvider.addIncidentList(data);
+                        //   }
+                        // }
+                      } catch (e) {
+                        print("Error: $e");
+                      }
+                      
+                                  
+                      
+                               
+                              },
+                            
+                        child: Text(
+                          'Update',
+                          style: TextStyle(
+                              fontFamily: "lexend",
+                              fontSize:
+                                  screenSize.width < 572 ? 12.w : 16.w,
+                              color: Colors.white),
+                        ),
+                        backgroundColor: Colors.green,
+                        borderRadius: BorderRadius.circular(50),
+                      )
                       :  (widget.showButton == true && widget.ipdincid==0) ? Text("")
                      :
                       
-                       SizedBox(
-                          height: 40.h,
-                          child: CustomButton(
-                            width: screenSize.width < 572 ? 70.w : 130.w,
-                            height: screenSize.height < 572 ? 30.h : 50.h,
-                            onPressed: selectproblemname != null &&
-                                    selectproblemCategoryname != null &&
-                                    selectrootcausename != null
-                                ? () {
-                                    setState(() {
-                                      ListOfWorkStationIncident data =
-                                          ListOfWorkStationIncident(
-                                              fromtime: fromTime,
-                                              endtime: lastupdatedTime,
-                                              productionStoppageId:productionStoppageid ?? 0,
-                                              problemstatusId: problemStatusid,
-                                              problemsolvedName:
-                                                  selectProblemStatusDesc,
-                                              solutionId: solutionid,
-                                              solutionName: selectSolution,
-                                              problemCategoryname:
-                                                  selectproblemCategoryname,
-                                              problemId: problemid,
-                                              problemName: selectproblemname,
-                                              problemCategoryId:
-                                                  problemCategoryid,
-                                              reasons:
-                                                  incidentReasonController.text,
-                                              rootCauseId: rootCauseid,
-                                              rootCausename:
-                                                  selectrootcausename,
-                                              ipdId: 0,
-                                              ipdIncId: 0,
-                                              assetId: widget.assetid);
-                                      // final data = {
-                                      //   "problemname":
-                                      //       selectproblemname,
-                                      //   "problemCategoryname":
-                                      //       selectproblemCategoryname,
-                                      //   "rootcausename":
-                                      //       selectrootcausename,
-                                      //   "incident_id": problemid,
-                                      //   "subincident_id":
-                                      //       problemCategoryid,
-                                      //   "rootcause_id": rootCauseid,
-                                      //   "reason":
-                                      //       incidentReasonController
-                                      //           .text
-                                      // };
-
-                                      Provider.of<ListProblemStoringProvider>(
-                                              context,
-                                              listen: false)
-                                          .addIncidentList(data);
-
-                                      print(data);
-                                    });
-                                    Navigator.pop(context);
-                                  }
-                                : null,
-                            child: Text(
-                              'Add',
-                              style: TextStyle(
-                                  fontFamily: "lexend",
-                                  fontSize:
-                                      screenSize.width < 572 ? 12.w : 16.w,
-                                  color: Colors.white),
-                            ),
-                            backgroundColor: Colors.green,
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        )
+                       CustomButton(
+                        width:80.w,
+                        height:30.h,
+                         onPressed: selectproblemname != null &&
+                                 selectproblemCategoryname != null &&
+                                 selectrootcausename != null
+                             ? () {
+                                 setState(() {
+                                   ListOfWorkStationIncident data =
+                                       ListOfWorkStationIncident(
+                                           fromtime: fromTime,
+                                           endtime: lastupdatedTime,
+                                           productionStoppageId:productionStoppageid ?? 0,
+                                           problemstatusId: problemStatusid,
+                                           problemsolvedName:
+                                               selectProblemStatusDesc,
+                                           solutionId: solutionid,
+                                           solutionName: selectSolution,
+                                           problemCategoryname:
+                                               selectproblemCategoryname,
+                                           problemId: problemid,
+                                           problemName: selectproblemname,
+                                           problemCategoryId:
+                                               problemCategoryid,
+                                           reasons:
+                                               incidentReasonController.text,
+                                           rootCauseId: rootCauseid,
+                                           rootCausename:
+                                               selectrootcausename,
+                                           ipdId: 0,
+                                           ipdIncId: 0,
+                                           assetId: widget.assetid);
+                                   // final data = {
+                                   //   "problemname":
+                                   //       selectproblemname,
+                                   //   "problemCategoryname":
+                                   //       selectproblemCategoryname,
+                                   //   "rootcausename":
+                                   //       selectrootcausename,
+                                   //   "incident_id": problemid,
+                                   //   "subincident_id":
+                                   //       problemCategoryid,
+                                   //   "rootcause_id": rootCauseid,
+                                   //   "reason":
+                                   //       incidentReasonController
+                                   //           .text
+                                   // };
+                       
+                                   Provider.of<ListProblemStoringProvider>(
+                                           context,
+                                           listen: false)
+                                       .addIncidentList(data);
+                       
+                                   print(data);
+                                 });
+                                 Navigator.pop(context);
+                               }
+                             : null,
+                         child: Text(
+                           'Add',
+                           style: TextStyle(
+                               fontFamily: "lexend",
+                               fontSize:
+                                   screenSize.width < 572 ? 12.w : 16.w,
+                               color: Colors.white),
+                         ),
+                         backgroundColor: Colors.green,
+                         borderRadius: BorderRadius.circular(50),
+                       )
                 ],
               ),
             ],

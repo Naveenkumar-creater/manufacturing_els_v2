@@ -983,7 +983,9 @@ void clearTextFields() {
 Future<void> _problemEntrywidget(
      String ? shiftFromTime,
       String ? shiftToTime,
-      processid,deptid,assetid,
+      processid,
+      deptid,
+      assetid,
       [
       int? selectproblemid,
       int? problemCategoryId,
@@ -1034,7 +1036,9 @@ Future<void> _problemEntrywidget(
                     ipdid: ipdId,
                     ipdincid:ipdincId ,
                     closestartTime: closeStartTime, 
-                    processid: processid,assetid:assetid ,deptid: deptid,
+                    processid: processid,
+                    assetid:assetid ,
+                    deptid: deptid,
 
                   )),
             ),
@@ -1089,6 +1093,7 @@ Future<void> _problemEntrywidget(
 
     if (editIncidentList != null) {
       for (int i = 0; i < editIncidentList.length; i++) {
+
         ListOfWorkStationIncident data = ListOfWorkStationIncident(
           problemId: editIncidentList[i].incidentId,
             problemName: editIncidentList[i].incmName,
@@ -1104,6 +1109,7 @@ Future<void> _problemEntrywidget(
           solutionId: editIncidentList[i].solId,
           ipdId: editIncidentList[i].ipdincIpdId,
           ipdIncId: editIncidentList[i].ipdincId,
+
          
         );
 
@@ -2652,10 +2658,10 @@ final     storedListOfProblem =
                                                       MainAxisAlignment.center,
                                                   children: [
                                                     SizedBox(
-                                                      height: 35.h,
+                                                      height: 30.h,
                                                       child: CustomButton(
-                                                        width: 100.w,
-                                                        height: 50.h,
+                                                        width: 80.w,
+                                                        height: 30.h,
                                              onPressed: selectedName != null &&
             locationDropdown != null &&
             assetCotroller.text.isNotEmpty && errorMessage==null &&rejectederrorMessage==null && reworkerrorMessage==null
@@ -2685,7 +2691,7 @@ final     storedListOfProblem =
                 if (hasError) {
                   ShowError.showAlert(
                     context,
-                    "Enter Valid Employee Worked Minutes",
+                    "Enter Valid Employee Working Minutes",
                     "Alert",
                     "Warning",
                     Colors.orange,
@@ -2762,7 +2768,7 @@ else{
                                     ),
                                       Padding(
                                   padding:EdgeInsets.only(left: 8.w, right: 8.w),
-                                   child: Container(height: 80.h,
+                                   child: Container(height: 60.h,
                                                                   decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.only(
                                                       topLeft: Radius.circular(5.r),
@@ -2928,7 +2934,7 @@ else{
                                                             ),
 Container(
   alignment: Alignment.center,
-  width: 100.w,
+  width: 105.w,
   height: 50.h, // Container height remains fixed
   child: Column(
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -3011,7 +3017,7 @@ Container(
                                                                         style:
                                                                             TextStyle(
                                                                           fontSize:
-                                                                              9.0, // Adjust the font size as needed
+                                                                              8.0, // Adjust the font size as needed
                                                                           color:
                                                                               Colors.red,
                                                                           height:
@@ -3051,11 +3057,11 @@ Container(
                                                                     Alignment
                                                                         .center,
 
-                                                                width: 100.w,
+                                                                width: 80.w,
                                                                 child:
                                                                     CustomButton(
-                                                                  width: 90.w,
-                                                                  height: 35.h,
+                                                                  width: 80.w,
+                                                                  height: 30.h,
                                                                   onPressed:
                                                                       () {
                                                                     _EmpOpenandCloseShiftPop(
@@ -3208,7 +3214,7 @@ Container(
                                     ),
                                     Padding(
                                   padding:EdgeInsets.only(left: 8.w, right: 8.w),
-                                   child: Container(height: 80.h,
+                                   child: Container(height: 60.h,
                                                                   decoration: BoxDecoration(
                                                   borderRadius: BorderRadius.only(
                                                       topLeft: Radius.circular(5.r),
@@ -3301,9 +3307,9 @@ Container(
                                                           _problemEntrywidget(
                                                             item?.fromtime,
                                                               item?.endtime,
-                                                               widget.processid,
+                                                              widget.processid,
                                                               widget.deptid,
-                                                              item?.assetId,
+                                                             int.parse(assetCotroller.text),
                                                               item?.problemId,
                                                               item?.problemCategoryId,
                                                               item?.rootCauseId,
