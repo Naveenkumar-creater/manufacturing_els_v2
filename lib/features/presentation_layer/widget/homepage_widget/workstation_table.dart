@@ -484,106 +484,113 @@ void _workstationPopup({
               color: Colors.white,
               width: MediaQuery.of(context).size.width * 0.4,
               height: MediaQuery.of(context).size.height,
-              child: Drawer(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
-                backgroundColor: Color.fromARGB(150, 235, 236, 255),
-                child: SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 16.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Select Workstation',
-                          style: TextStyle(
-                              fontSize: 24.sp,
-                              color: Color.fromARGB(255, 80, 96, 203),
-                              fontFamily: "Lexend",
-                              fontWeight: FontWeight.w500),
-                        ),
-                        SizedBox(height: 20.h),
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: listofWorkstation?.length,
-                            itemBuilder: (context, index) {
-                              final workstation = listofWorkstation?[index];
-
-                              return GestureDetector(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 16.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      top: (index == 0)
-                                          ? BorderSide(
-                                              width: 1,
-                                              color: Colors.grey.shade300)
-                                          : BorderSide.none,
-                                      bottom: BorderSide(
-                                          width: 1,
-                                          color: Colors.grey.shade300),
+              child:WillPopScope(
+  onWillPop: () async {
+    // Disable closing the drawer when `isTapped` is true.
+    return !isTapped;
+  },
+                child: Drawer(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  backgroundColor: Color.fromARGB(150, 235, 236, 255),
+                  child: SafeArea(
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 16.w),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Select Workstation',
+                            style: TextStyle(
+                                fontSize: 24.sp,
+                                color: Color.fromARGB(255, 80, 96, 203),
+                                fontFamily: "Lexend",
+                                fontWeight: FontWeight.w500),
+                          ),
+                          SizedBox(height: 20.h),
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: listofWorkstation?.length,
+                              itemBuilder: (context, index) {
+                                final workstation = listofWorkstation?[index];
+                
+                                return GestureDetector(
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 16.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        top: (index == 0)
+                                            ? BorderSide(
+                                                width: 1,
+                                                color: Colors.grey.shade300)
+                                            : BorderSide.none,
+                                        bottom: BorderSide(
+                                            width: 1,
+                                            color: Colors.grey.shade300),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "${workstation?.pwsName} ",
+                                      style: TextStyle(
+                                          color: Colors.black54,
+                                          fontFamily: "Lexend",
+                                          fontSize: 16.sp),
                                     ),
                                   ),
-                                  child: Text(
-                                    "${workstation?.pwsName} ",
-                                    style: TextStyle(
-                                        color: Colors.black54,
-                                        fontFamily: "Lexend",
-                                        fontSize: 16.sp),
-                                  ),
-                                ),
-                                onTap: () async {
-                                  // Prevent multiple taps
-                                  if (isTapped) {
-                                    return;
-                                    }
-                                  isTapped = true;
-
-Future.microtask(()async{
-
-
-                                  try {
-                                    // Perform async operations
-                                    await _changeWorkstation(
-                                      empPersonid: empPersonid,
-                                      pwesId: pwseId,
-                                      pwsId: workstation?.pwsId,
-                                      attId: attid,
-                                    );
-                                    await employeeApiService.employeeList(
-                                      context: parentContext,
-                                      processid: processId ?? 0,
-                                      deptid: widget.deptid ?? 1,
-                                      psid: widget.psid ?? 0,
-                                    );
-
-                                    await listofworkstationService
-                                        .getListofWorkstation(
-                                      context: parentContext,
-                                      deptid: widget.deptid ?? 1057,
-                                      psid: widget.psid ?? 0,
-                                      processid: processId ?? 0,
-                                    );
-                                              // Use the captured parent context to pop the dialog
-                                  Navigator.of(parentContext).pop();
-                                  } catch (e) {
-                                    // Handle any exceptions here
-                                    print("Error: $e");
-                                  } finally {
-                                   await Future.delayed(Duration(milliseconds: 300));
-                                    isTapped = false;
-                                  }
-                                  });
-                                },
-                                
-                              );
-                            },
+                                  onTap: () async {
+                                    // Prevent multiple taps
+                                   if (isTapped) {
+                    print("Tap ignored to prevent multiple triggers.");
+                    return;
+                  }
+                
+                  // Disable further taps
+                  isTapped = true;
+                Future.microtask(() async {
+                    try {
+                      // Perform your asynchronous operations
+                      await _changeWorkstation(
+                        empPersonid: empPersonid,
+                        pwesId: pwseId,
+                        pwsId: workstation?.pwsId,
+                        attId: attid,
+                      );
+                
+                      await employeeApiService.employeeList(
+                        context: parentContext,
+                        processid: processId ?? 0,
+                        deptid: widget.deptid ?? 1,
+                        psid: widget.psid ?? 0,
+                      );
+                
+                      await listofworkstationService.getListofWorkstation(
+                        context: parentContext,
+                        deptid: widget.deptid ?? 1057,
+                        psid: widget.psid ?? 0,
+                        processid: processId ?? 0,
+                      );
+                
+                      // Close the dialog after the operations complete
+                      Navigator.of(parentContext).pop();
+                    } catch (e) {
+                      // Handle errors gracefully
+                      print("Error during workstation change: $e");
+                    } finally {
+                      // Reset the tap flag after the transition completes
+                      await Future.delayed(Duration(milliseconds: 300));
+                      isTapped = false;
+                    }
+                  });
+                },                                  
+                                );
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -1114,70 +1121,7 @@ Future.microtask(()async{
                                       ),
                                     )),
                               ),
-                              // GestureDetector(
-                              //   onTap: () {
-                              //                                   _workstationPopup(
-                              //   empPersonid: employee.empPersonid,
-                              //   processId: employee.processId,
-                              //   pwseId: employee.pwseid,
-                              //   attid: int.tryParse(employee.attendanceid?.isEmpty ?? true ? '0' : employee.attendanceid ?? '0') ?? 0,
-                              //   attStatus: initialindex ?? 0,
-                              // );
-
-                              //   },
-                              //   child: Container(
-
-                              //     alignment: Alignment.center,
-                              //     width: 100.w,
-                              //     child: Card(
-
-                              //       child: Padding(
-                              //         padding:  EdgeInsets.only(bottom: 6.h,top: 6.h, left: 2.w,right: 2.w),
-                              //         child: Text(
-                              //           employee?.pwsName ?? "",
-                              //           style: TextStyle(
-                              //             color: Colors.grey.shade600,
-                              //            fontFamily: "lexend",fontSize: 14.sp
-                              //           ),
-                              //         ),
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
-                              // Padding(
-                              //   padding: const EdgeInsets.all(8.0),
-                              //   child: Container(
-                              //       alignment: Alignment.center,
-                              //       width: 120,
-                              //       child: Text(employee?.productName ?? '',
-                              //           style: TextStyle(
-                              //               color: Colors.grey.shade600,
-                              //               fontSize: 12))),
-                              // ),
-                              // Padding(
-                              //   padding: const EdgeInsets.all(8.0),
-                              //   child: Container(
-                              //       alignment: Alignment.center,
-                              //       width: 100,
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.only(left: 15),
-                              //         child: Text(employee.timing.toString(),
-                              //             style: TextStyle(
-                              //                 color: Colors.grey.shade600,
-                              //                 fontSize: 12)),
-                              //       )),
-                              // ),
-                              // Padding(
-                              //   padding: const EdgeInsets.all(8.0),
-                              //   child: Container(
-                              //     width: 120,
-                              //     alignment: Alignment.center,
-                              //     child: Text(employee.productQty.toString() ?? "",
-                              //         style: TextStyle(
-                              //             color: Colors.grey.shade600,
-                              //             fontSize: 12)),
-                              //   ),
-                              // ),
+                          
 
                               if (initialindex == 0)
                                 SizedBox(
@@ -1386,103 +1330,7 @@ Future.microtask(()async{
                                   ),
                                 ),
                               ),
-                              // if (shiftstatus == 1)
-                              //   Padding(
-                              //     padding: const EdgeInsets.only(left: 10,right: 10),
-                              //     child: Container(
-                              //         width: 120,
-                              //         child: Padding(
-                              //           padding: const EdgeInsets.all(8.0),
-                              //           child: ElevatedButton(
-                              //             onPressed: initialindex == 0
-                              //                 ? null
-                              //                 : () {
-                              //                     final employeeProvider =
-                              //                         Provider.of<EmployeeProvider>(
-                              //                             context,
-                              //                             listen: false);
-
-                              //                     // Get the employee ID of the current employee
-                              //                     final employeeId =
-                              //                         employeeResponse[index]
-                              //                             .empPersonid;
-
-                              //                     // Update the employee ID in the provider
-                              //                     employeeProvider
-                              //                         .updateEmployeeId(employeeId!);
-
-                              //                     // Navigate to the ProductionQuantityPage
-                              //                     Navigator.push(
-                              //                       context,
-                              //                       MaterialPageRoute(
-                              //                         builder: (context) =>
-                              //                             EmpProductionEntryPage(
-                              //                           empid: employee.empPersonid!,
-                              //                           processid: process_id ?? 1,
-                              //                           deptid: widget.deptid,
-                              //                           isload: true,
-                              //                           attenceid:
-                              //                               employee.attendanceid,
-                              //                           attendceStatus:
-                              //                               employee.flattstatus,
-                              //                           // shiftId: widget.shiftid,
-                              //                           psid: widget.psid,
-                              //                         ),
-                              //                       ),
-                              //                     );
-
-                              //                     // Fetch employee list
-                              //                     employeeApiService.employeeList(
-                              //                       context: context,
-                              //                       processid:
-                              //                           employee.processId ?? 0,
-                              //                       deptid: widget.deptid ?? 1,
-                              //                       psid: widget.psid ?? 0,
-                              //                     );
-                              //                   },
-                              //             child: Text("Add"),
-                              //           ),
-                              //         )),
-                              //   )
-                              // else if (shiftstatus == 2)
-                              //   Padding(
-                              //     padding: const EdgeInsets.all(8.0),
-                              //     child: Container(
-                              //        width: 120,
-                              //       child: Padding(
-                              //         padding: const EdgeInsets.all(8.0),
-                              //         child: ElevatedButton(
-                              //           onPressed: initialindex == 0
-                              //               ? null
-                              //               : () {
-                              //                   final employeeProvider =
-                              //                       Provider.of<EmployeeProvider>(context,
-                              //                           listen: false);
-
-                              //                   // Get the employee ID of the current employee
-                              //                   final employeeId =
-                              //                       employeeResponse[index].empPersonid;
-
-                              //                   // Update the employee ID in the provider
-                              //                   employeeProvider
-                              //                       .updateEmployeeId(employeeId!);
-                              //                   print(shiftstatus);
-
-                              //                   _closeShiftPop(
-                              //                       context,
-                              //                       employee.attendanceid ?? "",
-                              //                       employee.flattstatus ?? 0,
-                              //                       employee.empPersonid ?? 0,
-                              //                       employee.processId ?? 0);
-
-                              //                   // Navigate to the ProductionQuantityPage
-                              //                 },
-                              //           child: Text("Reopen",
-                              //               style: TextStyle(color: Colors.red)),
-                              //         ),
-                              //       ),
-                              //     ),
-                              //   )
+                           
                             ],
                           ),
                         );

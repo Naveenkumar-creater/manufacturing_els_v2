@@ -1244,8 +1244,8 @@ updateProblemList({
                   (widget.showButton == true && widget.ipdincid!=0)
                       ? 
                       CustomButton(
-                       width: 80.h,
-                        height:30.w,
+                       width:  screenSize.width < 572 ? 80.w : 100.w,
+                        height:  screenSize.width < 572 ? 30.h : 40.h,
                         onPressed:() async {
                       try {
                         await updateProblemList(
@@ -1300,9 +1300,6 @@ updateProblemList({
                       } catch (e) {
                         print("Error: $e");
                       }
-                      
-                                  
-                      
                                
                               },
                             
@@ -1319,10 +1316,9 @@ updateProblemList({
                       )
                       :  (widget.showButton == true && widget.ipdincid==0) ? Text("")
                      :
-                      
                        CustomButton(
-                        width:80.w,
-                        height:30.h,
+                     width:  screenSize.width < 572 ? 80.w : 100.w,
+                        height:  screenSize.width < 572 ? 30.h : 40.h,
                          onPressed: selectproblemname != null &&
                                  selectproblemCategoryname != null &&
                                  selectrootcausename != null
@@ -1352,6 +1348,7 @@ updateProblemList({
                                            ipdId: 0,
                                            ipdIncId: 0,
                                            assetId: widget.assetid);
+
                                    // final data = {
                                    //   "problemname":
                                    //       selectproblemname,

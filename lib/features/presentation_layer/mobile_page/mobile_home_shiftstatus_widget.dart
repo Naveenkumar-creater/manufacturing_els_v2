@@ -417,7 +417,11 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
             children: [
               Row(
                 children: [
-                  Text(
+                  Container(
+                    width: 160.w,
+                    child: Row(
+                      children: [
+                          Text(
                     "Attendance",
                     style: TextStyle(color: Colors.black87, fontSize: 16.sp,fontFamily: 'Lexend',),
                   ),
@@ -441,7 +445,11 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
                     style: TextStyle(fontFamily: 'Lexend',
                         color:  Color.fromARGB(255, 80, 96, 203), fontSize: 18.sp,),
                   ),
-                  SizedBox(width: 50.w,),  
+                      ],
+                    ),
+                  ),
+                  
+                  SizedBox(width: 30.w,),  
                    ShiftStatus == 1
                   ? Row(
                     children: [
@@ -462,8 +470,8 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
 
 
                Container(
-                height: 20,
-                width: 180,
+                height: 20.h,
+                width: 180.w,
                  child: StreamBuilder<String>(
                    stream: Stream.periodic(Duration(seconds: 1), (_) {
                      // Get the current date and time as a string
@@ -475,7 +483,7 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
                          'Loading...',
                          style: TextStyle(
                            color: Colors.black87,
-                           fontSize: 18.sp,
+                           fontSize: 14.sp,
                            fontFamily: 'Lexend',
                          ),
                        );
@@ -509,75 +517,77 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
                  ),
                )
 ,
+                 
               
-              SizedBox(width: 15.w,),
-              
-                Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ShiftStatus == 1
-                  ? CustomButton(
-                  height: 30.h,
-                                              width: 80.w,
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                                                  backgroundColor: Colors.green,
-                onPressed: () {
-                  closeShiftPop(context);
-                },
-                child: Text('Close Shift' ,style: TextStyle(
-                                                    color: Colors.white,fontSize: 12.sp,fontFamily: "Lexend"),))
-            :  
-            
-            CustomButton(
-              backgroundColor: Colors.red,
-                                              height: 30.h,
-                                              width: 80.w,
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
-                onPressed: () async {
-                  setState(() {
-                    isLoading = true; // Indicate loading
-                  });
-            
-                  try {
-                    // Perform all asynchronous operations
-                    await openShift();
-                    await shiftStatusService.getShiftStatus(
-                        context: context,
-                        deptid: widget.deptid,
-                        processid: widget.processid);
-                    await employeeApiService.employeeList(
-                        context: context,
-                        deptid: widget.deptid ?? 1,
-                        processid: widget.processid ?? 0,
-                        psid: widget.psid ?? 0);
-            
-                        
-                    await attendanceCountService.getAttCount(
-                                    context: context,
-                                    id: widget.processid ?? 0, deptid:widget.deptid ?? 1 , psid: widget.psid ?? 0);
-                                     await planQtyService.getPlanQty(context: context, id: widget.processid ??0, psid: widget.psid ??0 );
-              await actualQtyService.getActualQty(context: context, id: widget.processid??0,psid: widget.psid ??0);
-            
-            
-            
-                  } catch (e) {
-                    // Handle any errors that occur during the async operations
-                    print('Error: $e');
-                  } finally {
+                SizedBox(
+                  width: 110.w,
+                  child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ShiftStatus == 1
+                    ? CustomButton(
+                    height: 30.h,
+                                                width: 80.w,
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                                                    backgroundColor: Colors.green,
+                  onPressed: () {
+                    closeShiftPop(context);
+                  },
+                  child: Text('Close Shift' ,style: TextStyle(
+                                                      color: Colors.white,fontSize: 12.sp,fontFamily: "Lexend"),))
+                              :  
+                              
+                              CustomButton(
+                                backgroundColor: Colors.red,
+                                                height: 30.h,
+                                                width: 80.w,
+                                                borderRadius:
+                                                    BorderRadius.circular(50),
+                  onPressed: () async {
                     setState(() {
-                      isLoading = false; // Indicate completion
-                      // Update any other state variables as needed
+                      isLoading = true; // Indicate loading
                     });
-                  }
-                },
-               
-                child: Text('Open Shift',style: TextStyle(
-                                                    color: Colors.white,fontSize: 12.sp,fontFamily: "Lexend"),),
-              )
-            ],
-          )],),
+                              
+                    try {
+                      // Perform all asynchronous operations
+                      await openShift();
+                      await shiftStatusService.getShiftStatus(
+                          context: context,
+                          deptid: widget.deptid,
+                          processid: widget.processid);
+                      await employeeApiService.employeeList(
+                          context: context,
+                          deptid: widget.deptid ?? 1,
+                          processid: widget.processid ?? 0,
+                          psid: widget.psid ?? 0);
+                              
+                          
+                      await attendanceCountService.getAttCount(
+                                      context: context,
+                                      id: widget.processid ?? 0, deptid:widget.deptid ?? 1 , psid: widget.psid ?? 0);
+                                       await planQtyService.getPlanQty(context: context, id: widget.processid ??0, psid: widget.psid ??0 );
+                                await actualQtyService.getActualQty(context: context, id: widget.processid??0,psid: widget.psid ??0);
+                              
+                              
+                              
+                    } catch (e) {
+                      // Handle any errors that occur during the async operations
+                      print('Error: $e');
+                    } finally {
+                      setState(() {
+                        isLoading = false; // Indicate completion
+                        // Update any other state variables as needed
+                      });
+                    }
+                  },
+                                 
+                  child: Text('Open Shift',style: TextStyle(
+                                                      color: Colors.white,fontSize: 12.sp,fontFamily: "Lexend"),),
+                                )
+                              ],
+                            ),
+                )],),
               
            
             ],

@@ -152,7 +152,7 @@ bool isTapped = false;
 
     return WillPopScope(
   onWillPop: () async {
-    // Disable closing the drawer when `isTapped` is true.
+  
     return !isTapped;
   },
       child: Drawer(backgroundColor: Color.fromARGB(150, 235, 236, 255),

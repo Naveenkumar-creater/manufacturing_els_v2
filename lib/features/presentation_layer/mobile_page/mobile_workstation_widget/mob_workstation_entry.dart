@@ -150,8 +150,7 @@ class _EmpProductionEntryPageState
   FocusNode reworkFocusNode = FocusNode();
   FocusNode cardNoFocusNode = FocusNode();
    FocusNode assetFocusNode = FocusNode();
-  // Define the FocusNode for the Item Ref field
-  final FocusNode itemRefFocusNode = FocusNode();
+ FocusNode itemRefFocusNode = FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -464,10 +463,12 @@ Future<void> updateproduction(int? processid) async {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                               style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green
-                            ),
+                             CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -495,19 +496,21 @@ Future<void> updateproduction(int? processid) async {
                                 );
                               }
                             },
-                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red
-                            ),
+                            CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -548,10 +551,12 @@ Future<void> updateproduction(int? processid) async {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green
-                            ),
+                             CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -577,15 +582,17 @@ Future<void> updateproduction(int? processid) async {
                                 );
                               }
                             },
-                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize:MediaQuery.of(context).size.width<576 ? 12.sp:14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red
-                            ),
+                          CustomButton(
+                         width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                            backgroundColor: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
@@ -681,11 +688,12 @@ Future<void> updateproduction(int? processid) async {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                          
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green
-                            ),
+                            CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               
                             onPressed: () async {
                               try {
@@ -710,19 +718,21 @@ Future<void> updateproduction(int? processid) async {
                                 );
                               }
                             },
-                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
+                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red
-                            ),
+                             CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
+                              child:  Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -826,6 +836,11 @@ Future<void> updateproduction(int? processid) async {
       updateinitial();
     });
 
+  // cardNoFocusNode = FocusNode();
+  // cardNoFocusNode.addListener(() {
+  //   debugPrint("Focus state changed: ${cardNoFocusNode.hasFocus}");
+  // });
+  
     itemRefFocusNode.addListener(() {
       if (!itemRefFocusNode.hasFocus) {
         validateProductName(); // Validate when focus is lost
@@ -878,11 +893,13 @@ Future<void> updateproduction(int? processid) async {
   );
 
       DateTime? shiftToTime;
+       DateTime? parsedShiftToDate;
+        DateTime ?shiftEndDateTime ;
 if (shifttodate != null && shifttodate.isNotEmpty) {
-  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
+ parsedShiftToDate = DateTime.parse(shifttodate);
 
   // Create a DateTime object for the shift end time using the parsed date
-  DateTime shiftEndDateTime = DateTime(
+   shiftEndDateTime = DateTime(
     parsedShiftToDate.year,
     parsedShiftToDate.month,
     parsedShiftToDate.day,
@@ -894,7 +911,11 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
     // Do not add a day, keep the same date
     shiftToTime = parsedShiftToDate;
-  } else {
+  } else if (parsedShiftToDate==shiftEndDateTime){
+shiftToTime = parsedShiftToDate;
+  }
+  
+  else {
     // Add one day if the parsed date is after the shift end time
     shiftToTime = parsedShiftToDate.add(Duration(days: 1));
   }
@@ -936,11 +957,10 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
         );
 
        
-        if (shiftFromTime != null &&
-            shiftToTime != null &&
-            shiftToTime.isBefore(shiftFromTime)) {
+         if ((shiftToTime.isBefore(shiftFromTime)) && (shiftToTime != shiftEndDateTime)) {
           shiftToTime = shiftFromTime.add(Duration(days: 1));
-        }
+        } 
+      
 
       
       //         if (shiftFromTime != null &&
@@ -1156,6 +1176,8 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
     overallqty = null;
     cardNoController.dispose();
     _scrollController.dispose();
+  cardNoFocusNode.dispose();
+    
 
    for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
@@ -1256,11 +1278,13 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   );
 
       DateTime? shiftToTime;
+       DateTime? parsedShiftToDate;
+        DateTime ?shiftEndDateTime ;
 if (shifttodate != null && shifttodate.isNotEmpty) {
-  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
+   parsedShiftToDate = DateTime.parse(shifttodate);
 
   // Create a DateTime object for the shift end time using the parsed date
-  DateTime shiftEndDateTime = DateTime(
+   shiftEndDateTime = DateTime(
     parsedShiftToDate.year,
     parsedShiftToDate.month,
     parsedShiftToDate.day,
@@ -1269,10 +1293,16 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   );
 
   // Check if parsedShiftToDate is before the shift end time (08:00)
+ // Check if parsedShiftToDate is before the shift end time (08:00)
+ 
   if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
     // Do not add a day, keep the same date
     shiftToTime = parsedShiftToDate;
-  } else {
+  } else if (parsedShiftToDate==shiftEndDateTime){
+shiftToTime = parsedShiftToDate;
+  }
+  
+  else {
     // Add one day if the parsed date is after the shift end time
     shiftToTime = parsedShiftToDate.add(Duration(days: 1));
   }
@@ -1314,12 +1344,9 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
         );
 
        
-        if (shiftFromTime != null &&
-            shiftToTime != null &&
-            shiftToTime.isBefore(shiftFromTime)) {
+                        if ((shiftToTime.isBefore(shiftFromTime)) && (shiftToTime != shiftEndDateTime)) {
           shiftToTime = shiftFromTime.add(Duration(days: 1));
-        }
-
+        } 
       
 
         // Adjust the date of shiftToTime if it falls on the next day
@@ -1419,6 +1446,31 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   }
 
 
+void _handleCardNoValidation() {
+  final cardNo = int.tryParse(cardNoController.text) ?? 0;
+  if (cardNo != 0) {
+    cardNoApiService.getCardNo(
+      context: context,
+      cardNo: cardNo,
+    ).then((_) {
+      final item = Provider.of<CardNoProvider>(context, listen: false)
+          .user
+          ?.scanCardForItem;
+
+      if (item != null) {
+        setState(() {
+          product_Id = item.pcItemId;
+          pcid = item.pcId;
+          updateProductName(item.itemName ?? "");
+        });
+
+        // Move the focus to the Item Ref field automatically
+        FocusScope.of(context).requestFocus(itemRefFocusNode);
+      }
+    });
+  }
+}
+
   void _submitPop(BuildContext context) {
     showDialog(
         context: context,
@@ -1448,11 +1500,13 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                             
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green
-                            ),
+                          CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
+                           
                             onPressed: () async {
                               try {
                                 if (dropdownProduct != null &&
@@ -1477,19 +1531,21 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
                                 );
                               }
                             },
-                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize:  MediaQuery.of(context).size.width<576 ? 12.sp: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red
-                            ),
+                            CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
+                              child: Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize:  MediaQuery.of(context).size.width<576 ? 12.sp: 14.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -1786,10 +1842,32 @@ void addFocusListeners() {
     );
   }
 
+ void validateAndMoveFocus() {
+    final cardNo = int.tryParse(cardNoController.text) ?? 0;
+    if (cardNo != 0) {
+      cardNoApiService.getCardNo(
+        context: context,
+        cardNo: cardNo,
+      ).then((_) {
+        final item = Provider.of<CardNoProvider>(context, listen: false)
+            .user
+            ?.scanCardForItem;
+
+        if (item != null) {
+          setState(() {
+            product_Id = item.pcItemId;
+            pcid = item.pcId;
+            updateProductName(item.itemName ?? "");
+          });
+
+    cardNoFocusNode.unfocus();
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-
-
 
      final Size size = MediaQuery.of(context).size;
 
@@ -2196,40 +2274,20 @@ void addFocusListeners() {
                                                             ),
                                                           ],
                                                         ),
-                                             Focus(
-  focusNode: cardNoFocusNode,
-  onFocusChange: (hasFocus) {
-    // Trigger only when the focus is lost
-    if (!hasFocus) {
-      final cardNo = int.tryParse(cardNoController.text) ?? 0;
-      if (cardNo != 0) {
-        cardNoApiService.getCardNo(
-          context: context,
-          cardNo: cardNo,
-        ).then((_) {
-          final item = Provider.of<CardNoProvider>(context, listen: false)
-              .user
-              ?.scanCardForItem;
+                                        SizedBox(
+                                          width: 150.w,
+                                          height: 50.h,
+                                          child: FocusScope(
+                                            onFocusChange: (onfocus){
+                                              if(!onfocus){
+                                                validateAndMoveFocus();
+                                                        cardNoFocusNode.unfocus(); // Explicitly unfocus the field
 
-          if (item != null) {
-            setState(() {
-              product_Id = item.pcItemId;
-              pcid = item.pcId;
-              updateProductName(item.itemName ?? "");
-            });
-
-            // Move the focus to the Item Ref field automatically
-            FocusScope.of(context).requestFocus(itemRefFocusNode);
-          }
-        });
-      }
-    }
-  },
-  child: SizedBox(
-    width: 150.w,
-    height: 50.h,
-    child: CustomNumField(
-        enabledBorder:
+                                              }
+                                            
+                                            },
+                                            child: CustomNumField(
+                                                enabledBorder:
                                                                 OutlineInputBorder(
                                                               borderRadius:
                                                                   BorderRadius
@@ -2262,46 +2320,24 @@ void addFocusListeners() {
                                                                           .grey,
                                                                       width: 1),
                                                             ),
-      controller: cardNoController,
-      hintText: 'Job Card',
-      keyboardtype: TextInputType.number,
-
-      validation: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Enter Job Card.';
-        } else if (RegExp(r'^0+$').hasMatch(value)) {
-          return 'Cannot contain zeros';
-        }
-        return null;
-      },
-      enabled: activityDropdown !=null ? false:true,
-      onEditingComplete: () {
-        final cardNo = int.tryParse(cardNoController.text) ?? 0;
-        if (cardNo != 0) {
-          cardNoApiService.getCardNo(
-            context: context,
-            cardNo: cardNo,
-          ).then((_) {
-            final item = Provider.of<CardNoProvider>(context, listen: false)
-                .user
-                ?.scanCardForItem;
-
-            if (item != null) {
-              setState(() {
-                product_Id = item.pcItemId;
-                pcid = item.pcId;
-                updateProductName(item.itemName ?? "");
-              });
-
-              // Move the focus to the Item Ref field automatically
-              FocusScope.of(context).requestFocus(itemRefFocusNode);
-            }
-          });
-        }
-      },
-    ),
-  ),
-),
+                                              focusNode: cardNoFocusNode,
+                                              controller: cardNoController,
+                                              hintText: 'Job Card',
+                                              keyboardtype: TextInputType.number,
+                                              validation: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Enter Job Card.';
+                                                } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                  return 'Cannot contain zeros';
+                                                }
+                                                return null;
+                                              },
+                                              enabled: activityDropdown != null ? false : true,
+                                              onEditingComplete: validateAndMoveFocus,
+                                              
+                                            ),
+                                          ),
+                                        ),
                                                       ],
                                                     ),
                                                     SizedBox(
@@ -4074,7 +4110,7 @@ else{
                                                       height: 35.h,
                                                       child: CustomButton(
                                                         width: 80.w,
-                                                        height: 35.h,
+                                                        height: 30.h,
                                                         onPressed: () {
                                                           _EmpOpenShiftPop(
                                                               context,

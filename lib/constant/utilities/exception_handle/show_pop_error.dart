@@ -84,11 +84,11 @@ class ShowError {
                         ),
                         SizedBox(height: 35),
                         SizedBox(
-                          width: 150,
-                          height: 35,
+                          width:MediaQuery.of(context).size.width<576 ? 100.w:130.h,
+                          height:MediaQuery.of(context).size.width< 576? 30.h : 35.h,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
-                            child: Text(buttonText, style: TextStyle(color: Colors.white)),
+                            child: Text(buttonText, style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.width<576 ? 12.sp:14.sp,)),
                             onPressed: () {
                               Navigator.of(context).pop();
                             },

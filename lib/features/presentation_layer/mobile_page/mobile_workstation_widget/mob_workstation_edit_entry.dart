@@ -842,10 +842,12 @@ void clearTextFields() {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                               style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green
-                            ),
+                          CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                             onPressed: () async {
                               try {
                                 await EmpClosesShift.empCloseShift(
@@ -873,20 +875,21 @@ void clearTextFields() {
                                 );
                               }
                             },
-                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
+                            child:  Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
-                          ElevatedButton(
-                          
-                               style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red
-                            ),
+                          CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child:Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
+                              child:Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -928,10 +931,14 @@ void clearTextFields() {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          ElevatedButton(
-                               style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green
-                            ),
+                          CustomButton(
+                            width:MediaQuery.of(context).size.width<576 ? 80.w:120.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.green,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
+                  
+                            
                             onPressed: () async {
                               try {
                                 if (dropdownProduct != null &&
@@ -957,19 +964,21 @@ void clearTextFields() {
                                 );
                               }
                             },
-                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white)),
+                            child: Text("Submit",style: TextStyle(fontFamily: "lexend",fontSize:  MediaQuery.of(context).size.width<576 ? 12.sp: 14.sp,color: Colors.white)),
                           ),
                           const SizedBox(
                             width: 20,
                           ),
-                          ElevatedButton(
-                                 style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red
-                            ),
+                           CustomButton(
+                             width:MediaQuery.of(context).size.width<576 ? 80.w:100.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
                               onPressed: () {
                                 Navigator.pop(context);
                               },
-                              child:Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 14.sp,color: Colors.white))),
+                              child:Text("Cancel",style: TextStyle(fontFamily: "lexend",fontSize: 12.sp,color: Colors.white))),
                         ],
                       ),
                     )
@@ -3097,11 +3106,11 @@ Container(
                                                                 alignment:
                                                                     Alignment
                                                                         .center,
-                                                                width: 100.w,
+                                                             
                                                                 child:
                                                                     CustomButton(
                                                                   width: 80.w,
-                                                                  height: 40.h,
+                                                                  height: 30.h,
                                                                   onPressed:
                                                                       () {
                                                                     _EmpOpenandCloseShiftPop(

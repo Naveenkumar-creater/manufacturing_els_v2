@@ -98,7 +98,7 @@ void dispose() {
               ?.psId ??
           0;
 
-      if (psId == 0) throw Exception("Invalid psId: $psId");
+      // if (psId == 0) throw Exception("Invalid psId: $psId");
 
       await employeeApiService.employeeList(
         context: context,

@@ -441,6 +441,11 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
       updateinitial();
     });
 
+  // cardNoFocusNode = FocusNode();
+  // cardNoFocusNode.addListener(() {
+  //   debugPrint("Focus state changed: ${cardNoFocusNode.hasFocus}");
+  // });
+  
     itemRefFocusNode.addListener(() {
       if (!itemRefFocusNode.hasFocus) {
         validateProductName(); // Validate when focus is lost
@@ -448,61 +453,61 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
     });
     reworkValue ??= 0; // Set reworkValue to 0 if it's currently null
     // Get the current time details
-  currentDateTime = DateTime.now();
-      now = DateTime.now();
-      currentYear = now.year;
-      currentMonth = now.month;
-      currentDay = now.day;
-      currentHour = now.hour;
-      currentMinute = now.minute;
-      currentSecond = now.second;
+    currentDateTime = DateTime.now();
+    now = DateTime.now();
+    currentYear = now.year;
+    currentMonth = now.month;
+    currentDay = now.day;
+    currentHour = now.hour;
+    currentMinute = now.minute;
+    currentSecond = now.second;
+    String? shiftTime;
+    final productionEntry =
+        Provider.of<EmpProductionEntryProvider>(context, listen: false)
+            .user
+            ?.empProductionEntity;
 
-      String? shiftTime;
+    String? shifttodate = productionEntry?.ipdtotime;
 
-      final productionEntry = Provider.of<EmpProductionEntryProvider>(context, listen: false)
-              .user
-              ?.empProductionEntity;
-
-     
-      
-
-      final shiftfromtime =  Provider.of<ShiftStatusProvider>(context, listen: false)
-              .user
-              ?.shiftStatusdetailEntity
-              ?.shiftFromTime;
+    final shiftFromtime =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftFromTime;
 
 // Construct the shift start date with current time
-      final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
-          '${currentMonth.toString().padLeft(2, '0')}-'
-          '${currentDay.toString().padLeft(2, '0')} $shiftfromtime';
+    final shiftStartDateTiming = '${currentYear.toString().padLeft(4, '0')}-'
+        '${currentMonth.toString().padLeft(2, '0')}-'
+        '${currentDay.toString().padLeft(2, '0')} $shiftFromtime';
 
 // Reassign the current fromtime value based on the condition
-      fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
-          ? shiftStartDateTiming
-          : productionEntry?.ipdtotime;
-
-
+    fromtime = (productionEntry?.ipdfromtime?.isEmpty ?? true)
+        ? shiftStartDateTiming
+        : productionEntry?.ipdtotime;
 
 // Retrieve shift details
- // Retrieve shift details
-      final shiftToTimeString = Provider.of<ShiftStatusProvider>(context, listen: false)
-              .user
-              ?.shiftStatusdetailEntity
-              ?.shiftToTime;
+    final shiftToTimeString =
+        Provider.of<ShiftStatusProvider>(context, listen: false)
+            .user
+            ?.shiftStatusdetailEntity
+            ?.shiftToTime;
 
-      String? shifttodate = productionEntry?.ipdtotime;
-    TimeOfDay shiftendTime = TimeOfDay(
+       TimeOfDay shiftendTime = TimeOfDay(
     hour: int.parse(shiftToTimeString!.split(":")[0]),
     minute: int.parse(shiftToTimeString!.split(":")[1]),
   );
 
-      DateTime? shiftToTime;
+          DateTime? shiftToTime;
+    DateTime? parsedShiftToDate;
+    DateTime ?shiftEndDateTime ;
+
+
 
 if (shifttodate != null && shifttodate.isNotEmpty) {
-  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
+   parsedShiftToDate = DateTime.parse(shifttodate);
 
   // Create a DateTime object for the shift end time using the parsed date
-  DateTime shiftEndDateTime = DateTime(
+   shiftEndDateTime = DateTime(
     parsedShiftToDate.year,
     parsedShiftToDate.month,
     parsedShiftToDate.day,
@@ -511,10 +516,17 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   );
 
   // Check if parsedShiftToDate is before the shift end time (08:00)
+ // Check if parsedShiftToDate is before the shift end time (08:00)
+ 
   if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
     // Do not add a day, keep the same date
     shiftToTime = parsedShiftToDate;
-  } else {
+
+  } else if (parsedShiftToDate==shiftEndDateTime){
+   shiftToTime = parsedShiftToDate;
+  }
+  
+  else {
     // Add one day if the parsed date is after the shift end time
     shiftToTime = parsedShiftToDate.add(Duration(days: 1));
   }
@@ -556,62 +568,54 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
         );
 
        
-        if (shiftFromTime != null &&
-            shiftToTime != null &&
-            shiftToTime.isBefore(shiftFromTime)) {
+              if ((shiftToTime.isBefore(shiftFromTime)) && (shiftToTime != shiftEndDateTime)) {
           shiftToTime = shiftFromTime.add(Duration(days: 1));
-        }
+        } 
+      //         if (shiftFromTime != null &&
+      //       shiftToTime != null ){
+      //       if((shiftToTime.day == DateTime.now().day &&
+      //          shiftToTime.month == DateTime.now().month &&
+      //          shiftToTime.year == DateTime.now().year &&
+      //          shiftToTime.isAfter(shiftFromTime)) ){
+      //        shiftToTime = shiftToTime;
+      //          }
+      //      else {
+      //     shiftToTime = shiftToTime.add(Duration(days: 1));
 
-      
+      // }
+      //       }
+    }
 
+    if (shiftFromTime != null && shiftToTime != null) {
+      // No adjustment of shiftToTime date, keeping it as-is
+      // if (currentTime.isAfter(shiftFromTime) &&
+      //     currentTime.isBefore(shiftToTime)) {
+      //   // Current time is within the shift time
+      //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+      //       '${currentTime.minute.toString().padLeft(2, '0')}:'
+      //       '${currentTime.second.toString().padLeft(2, '0')}';
+      //   shiftTime = timeString;
+      // } else {
+      // Current time is outside the shift time
+      shiftTime = shiftToTimeString;
 
-        // Adjust the date of shiftToTime if it falls on the next day
-        //   if (shiftFromTime != null &&
-        //       shiftToTime != null ){
-        //       if((shiftToTime.day == DateTime.now().day &&
-        //          shiftToTime.month == DateTime.now().month &&
-        //          shiftToTime.year == DateTime.now().year &&
-        //          shiftToTime.isAfter(shiftFromTime)) ){
-        //        shiftToTime = shiftToTime;
-        //          }
-        //      else {
-        //     shiftToTime = shiftToTime.add(Duration(days: 1));
+      if (shiftToTime != null) {
+        setState(() {
+          lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
+              '${shiftToTime.month.toString().padLeft(2, '0')}-'
+              '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
 
-        // }
-        //       }
-      }
-
-      if (shiftFromTime != null && shiftToTime != null) {
-        // No adjustment of shiftToTime date, keeping it as-is
-        // if (currentTime.isAfter(shiftFromTime) &&
-        //     currentTime.isBefore(shiftToTime)) {
-        //   // Current time is within the shift time
-        //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
-        //       '${currentTime.minute.toString().padLeft(2, '0')}:'
-        //       '${currentTime.second.toString().padLeft(2, '0')}';
-        //   shiftTime = timeString;
-        // } else {
-        //   // Current time is outside the shift time
-        shiftTime = shiftToTimeString;
-
-        if (shiftToTime != null) {
-          setState(() {
-            lastUpdatedTime = '${shiftToTime!.year.toString().padLeft(4, '0')}-'
-                '${shiftToTime.month.toString().padLeft(2, '0')}-'
-                '${shiftToTime.day.toString().padLeft(2, '0')} $shiftTime';
-
-            print(lastUpdatedTime);
-          });
-        } else {
-          print("Shift To time is not available.");
-        }
+          print(lastUpdatedTime);
+        });
       } else {
-        print("Shift From or To time is not available.");
+        print("Shift To time is not available.");
       }
+    } else {
+      print("Shift From or To time is not available.");
+    }
 
-      shiftStartTime = DateTime.parse(fromtime!);
-      shiftEndtTime = DateTime.parse(lastUpdatedTime!);
-
+    shiftStartTime = DateTime.parse(fromtime!);
+    shiftEndtTime = DateTime.parse(lastUpdatedTime!);
   }
 
   void submitGoodQuantity() {
@@ -737,6 +741,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
     reworkQtyController.dispose();
     overallqty = null;
     cardNoController.dispose();
+    cardNoFocusNode.dispose();
 
     for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
@@ -785,6 +790,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
           id: widget.processid ?? 0,
           deptid: widget.deptid ?? 0,
           pwsId: widget.pwsid ?? 0);
+
       await productLocationService.getAreaList(context: context);
 
       currentDateTime = DateTime.now();
@@ -802,7 +808,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
               .user
               ?.empProductionEntity;
 
-     
+      String? shifttodate = productionEntry?.ipdtotime;
       
 
       final shiftfromtime =  Provider.of<ShiftStatusProvider>(context, listen: false)
@@ -827,19 +833,23 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
               .user
               ?.shiftStatusdetailEntity
               ?.shiftToTime;
-
-      String? shifttodate = productionEntry?.ipdtotime;
-    TimeOfDay shiftendTime = TimeOfDay(
+              
+       TimeOfDay shiftendTime = TimeOfDay(
     hour: int.parse(shiftToTimeString!.split(":")[0]),
     minute: int.parse(shiftToTimeString!.split(":")[1]),
   );
 
-      DateTime? shiftToTime;
+    DateTime? shiftToTime;
+    DateTime? parsedShiftToDate;
+    DateTime ?shiftEndDateTime ;
+
+
+
 if (shifttodate != null && shifttodate.isNotEmpty) {
-  DateTime parsedShiftToDate = DateTime.parse(shifttodate);
+   parsedShiftToDate = DateTime.parse(shifttodate);
 
   // Create a DateTime object for the shift end time using the parsed date
-  DateTime shiftEndDateTime = DateTime(
+   shiftEndDateTime = DateTime(
     parsedShiftToDate.year,
     parsedShiftToDate.month,
     parsedShiftToDate.day,
@@ -848,10 +858,17 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   );
 
   // Check if parsedShiftToDate is before the shift end time (08:00)
+ // Check if parsedShiftToDate is before the shift end time (08:00)
+ 
   if (parsedShiftToDate.isBefore(shiftEndDateTime)) {
     // Do not add a day, keep the same date
     shiftToTime = parsedShiftToDate;
-  } else {
+
+  } else if (parsedShiftToDate==shiftEndDateTime){
+   shiftToTime = parsedShiftToDate;
+  }
+  
+  else {
     // Add one day if the parsed date is after the shift end time
     shiftToTime = parsedShiftToDate.add(Duration(days: 1));
   }
@@ -893,15 +910,24 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
         );
 
        
-        if (shiftFromTime != null &&
-            shiftToTime != null &&
-            shiftToTime.isBefore(shiftFromTime)) {
+              if ((shiftToTime.isBefore(shiftFromTime)) && (shiftToTime != shiftEndDateTime)) {
           shiftToTime = shiftFromTime.add(Duration(days: 1));
-        }
+        } 
 
+    
       }
 
       if (shiftFromTime != null && shiftToTime != null) {
+        // No adjustment of shiftToTime date, keeping it as-is
+        // if (currentTime.isAfter(shiftFromTime) &&
+        //     currentTime.isBefore(shiftToTime)) {
+        //   // Current time is within the shift time
+        //   final timeString = '${currentTime.hour.toString().padLeft(2, '0')}:'
+        //       '${currentTime.minute.toString().padLeft(2, '0')}:'
+        //       '${currentTime.second.toString().padLeft(2, '0')}';
+        //   shiftTime = timeString;
+        // } else {
+        //   // Current time is outside the shift time
         shiftTime = shiftToTimeString;
 
         if (shiftToTime != null) {
@@ -923,7 +949,6 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
       shiftEndtTime = DateTime.parse(lastUpdatedTime!);
 
       empTimingUpdation(fromtime!, lastUpdatedTime!);
-
 
       _storedWorkstationProblemList();
 
@@ -2009,6 +2034,30 @@ style: ElevatedButton.styleFrom(
     }
   }
 
+   void validateAndMoveFocus() {
+    final cardNo = int.tryParse(cardNoController.text) ?? 0;
+    if (cardNo != 0) {
+      cardNoApiService.getCardNo(
+        context: context,
+        cardNo: cardNo,
+      ).then((_) {
+        final item = Provider.of<CardNoProvider>(context, listen: false)
+            .user
+            ?.scanCardForItem;
+
+        if (item != null) {
+          setState(() {
+            product_Id = item.pcItemId;
+            pcid = item.pcId;
+            updateProductName(item.itemName ?? "");
+          });
+
+    cardNoFocusNode.unfocus();
+        }
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -2444,78 +2493,38 @@ else{
   ],
 ),
 SizedBox(width: 50.h),
-Focus(
-  focusNode: cardNoFocusNode,
-  onFocusChange: (hasFocus) {
-    // Trigger only when the focus is lost
-    if (!hasFocus) {
-      final cardNo = int.tryParse(cardNoController.text) ?? 0;
-      if (cardNo != 0) {
-        cardNoApiService.getCardNo(
-          context: context,
-          cardNo: cardNo,
-        ).then((_) {
-          final item = Provider.of<CardNoProvider>(context, listen: false)
-              .user
-              ?.scanCardForItem;
+              SizedBox(
+                                          width: 170.w,
+                                          height: 40.h,
+                                          child: FocusScope(
+                                            onFocusChange: (onfocus){
+                                              if(!onfocus){
+                                                validateAndMoveFocus();
+                                                        cardNoFocusNode.unfocus(); // Explicitly unfocus the field
 
-          if (item != null) {
-            setState(() {
-              product_Id = item.pcItemId;
-              pcid = item.pcId;
-              updateProductName(item.itemName ?? "");
-            });
-
-            // Move the focus to the Item Ref field automatically
-            FocusScope.of(context).requestFocus(itemRefFocusNode);
-          }
-        });
-      }
-    }
-  },
-  child: SizedBox(
-    width: 170.w,
-    height: 40.h,
-    child: CustomNumField(
-      controller: cardNoController,
-      hintText: 'Job Card',
-      keyboardtype: TextInputType.number,
-      validation: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Enter Job Card.';
-        } else if (RegExp(r'^0+$').hasMatch(value)) {
-          return 'Cannot contain zeros';
-        }
-        return null;
-      },
-      enabled: activityDropdown !=null ? false:true,
-      onEditingComplete: () {
-        final cardNo = int.tryParse(cardNoController.text) ?? 0;
-        if (cardNo != 0) {
-          cardNoApiService.getCardNo(
-            context: context,
-            cardNo: cardNo,
-          ).then((_) {
-            final item = Provider.of<CardNoProvider>(context, listen: false)
-                .user
-                ?.scanCardForItem;
-
-            if (item != null) {
-              setState(() {
-                product_Id = item.pcItemId;
-                pcid = item.pcId;
-                updateProductName(item.itemName ?? "");
-              });
-
-              // Move the focus to the Item Ref field automatically
-              FocusScope.of(context).requestFocus(itemRefFocusNode);
-            }
-          });
-        }
-      },
-    ),
-  ),
-),
+                                              }
+                                            
+                                            },
+                                            child: CustomNumField(
+                                               
+                                              focusNode: cardNoFocusNode,
+                                              controller: cardNoController,
+                                              hintText: 'Job Card',
+                                              keyboardtype: TextInputType.number,
+                                              validation: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Enter Job Card.';
+                                                } else if (RegExp(r'^0+$').hasMatch(value)) {
+                                                  return 'Cannot contain zeros';
+                                                }
+                                                return null;
+                                              },
+                                              enabled: activityDropdown != null ? false : true,
+                                              onEditingComplete: validateAndMoveFocus,
+                                              
+                                            ),
+                                          ),
+                                        ),
                                                         ]),
                                                     SizedBox(width: 50.h),
                                                     Column(

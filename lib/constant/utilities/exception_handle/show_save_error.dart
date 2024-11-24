@@ -91,15 +91,15 @@ class ShowSaveError {
                     ),
                     SizedBox(height: 35.h), // Spacing before button
                     SizedBox(
-                      width: 150.w,
-                      height: 35.h,
+                       width:MediaQuery.of(context).size.width<576 ? 100.w:130.h,
+                          height:MediaQuery.of(context).size.width< 576? 30.h : 35.h,
                       child: ElevatedButton(
                         
                         style: ElevatedButton.styleFrom(
                           backgroundColor: buttonColor,
                           
                         ),
-                        child: Text(buttontext,style: TextStyle(color: Colors.white)),
+                        child: Text(buttontext,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.width<576 ? 12.sp:14.sp,)),
                         onPressed: () {
                           Navigator.of(context).pop();
                             Navigator.of(context).pop();

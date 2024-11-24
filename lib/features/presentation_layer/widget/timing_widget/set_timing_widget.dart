@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 
 class UpdateTime extends StatefulWidget {
   final void Function(String) onTimeChanged;
@@ -115,7 +116,9 @@ class _UpdateTimeState extends State<UpdateTime> {
         ),
         SizedBox(width: 16),
         // Set Time Button
-        ElevatedButton(
+        CustomButton(
+         
+         
           onPressed: () async {
             final TimeOfDay? result = await showTimePicker(
               context: context,
@@ -131,7 +134,7 @@ class _UpdateTimeState extends State<UpdateTime> {
                 );
               },
             );
-
+        
             if (result != null) {
               setState(() {
                 // Update selectedDateTime with the new time while keeping the date
@@ -142,12 +145,12 @@ class _UpdateTimeState extends State<UpdateTime> {
                   result.hour,
                   result.minute,
                 );
-
+        
                 // Handle midnight crossing
                 if (selectedDateTime.isBefore(shiftFromDateTime) && result.hour < shiftFromDateTime.hour) {
                   selectedDateTime = selectedDateTime.add(Duration(days: 1));
                 }
-
+        
                 // Validate: Ensure selected time is within the shift time range
                 if (selectedDateTime.isBefore(shiftFromDateTime)) {
                   selectedDateTime = shiftFromDateTime;
@@ -155,11 +158,17 @@ class _UpdateTimeState extends State<UpdateTime> {
                   selectedDateTime = shiftToDateTime;
                 }
               });
-
+        
               _updateTime(); // Call the update function to handle the new time
             }
           },
-          child: Text("Set Time"),
+         width:MediaQuery.of(context).size.width<576 ? 80.w:120.h,
+                        height:MediaQuery.of(context).size.width<576 ? 30.h : 35.h,
+                          backgroundColor: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(50.r),
+                                                
+          child: Text("Set Time",style: TextStyle(fontFamily: "lexend",fontSize: MediaQuery.of(context).size.width<576 ? 12.sp: 14.sp),),
         ),
       ],
     );

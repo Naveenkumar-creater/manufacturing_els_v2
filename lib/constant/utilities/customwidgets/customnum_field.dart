@@ -8,6 +8,8 @@ class CustomNumField extends StatelessWidget {
   final String hintText;
   final Function()? onEditingComplete;
   final Function()? onSubmitted;
+    final Function()? onTap;
+
   final void Function(String)? onChanged;
   final void Function(bool)? onFocusChange; // Add this parameter for focus change callback
   final TextInputType? keyboardtype;
@@ -34,6 +36,7 @@ class CustomNumField extends StatelessWidget {
     this.border,
     this.readOnly = false,
     this.enabled = true,
+    this.onTap
   });
 
   @override
@@ -89,6 +92,7 @@ class CustomNumField extends StatelessWidget {
       validator: validation,
       readOnly: readOnly,
       enabled: enabled,
+      onTap: onTap,
     );
   }
 }
