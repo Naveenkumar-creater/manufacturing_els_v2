@@ -25,6 +25,7 @@ import 'package:prominous/features/presentation_layer/api_services/non_productio
 import 'package:prominous/features/presentation_layer/api_services/problem_status_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/product_avilable_qty_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/product_location_di.dart';
+import 'package:prominous/features/presentation_layer/api_services/rootcause_solution_di.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/activity_model.dart';
@@ -128,6 +129,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   final Listofproblemservice listofproblemservice = Listofproblemservice();
   final ProblemStatusService problemStatusService = ProblemStatusService();
   final ListofRootCauseService listofRootCauseService = ListofRootCauseService();
+  final RootcauseSolutionService rootcauseSolutionService = RootcauseSolutionService();
   final ListofproblemCategoryservice listofproblemCategoryservice = ListofproblemCategoryservice();
   final TargetQtyApiService targetQtyApiService = TargetQtyApiService();
   final EmpProductionEntryService empProductionEntryService = EmpProductionEntryService();
@@ -148,8 +150,9 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
   FocusNode reworkFocusNode = FocusNode();
   FocusNode cardNoFocusNode = FocusNode();
   // Define the FocusNode for the Item Ref field
-  final FocusNode itemRefFocusNode = FocusNode();
-    final FocusNode assetFocusNode = FocusNode();
+   FocusNode itemRefFocusNode = FocusNode();
+     FocusNode assetFocusNode = FocusNode();
+     FocusNode targetQtyFocusNode = FocusNode();
   bool isChecked = false;
 
   bool isLoading = true;
@@ -742,6 +745,9 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
     overallqty = null;
     cardNoController.dispose();
     cardNoFocusNode.dispose();
+    targetQtyFocusNode.dispose();
+    assetFocusNode.dispose();
+    itemRefFocusNode.dispose();
 
     for (var controller in empTimingTextEditingControllers) {
       controller.dispose();
@@ -1463,7 +1469,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
                                 );
                               }
                             },
-                            child: const Text("Submit",style: TextStyle(color: Colors.white),),
+                            child: const Text("Submit",style: TextStyle(color: Colors.white,fontFamily: "lexend"),),
                           ),
                           const SizedBox(
                             width: 20,
@@ -2031,6 +2037,7 @@ style: ElevatedButton.styleFrom(
           itemerrorMessage = null; // Clear the error message if valid
         });
       }
+     
     }
   }
 
@@ -2051,8 +2058,7 @@ style: ElevatedButton.styleFrom(
             pcid = item.pcId;
             updateProductName(item.itemName ?? "");
           });
-
-    cardNoFocusNode.unfocus();
+   FocusScope.of(context).nextFocus();
         }
       });
     }
@@ -2449,7 +2455,7 @@ else{
                                           ),
                                           child: Padding(
                                             padding: EdgeInsets.symmetric(
-                                                horizontal: 4.w, vertical: 4.h),
+                                                horizontal: 4.w, vertical: 8.h),
                                             child: Column(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -2495,12 +2501,12 @@ else{
 SizedBox(width: 50.h),
               SizedBox(
                                           width: 170.w,
-                                          height: 40.h,
+                                          height: 45.h,
                                           child: FocusScope(
                                             onFocusChange: (onfocus){
                                               if(!onfocus){
                                                 validateAndMoveFocus();
-                                                        cardNoFocusNode.unfocus(); // Explicitly unfocus the field
+                                            // Explicitly unfocus the field
 
                                               }
                                             
@@ -2560,7 +2566,7 @@ SizedBox(width: 50.h),
                                                         ),
                                                         SizedBox(
                                                           width: 170,
-                                                          height: 40,
+                                                          height: 45,
                                                           child: TypeAheadField<
                                                               String>(
                                                             textFieldConfiguration:
@@ -2615,7 +2621,7 @@ SizedBox(width: 50.h),
                                                                               5),
                                                                   borderSide: BorderSide(
                                                                       color: Colors
-                                                                          .grey,
+                                                                          .white,
                                                                       width: 1),
                                                                 ),
                                                                 focusedBorder:
@@ -2637,21 +2643,21 @@ SizedBox(width: 50.h),
                                                                               5),
                                                                   borderSide: BorderSide(
                                                                       color: Colors
-                                                                          .grey,
+                                                                          .white,
                                                                       width: 1),
                                                                 ),
                                                               ),
                                                               onSubmitted:
                                                                   (value) {
                                                                 validateProductName();
+                                                                 Focus.of(context).nextFocus();
                                                               },
                                                               // Add this to handle validation when focus is lost
                                                               onEditingComplete:
                                                                   () {
                                                                 validateProductName();
-                                                                FocusScope.of(
-                                                                        context)
-                                                                    .unfocus();
+                                                                Focus.of(context).nextFocus();
+                                                         
                                                               },
                                                             ),
                                                             suggestionsCallback:
@@ -2797,28 +2803,38 @@ SizedBox(width: 50.h),
                                                             ),
                                                           ],
                                                         ),
-                                                        Focus(
-                                                          focusNode: assetFocusNode,
+   Focus(
+
   onFocusChange: (hasFocus) {
     if (!hasFocus) {
       // When focus is lost, submit the value
       final assetId = assetCotroller.text;
 
       if (assetId.isNotEmpty) {
-       setState(() {
-         assetCotroller.text=assetId;
-       });
+        setState(() {
+          assetCotroller.text = assetId;
+        });
+
         print("Asset ID submitted: $assetId");
+
+    FocusScope.of(context).nextFocus();
       }
     }
   },
   child: SizedBox(
     width: 170.w,
-    height: 42.h,
+    height: 45.h,
     child: CustomNumField(
+         focusNode: assetFocusNode,
       enabled: activityDropdown != null ? false : true,
       controller: assetCotroller,
       hintText: 'Asset id',
+       onSubmitted: () {
+            FocusScope.of(context).nextFocus();// Explicitly unfocus on submission
+      },
+      onEditingComplete: () {
+         FocusScope.of(context).nextFocus(); // Explicitly unfocus when editing completes
+      },
       
     ),
   ),
@@ -2871,7 +2887,7 @@ SizedBox(width: 50.h),
                                                             border: Border.all(
                                                                 width: 1,
                                                                 color: Colors
-                                                                    .grey),
+                                                                    .white),
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .all(Radius
@@ -2885,6 +2901,8 @@ SizedBox(width: 50.h),
                                                                 activityDropdown,
                                                             decoration:
                                                                 InputDecoration(
+                                                                  fillColor: Colors.white,
+                                                                  filled: true,
                                                               contentPadding:
                                                                   EdgeInsets.symmetric(
                                                                       horizontal:
@@ -3101,6 +3119,7 @@ SizedBox(width: 50.h),
                                                           width: 170.w,
                                                           height: 45.h,
                                                           child: CustomNumField(
+                                                            focusNode: targetQtyFocusNode,
                                                             validation:
                                                                 (value) {
                                                               if (value ==
@@ -3120,6 +3139,9 @@ SizedBox(width: 50.h),
                                                                 targetQtyController,
                                                             hintText:
                                                                 'Target Quantity',
+                                                                   onEditingComplete: () {
+         FocusScope.of(context).nextFocus();
+      },
                                                           ),
                                                         ),
                                                       ],
@@ -3145,7 +3167,7 @@ SizedBox(width: 50.h),
                                                             ),
                                                             SizedBox(
                                                               width: 100.w,
-                                                              height: 40.h,
+                                                              height: 45.h,
                                                               child: Checkbox(
                                                                 value:
                                                                     isChecked,
@@ -3753,7 +3775,7 @@ SizedBox(width: 50.h),
                                                             border: Border.all(
                                                                 width: 1,
                                                                 color: Colors
-                                                                    .grey),
+                                                                    .white),
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .all(Radius
@@ -3767,6 +3789,8 @@ SizedBox(width: 50.h),
                                                                 locationDropdown,
                                                             decoration:
                                                                 InputDecoration(
+                                                                  fillColor: Colors.white,
+                                                                  filled: true,
                                                               contentPadding:
                                                                   EdgeInsets.symmetric(
                                                                       horizontal:
@@ -4087,6 +4111,8 @@ SizedBox(width: 50.h),
                                                                         .black54),
                                                               ),
                                                             ),
+
+                                                            
                                                             Container(
                                                               alignment:
                                                                   Alignment
@@ -4147,7 +4173,7 @@ SizedBox(width: 50.h),
                                                                           borderRadius:
                                                                               BorderRadius.circular(5),
                                                                           borderSide:
-                                                                              BorderSide(color: Colors.red.shade300),
+                                                                              BorderSide(color: Colors.grey.shade200),
                                                                         ),
                                                                       ),
                                                                       onChanged:
@@ -4514,7 +4540,7 @@ SizedBox(width: 50.h),
                                                           ListOfStoredProblem[
                                                               index];
                                                       return GestureDetector(
-                                                        onTap:() {
+                                                        onTap:() async {
                                                            listofproblemservice
                                                             .getListofProblem(
                                                                 context:
@@ -4527,6 +4553,26 @@ SizedBox(width: 50.h),
                                                                     1057,
                                                                     
                                                                         assetid:item.assetId ?? 0  );
+
+                                                          
+  await listofproblemCategoryservice.getListofProblemCategory(
+        context: context,
+        deptid: widget.deptid  ?? 1,
+        incidentid: item.problemId?? 0,
+      );              
+
+
+  await listofRootCauseService.getListofRootcause(
+          context: context,
+          deptid: widget.deptid ?? 1057,
+          incidentid: item.problemCategoryId ?? 0,
+        );
+
+  await rootcauseSolutionService.getListofSolution(
+          context: context,
+          deptid:  widget.deptid ?? 1057,
+          rootcauseid: item.rootCauseId?? 0,
+        );              
                                                         
                                                           _problemEntrywidget(
                                                               item.fromtime,

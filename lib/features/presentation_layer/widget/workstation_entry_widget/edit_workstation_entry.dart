@@ -1727,14 +1727,17 @@ else{
   width: 170.w,
   height: 45.h,
   decoration: BoxDecoration(
-    border: Border.all(width: 1, color: Colors.grey),
+    border: Border.all(width: 1, color: Colors.white),
     borderRadius: BorderRadius.all(Radius.circular(5)),
+
   ),
   child: DropdownButtonFormField<String>(
     value: activityDropdown,
     decoration: InputDecoration(
       contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
       border: InputBorder.none,
+      fillColor: Colors.white,
+      filled: true
     ),
     hint: Text("Select"),
     isExpanded: true,
@@ -2532,7 +2535,7 @@ else{
   width: 170.w,
   height: 45.h,
   decoration: BoxDecoration(
-    border: Border.all(width: 1, color: Colors.grey),
+    border: Border.all(width: 1, color: Colors.white),
     borderRadius: BorderRadius.all(Radius.circular(5)),
   ),
   child: DropdownButtonFormField<String>(
@@ -2540,6 +2543,8 @@ else{
     decoration: InputDecoration(
       contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
       border: InputBorder.none,
+      fillColor: Colors.white,
+      filled: true
     ),
     hint: Text("Select"),
     isExpanded: true,

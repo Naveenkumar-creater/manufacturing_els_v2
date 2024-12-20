@@ -105,7 +105,7 @@ class _MobileScaffoldState extends State<MobileScaffold> {
         : 1;
 
     // final deptid = user?.listofProcessEntity?.first.deptId ?? 1057;
-    final shiftgroupId = user?.listofProcessEntity?.first.shiftgroupId ?? 1;
+   final shiftgroupId = Provider.of<ProcessProvider>(context, listen: true).user?.listofProcessEntity?.first.shiftgroupId;
 
    
     final shiftstatus = Provider.of<ShiftStatusProvider>(context, listen: false).user?.shiftStatusdetailEntity?.psShiftStatus ?? 0;

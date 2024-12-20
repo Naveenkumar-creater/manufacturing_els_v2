@@ -34,7 +34,10 @@ class ListOfProcess extends ListofProcessEntity {
       required this.deptId,
       required this.shiftgroupId,
       required this.mpmBatchProcess,
-      required this.mpmCapability
+      required this.mpmCapability,
+      required this.mfgpdprocessseq,
+      required this.sgdescription,
+      required this.sgmaxshifts
 
       // required  this.shiftStatus
       })
@@ -45,7 +48,12 @@ class ListOfProcess extends ListofProcessEntity {
             deptId: deptId,
             shiftgroupId: shiftgroupId,
             mpmCapability: mpmCapability,
-            mpmBatchProcess: mpmBatchProcess);
+            mpmBatchProcess: mpmBatchProcess,
+            mfgpdprocessseq: mfgpdprocessseq,
+            sgdescription:sgdescription ,
+            sgmaxshifts: sgmaxshifts
+            
+            );
 
   // final int? shiftStatus;
 
@@ -55,15 +63,27 @@ class ListOfProcess extends ListofProcessEntity {
   final int? shiftgroupId;
   final int? deptId;
   final int? mpmBatchProcess;
+  final int? mfgpdprocessseq;
+  final int?sgmaxshifts;
+  final String ? sgdescription;
 
   factory ListOfProcess.fromJson(Map<String, dynamic> json) {
     return ListOfProcess(
       mpmCapability: json["mpm_capability"],
       processId: json["process_Id"] ?? 0,
       processName: json["process_name"],
-      shiftgroupId: json["ps_sg_id"],
+      shiftgroupId: json["sg_id"],
       deptId: json["dept_id"],
       mpmBatchProcess: json["mpm_batch_process"],
+      mfgpdprocessseq:json["mfgpd_process_seq"],
+      sgdescription:json["sg_description"],
+      sgmaxshifts:json["sg_max_shifts"]
+
+
     );
   }
 }
+
+
+    
+   

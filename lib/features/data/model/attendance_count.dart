@@ -16,6 +16,7 @@ class AttendanceCountModel extends AttendanceEntity {
   }
 }
 
+
 class AttendanceCount extends AttendanceCountEntity {
   AttendanceCount({
     required this.totalEmployees,

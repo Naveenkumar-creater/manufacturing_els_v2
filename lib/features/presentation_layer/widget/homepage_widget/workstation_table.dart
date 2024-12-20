@@ -1132,7 +1132,7 @@ void _workstationPopup({
                                       child: CustomButton(
                                         child: Text(
                                           "Absent",
-                                          style: TextStyle(color: Colors.white),
+                                          style: TextStyle(color: Colors.white,fontSize: 14.w),
                                         ),
                                         backgroundColor: Colors.red,
                                         height: 40.h,
@@ -1186,11 +1186,11 @@ void _workstationPopup({
                                   width: 90.w,
                                   child: Container(
                                       alignment: Alignment.center,
-                                      width: 100.w,
+                                      width: 90.w,
                                       child: CustomButton(
                                         child: Text(
                                           "Present",
-                                          style: TextStyle(color: Colors.white),
+                                          style: TextStyle(color: Colors.white,fontSize: 14.w),
                                         ),
                                         backgroundColor: Colors.green,
                                         height: 40.h,

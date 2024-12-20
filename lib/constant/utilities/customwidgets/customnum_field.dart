@@ -8,10 +8,10 @@ class CustomNumField extends StatelessWidget {
   final String hintText;
   final Function()? onEditingComplete;
   final Function()? onSubmitted;
-    final Function()? onTap;
+  final Function()? onTap;
 
   final void Function(String)? onChanged;
-  final void Function(bool)? onFocusChange; // Add this parameter for focus change callback
+  final void Function(bool)? onFocusChange;
   final TextInputType? keyboardtype;
   final bool isAlphanumeric;
   final OutlineInputBorder? enabledBorder;
@@ -28,7 +28,7 @@ class CustomNumField extends StatelessWidget {
     this.onEditingComplete,
     this.onSubmitted,
     this.onChanged,
-    this.onFocusChange, // Include onFocusChange in the constructor
+    this.onFocusChange,
     this.keyboardtype,
     this.isAlphanumeric = false,
     this.enabledBorder,
@@ -41,10 +41,8 @@ class CustomNumField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use a local FocusNode if one is not provided
     final effectiveFocusNode = focusNode ?? FocusNode();
 
-    // Listen to focus changes
     effectiveFocusNode.addListener(() {
       if (onFocusChange != null) {
         onFocusChange!(effectiveFocusNode.hasFocus);
@@ -71,21 +69,33 @@ class CustomNumField extends StatelessWidget {
           fontSize: 10.0,
           height: 0.10,
         ),
-        enabledBorder: enabledBorder ??
-            OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey, width: 1),
-            ),
-        focusedBorder: focusedBorder ??
-            OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: Colors.grey, width: 1),
-            ),
-        border: border ??
-            OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
-              borderSide: BorderSide(color: Colors.grey, width: 1),
-            ),
+        enabledBorder: enabled
+            ? enabledBorder ?? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide.none,
+              )
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide.none,
+              ),
+        focusedBorder: enabled
+            ? focusedBorder ?? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide(color: Colors.grey, width: 1),
+              )
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide.none,
+              ),
+        border: enabled
+            ? border ?? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+         borderSide: BorderSide.none,
+              )
+            : OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+                borderSide: BorderSide.none,
+              ),
       ),
       onEditingComplete: onEditingComplete,
       onChanged: onChanged,

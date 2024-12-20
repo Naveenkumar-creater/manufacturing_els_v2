@@ -88,7 +88,7 @@ class _ResponsiveTabletHomepageState extends State<ResponsiveTabletHomepage> {
         : 1;
 
     // final deptid = user?.listofProcessEntity?.first.deptId ?? 1057;
-    final shiftgroupId = user?.listofProcessEntity?.first.shiftgroupId ?? 1;
+    final shiftgroupId = Provider.of<ProcessProvider>(context, listen: true).user?.listofProcessEntity?.first.shiftgroupId;
 
     final totalemployee = Provider.of<AttendanceCountProvider>(context, listen: true).user?.attendanceEntity?.totalEmployees;
     final presentees = Provider.of<AttendanceCountProvider>(context, listen: true).user?.attendanceEntity?.presentees;

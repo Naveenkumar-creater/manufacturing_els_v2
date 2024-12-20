@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:http/http.dart' as http;
+import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/presentation_layer/api_services/actual_qty_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
@@ -139,11 +140,14 @@ print(employeeResponse);
                             ),
                           ),
                           SizedBox(height: 32),
-                          ElevatedButton(
+                CustomButton(width: 110.w, height: 40.h,
+                backgroundColor: Colors.red,
+              
+                borderRadius: BorderRadius.circular(50.r),
                             onPressed: () {
                               Navigator.of(context).pop(); // Close the dialog
                             },
-                            child: Text("Retry", style: TextStyle(color: Colors.red)),
+                            child: Text("Retry", style: TextStyle(color: Colors.white,fontFamily: "Lexend")),
                           ),
                         ],
                       )
@@ -217,7 +221,11 @@ print(employeeResponse);
                             ),
                           ),
                           SizedBox(height: 32),
-                          ElevatedButton(
+                          CustomButton(
+                            height:40.h ,
+                            width:110.w ,
+                            borderRadius: BorderRadius.circular(50.r),
+
                             onPressed: () async {
                               // Using a separate variable to manage loading state within this function
                               bool isLoading = true;
@@ -259,7 +267,7 @@ print(employeeResponse);
                                 // Update any other state variables as needed
                               }
                             },
-                            child: Text("Close Shift", style: TextStyle(color: Colors.green)),
+                            child: Text("Close Shift", style: TextStyle(color: Colors.white,fontSize: 14.w)),
                           ),
                         ],
                       )
@@ -273,11 +281,13 @@ print(employeeResponse);
                               color: Colors.red,
                             ),
                           ),
-                          ElevatedButton(
+                            CustomButton(width: 110.w, height: 40.h,
+                backgroundColor: Colors.red,
+                borderRadius: BorderRadius.circular(50.r),
                             onPressed: () {
                               Navigator.of(context).pop(); // Close the dialog
                             },
-                            child: Text("Retry", style: TextStyle(color: Colors.red)),
+                            child: Text("Retry", style: TextStyle(color: Colors.white,fontSize: 14.w,fontFamily: "Lexend")),
                           ),
                         ],
                       ),
@@ -291,6 +301,7 @@ print(employeeResponse);
     },
   );
 }
+
 
 
   Future<void> closeShift() async {
@@ -346,6 +357,7 @@ print(employeeResponse);
   }
 
   Future<void> openShift() async {
+    
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
 
@@ -452,25 +464,31 @@ print(employeeResponse);
               width: 8.w,
             ),
             ShiftStatus == 1
-                ? ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.green),
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                    ),
+                ? CustomButton(
+                  height:40 ,
+                  width:110 ,
+                  backgroundColor: Colors.green,
+                  borderRadius:BorderRadius.circular(50.r),
+                
+
+                  
+
+                    // style: ButtonStyle(
+                    //   backgroundColor:
+                    //       MaterialStateProperty.all<Color>(Colors.green),
+                    //   foregroundColor:
+                    //       MaterialStateProperty.all<Color>(Colors.white),
+                    // ),
                     onPressed: () {
                       closeShiftPop(context);
                     },
-                    child: Text('Close Shift'))
+                    child: Text('Close Shift',style:TextStyle(fontSize: 14.sp,color: Colors.white,fontFamily: "lexend"),))
       
-      : ElevatedButton(
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.red),
-                      foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                    ),
+      : CustomButton(
+                  height:40 ,
+                  width:110 ,
+                  backgroundColor: Colors.red,
+                  borderRadius:BorderRadius.circular(50.r),
                     onPressed: () async {
                       setState(() {
                         isLoading = true; // Indicate loading
@@ -508,7 +526,7 @@ print(employeeResponse);
                         });
                       }
                     },
-                    child: Text('Open Shift'),
+                    child: Text('Open Shift',style:TextStyle(fontSize: 14.sp,color: Colors.white,fontFamily: "lexend")),
                   )
           ],
         ),
