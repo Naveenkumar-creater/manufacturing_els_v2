@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/data/datasource/remote/card_no_datasource.dart';
@@ -24,8 +25,9 @@ class CardNoApiService {
       CardNoDatasource cardNoDatasource = CardNoDatasourceImpl();
       CardNoRepository allocationRepository = CardNoRepositoryImpl(cardNoDatasource);
       CardNoUsecase cardNousecase = CardNoUsecase(allocationRepository);
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
-      CardNoEntity user = await cardNousecase.execute(token,cardNo);
+      CardNoEntity user = await cardNousecase.execute(token,cardNo, orgid);
 
       Provider.of<CardNoProvider>(context, listen: false).setUser(user);
     } catch (e) {

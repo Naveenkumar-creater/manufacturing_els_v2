@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:prominous/features/presentation_layer/widget/login_widget/login_widget.dart';
 
 class LoginPage extends StatelessWidget {

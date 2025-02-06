@@ -4,13 +4,13 @@ import 'package:prominous/features/data/core/api_constant.dart';
 import 'package:prominous/features/data/model/workstation_problems_model.dart';
 
 abstract class WorkstationProblemDatasource {
-  Future<WorkstationProblemsModel>getWorkstationProblemsList(int pwsId, String token);
+  Future<WorkstationProblemsModel>getWorkstationProblemsList(int pwsId, String token, int orgid);
 }
 
 class WorkstationProblemDatasourceImpl implements WorkstationProblemDatasource{
   @override
-  Future<WorkstationProblemsModel> getWorkstationProblemsList(int pwsId, String token) async{
-  ApiRequestDataModel request =  ApiRequestDataModel(apiFor:"resolved_problem_in_ws_v1" ,clientAuthToken: token,pwsid: pwsId,);
+  Future<WorkstationProblemsModel> getWorkstationProblemsList(int pwsId, String token, int orgid) async{
+  ApiRequestDataModel request =  ApiRequestDataModel(apiFor:"resolved_problem_in_ws_v1" ,clientAuthToken: token,pwsid: pwsId,orgid: orgid);
  
  final response=await ApiConstant.makeApiRequest(requestBody: request);
 

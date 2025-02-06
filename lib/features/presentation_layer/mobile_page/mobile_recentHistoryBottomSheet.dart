@@ -15,6 +15,7 @@ import 'package:prominous/features/presentation_layer/api_services/employee_di.d
 import 'package:prominous/features/presentation_layer/api_services/product_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/recent_activity.dart';
 import 'package:prominous/features/presentation_layer/mobile_page/mobile_workstation_widget/mob_workstation_edit_entry.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/recent_activity_provider.dart';
 import 'package:provider/provider.dart';
@@ -90,11 +91,12 @@ delete({
   }) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
+          int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = DeleteProductionEntryModel(
         apiFor: "delete_entry_v1",
         clientAuthToken: token,
         ipdid: ipdid,
-        ipdpsid: ipdpsid, pcid: pcId, cardno: cardNo, processid: processId, paid: paId);
+        ipdpsid: ipdpsid, pcid: pcId, cardno: cardNo, processid: processId, paid: paId, orgid: orgid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);

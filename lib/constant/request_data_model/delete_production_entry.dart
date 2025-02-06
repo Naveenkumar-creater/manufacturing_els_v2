@@ -7,12 +7,17 @@ class DeleteProductionEntryModel {
    final String?cardno;
    final int? processid;
    final int?paid;
+   final int? orgid;
   DeleteProductionEntryModel(
       {required this.clientAuthToken,
       required this.apiFor,
       required this.ipdid,
       required this.ipdpsid,
-      required this.pcid,required this.cardno,required this.processid,required this.paid, });
+      required this.orgid,
+      required this.pcid,
+      required this.cardno,
+      required this.processid,
+      required this.paid, });
   Map<String, dynamic> toJson() => {
         'client_aut_token': clientAuthToken,
         'api_for': apiFor,
@@ -21,7 +26,8 @@ class DeleteProductionEntryModel {
         "ipd_pc_id":pcid,
         "ipd_card_no":cardno,
         "ipd_mpm_id":processid,
-        "ipd_pa_id":paid
+        "ipd_pa_id":paid,
+        "org_id":orgid
       };
 }
 

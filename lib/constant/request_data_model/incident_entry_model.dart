@@ -1,6 +1,8 @@
 
 class ListOfWorkStationIncident {
-  ListOfWorkStationIncident({ this.assetId, this.ipdId,this.ipdIncId,this.fromtime, this.endtime,this.solutionName, this.problemsolvedName, this.solutionId, this.problemstatusId, this.productionStoppageId, this.problemName, this.problemCategoryname, this.rootCausename, this.problemId, this.problemCategoryId, this.rootCauseId, this.reasons}
+  ListOfWorkStationIncident({ 
+    required this.orgid,
+    this.assetId, this.ipdId,this.ipdIncId,this.fromtime, this.endtime,this.solutionName, this.problemsolvedName, this.solutionId, this.problemstatusId, this.productionStoppageId, this.problemName, this.problemCategoryname, this.rootCausename, this.problemId, this.problemCategoryId, this.rootCauseId, this.reasons}
       );
 
 final String?fromtime;
@@ -20,6 +22,7 @@ final int?productionStoppageId;
   final int? ipdId;
   final int? ipdIncId;
   final int?assetId;
+  final int ? orgid;
 
 Map<String, dynamic> toJson() => {
 "inc_from_time":fromtime,
@@ -38,7 +41,8 @@ Map<String, dynamic> toJson() => {
 "reason":reasons,
 "ipdid":ipdId,
 "ipdincid":ipdIncId,
-  "assetid":assetId
+  "assetid":assetId,
+  "org_id": orgid
                                                       
       };
 }

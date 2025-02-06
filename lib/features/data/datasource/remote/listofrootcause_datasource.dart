@@ -4,7 +4,7 @@ import 'package:prominous/features/data/model/listof_rootcaue_model.dart';
 
 abstract class ListofRootCauseDatasource{
 
-Future<ListOfRootCauseModel> getListofRootcause(String token,int deptid,int incidentid);
+Future<ListOfRootCauseModel> getListofRootcause(String token,int deptid,int incidentid, int orgid);
  
 }
 
@@ -12,8 +12,9 @@ Future<ListOfRootCauseModel> getListofRootcause(String token,int deptid,int inci
 class ListofRootCauseDatasourceImpl implements ListofRootCauseDatasource{
 
   @override
-  Future<ListOfRootCauseModel> getListofRootcause(String token, int deptid, int incidentid) async{
-   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_rootcause_v1",clientAuthToken:token,deptId:deptid,incidentid: incidentid);
+  Future<ListOfRootCauseModel> getListofRootcause(String token, int deptid, int incidentid, int orgid) async{
+   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_rootcause_v1", clientAuthToken:token,
+   deptId:deptid,incidentid: incidentid, orgid: orgid);
    final response = await ApiConstant.makeApiRequest(requestBody:requestbody );
    final result= ListOfRootCauseModel.fromJson(response);
    return result;

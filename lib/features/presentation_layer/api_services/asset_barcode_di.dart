@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
@@ -25,8 +26,8 @@ class AssetBarcodeService {
           AssetBarcodeDatasourceImpl(),
         ),
       );
-
-      ScanAssetBarcodeEntity user = await asset.execute( pwsid, assetid, token) ;
+int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+      ScanAssetBarcodeEntity user = await asset.execute( pwsid, assetid, token, orgid) ;
 
       Provider.of<AssetBarcodeProvider>(context, listen: false).setUser(user);
 

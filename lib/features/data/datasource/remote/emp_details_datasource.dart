@@ -7,7 +7,7 @@ import '../../core/emp_details_client.dart';
 import '../../model/emp_details__model.dart';
 
 abstract class EmpDetailsDatasource {
-  Future<EmpDetailsModel> getEmpDetails(String token);
+  Future<EmpDetailsModel> getEmpDetails(String token, int orgid);
 }
 
 class EmpDetailsDatasourceImpl implements EmpDetailsDatasource {
@@ -16,8 +16,8 @@ class EmpDetailsDatasourceImpl implements EmpDetailsDatasource {
     this.empDetailsClient,
   );
   @override
-  Future<EmpDetailsModel> getEmpDetails(String token) async {
-    final response = await empDetailsClient.getEmpDetails(token);
+  Future<EmpDetailsModel> getEmpDetails(String token, int orgid) async {
+    final response = await empDetailsClient.getEmpDetails(token, orgid);
 
     final result = EmpDetailsModel.fromJson(response);
 

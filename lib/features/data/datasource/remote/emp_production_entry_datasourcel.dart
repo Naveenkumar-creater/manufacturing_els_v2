@@ -5,7 +5,7 @@ import 'package:prominous/features/data/model/emp_production_model.dart';
 import '../../core/emp_production_entry_client.dart';
 
 abstract class EmpProductionEntryDatasource {
-  Future<EmpProductionModel> getempproduction(int pwsId,int deptid,int psid, String token
+  Future<EmpProductionModel> getempproduction(int pwsId,int deptid,int psid, String token, int orgid
       // int goodQuantities, int rejectedQuantities, int reworkQuantities
       );
 }
@@ -17,11 +17,11 @@ class EmpProductionEntryDatasourceImpl implements EmpProductionEntryDatasource {
   );
 
   @override
-  Future<EmpProductionModel> getempproduction(int pwsId,int deptid,int psid, String token
+  Future<EmpProductionModel> getempproduction(int pwsId,int deptid,int psid, String token, int orgid
       //int goodQuantities, int rejectedQuantities, int reworkQuantities
       ) async {
     final response =
-        await empProductionEntryClient.getempproduction(pwsId,deptid,psid, token);
+        await empProductionEntryClient.getempproduction(pwsId,deptid,psid, token, orgid);
 
     final result = EmpProductionModel.fromJson(response);
 

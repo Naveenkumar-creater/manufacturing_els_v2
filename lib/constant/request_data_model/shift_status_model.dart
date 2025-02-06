@@ -5,7 +5,8 @@
       required this.deptId,
       required this.psid,
       required this.processId,
-      required this.shiftgroupId
+      required this.shiftgroupId,
+      required this.orgid
       // required this.shiftDate,
 
     });
@@ -15,6 +16,7 @@
   final int? processId;
   final int ? psid;
   final int? shiftgroupId;
+  final int ? orgid;
   // final String?shiftDate;
 
 
@@ -25,7 +27,8 @@
       'ps_dept_id':deptId,
       'ps_id':psid,
       'ps_mpm_id':processId,
-      'ps_sg_id':shiftgroupId
+      'ps_sg_id':shiftgroupId,
+      'org_id':orgid
       // 'ps_shift_date':shiftDate  
     };
 

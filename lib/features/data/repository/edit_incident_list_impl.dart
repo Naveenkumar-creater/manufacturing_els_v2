@@ -8,8 +8,8 @@ class EditIncidentListRepoImpl extends EditIncidentListRepository {
  EditIncidentListRepoImpl(this.editIncidentListDatasourceImpl);
 
   @override
-  Future<EditIncidentListEntity> getListofIncident(String token, int deptid, int ipdid) {
-   return editIncidentListDatasourceImpl.getListofIncident(token, deptid, ipdid);
+  Future<EditIncidentListEntity> getListofIncident(String token, int deptid, int ipdid, int orgid) {
+   return editIncidentListDatasourceImpl.getListofIncident(token, deptid, ipdid,  orgid);
   }
 
  

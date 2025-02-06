@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/data/core/process_client.dart';
@@ -24,8 +25,10 @@ class ProcessApiService {
       ProcessDatasource processDatasource = ProcessDatasourceImpl(processClient);
       ProcessRepository allocationRepository = ProcessRepositoryImpl(processDatasource);
       ProcessUsecase processUsecase = ProcessUsecase(allocationRepository);
+final orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId ?? 0;
 
-      ProcessEntity user = await processUsecase.execute(token,deptid);
+
+      ProcessEntity user = await processUsecase.execute(token,deptid,orgid);
 
       Provider.of<ProcessProvider>(context, listen: false).setUser(user);
     } catch (e) {

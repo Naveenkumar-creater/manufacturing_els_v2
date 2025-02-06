@@ -4,11 +4,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:prominous/constant/request_data_model/emp_close_shift_model.dart';
 import 'package:prominous/features/data/core/api_constant.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EmpClosesShift {
   static Future<void> empCloseShift(String apifor, int psid, int shiftstatus,
-      String attid, int attstatus) async {
+      String attid, int attstatus, int orgid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
     DateTime now = DateTime.now();
@@ -16,6 +18,7 @@ class EmpClosesShift {
     int dt;
 
     dt = int.tryParse(attid ?? "") ?? 0;
+          
 
     final requestBody = EmpCloseShift(
       apiFor: apifor,
@@ -24,6 +27,7 @@ class EmpClosesShift {
       attShiftStatus: shiftstatus,
       attid: dt,
       attendenceStatus: attstatus,
+      orgid: orgid
     );
 
     final requestBodyjson = jsonEncode(requestBody.toJson());

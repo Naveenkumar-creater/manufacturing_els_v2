@@ -10,8 +10,8 @@ ScanforworkstationDatasource scanforworkstationDatasource;
 
   ScanforworkstationRepoImpl( this.scanforworkstationDatasource);
   @override
-     Future<ScannerforworkstationModel> getWorkstationBarcode(int deptid,int pwsId, String token, String pwsbarcode) async{
-  return  await scanforworkstationDatasource.getWorkstationBarcode(deptid, pwsId, token, pwsbarcode);
+     Future<ScannerforworkstationModel> getWorkstationBarcode(int deptid,int pwsId, String token, String pwsbarcode, int orgid) async{
+  return  await scanforworkstationDatasource.getWorkstationBarcode(deptid, pwsId, token, pwsbarcode,  orgid);
   }
   
 }

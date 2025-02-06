@@ -9,8 +9,8 @@ class ScanforworkstationUsecase {
 
   ScanforworkstationUsecase(this.scannerforworkstationRepo);
 
-Future<ScannerforworkstationEntity> execute (int deptid,int pwsId, String token, String pwsbarcode){
- return scannerforworkstationRepo.getWorkstationBarcode(deptid, pwsId, token, pwsbarcode)
+Future<ScannerforworkstationEntity> execute (int deptid,int pwsId, String token, String pwsbarcode, int orgid){
+ return scannerforworkstationRepo.getWorkstationBarcode(deptid, pwsId, token, pwsbarcode,  orgid)
 ;
 }
 }

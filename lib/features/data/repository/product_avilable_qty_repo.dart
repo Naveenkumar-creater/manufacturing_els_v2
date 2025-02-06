@@ -10,8 +10,8 @@ class ProductAvilableQtyRepoImpl extends ProductAvilableQtyRepo{
   ProductAvilableQtyRepoImpl(this.productAvilableQtyDatasource); 
 
   @override
-  Future<ProductAvilableQtyModel> getproductQty (String token,int processid,int paid, String cardno,int reworkflag) async{
-   ProductAvilableQtyModel result= await productAvilableQtyDatasource.getproductQty ( token, processid, paid,  cardno, reworkflag);
+  Future<ProductAvilableQtyModel> getproductQty (String token,int processid,int paid, String cardno,int reworkflag, int orgid) async{
+   ProductAvilableQtyModel result= await productAvilableQtyDatasource.getproductQty ( token, processid, paid,  cardno, reworkflag,  orgid);
     return result;
   }
   

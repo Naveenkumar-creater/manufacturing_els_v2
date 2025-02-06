@@ -9,9 +9,9 @@ class ProductLocationUsecase{
 
   ProductLocationUsecase(this.productLocationRepository);
 
-  Future<ProductLocationEntity> execute(String token) {
+  Future<ProductLocationEntity> execute(String token, int orgid) {
 
-    return productLocationRepository.getAreaList(token);
+    return productLocationRepository.getAreaList(token,  orgid);
 
 
   }

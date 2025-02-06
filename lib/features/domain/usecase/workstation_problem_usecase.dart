@@ -5,9 +5,9 @@ class WorkstationProblemUsecase {
    WorkstationProblemRepository  workstationProblemRepository;
  WorkstationProblemUsecase(this.workstationProblemRepository);
 
- Future<WorkstationProblemsEntity> execute( int pwsid, String token){
+ Future<WorkstationProblemsEntity> execute( int pwsid, String token, int orgid){
 
-  return workstationProblemRepository.getResolveProblemList(pwsid,  token);
+  return workstationProblemRepository.getResolveProblemList(pwsid,  token,  orgid);
   
  }
 }

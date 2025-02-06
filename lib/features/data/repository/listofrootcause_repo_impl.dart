@@ -7,7 +7,7 @@ class ListofRootcauseRepoImpl extends ListofRootCauseRepository{
 
 ListofRootcauseRepoImpl(this.listofRootCauseDatasourceImpl);
   @override
-  Future<ListOfRootCauseEntity> getListofRootcause(String token, int deptid, int incidentid) {
-    return listofRootCauseDatasourceImpl.getListofRootcause(token, deptid, incidentid);
+  Future<ListOfRootCauseEntity> getListofRootcause(String token, int deptid, int incidentid, int orgid) {
+    return listofRootCauseDatasourceImpl.getListofRootcause(token, deptid, incidentid,  orgid);
   }
 }

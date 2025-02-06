@@ -5,7 +5,7 @@ class EmployeeUsecase{
   final EmployeeRepository employeeRepository;
   EmployeeUsecase(this.employeeRepository);
 
-  Future<EmployeeEntity>execute(int processid,int deptid,int psid, String token)async{
-return  employeeRepository.getEmployeeList(processid,deptid,psid, token);
+  Future<EmployeeEntity>execute(int processid,int deptid,int psid, String token, int orgid)async{
+return  employeeRepository.getEmployeeList(processid,deptid,psid, token,  orgid);
   }
 }

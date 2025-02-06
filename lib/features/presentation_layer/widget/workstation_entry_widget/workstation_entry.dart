@@ -40,6 +40,7 @@ import 'package:prominous/features/presentation_layer/api_services/listofrootcau
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
@@ -272,7 +273,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
 
       final currentDateTime =
           '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       WorkStationEntryReqModel workStationEntryReq = WorkStationEntryReqModel(
           apiFor: "update_production_v1",
@@ -300,6 +301,7 @@ class _EmpProductionEntryPageState extends State<EmpWorkstationProductionEntryPa
           ipdpsid: widget.psid,
           ppid: ppId ?? 0,
           shiftid: Shiftid,
+          orgid: orgid,
           ipdareaid: locationid ?? 0,
           listOfEmployeesForWorkStation: [],
           pwsid: widget.pwsid,
@@ -1412,6 +1414,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
 
   void _EmpOpenandCloseShiftPop(
       BuildContext context, String attid, String attstatus, int shiftstatus) {
+        int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -1451,7 +1454,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
                                     widget.psid ?? 0,
                                     shiftstatus,
                                     attid,
-                                    int.tryParse(attstatus) ?? 0);
+                                    int.tryParse(attstatus) ?? 0, orgid);
                                 _fetchARecentActivity();
                                 await employeeApiService.employeeList(
                                     context: context,
@@ -1625,12 +1628,14 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
   Future<void> workstationClose({int? processid, int? psid, int? pwsid}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
+          int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = WorkstationCloseShiftModel(
         apiFor: "workstation_close_shift_v1",
         clientAutToken: token,
         mpmId: processid,
         psId: psid,
-        pwsId: pwsid);
+        pwsId: pwsid,
+        orgid: orgid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -1684,6 +1689,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
       int? paid}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
+          int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = DeleteProductionEntryModel(
         apiFor: "delete_entry_v1",
         clientAuthToken: token,
@@ -1692,7 +1698,8 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
         pcid: pcid,
         cardno: cardno,
         processid: processid,
-        paid: paid);
+        paid: paid,
+        orgid: orgid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -1824,6 +1831,7 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
 
     if (workstationProblem != null) {
       for (int i = 0; i < workstationProblem.length; i++) {
+              int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
         ListOfWorkStationIncident data = ListOfWorkStationIncident(
             fromtime: workstationProblem[i].fromTime,
             endtime: workstationProblem[i].endTime,
@@ -1841,7 +1849,8 @@ if (shifttodate != null && shifttodate.isNotEmpty) {
             rootCausename: workstationProblem[i].incrcmRootcauseBrief,
             ipdId: workstationProblem[i].ipdincipdid,
             ipdIncId: workstationProblem[i].ipdincid,
-            assetId:workstationProblem[i].incmAssetId );
+            assetId:workstationProblem[i].incmAssetId,
+            orgid: orgid );
             
         Provider.of<ListProblemStoringProvider>(context, listen: false)
             .addIncidentList(data);
@@ -2046,7 +2055,7 @@ style: ElevatedButton.styleFrom(
     if (cardNo != 0) {
       cardNoApiService.getCardNo(
         context: context,
-        cardNo: cardNo,
+        cardNo: cardNo, 
       ).then((_) {
         final item = Provider.of<CardNoProvider>(context, listen: false)
             .user
@@ -2192,15 +2201,15 @@ style: ElevatedButton.styleFrom(
                           fontFamily: "lexend",
                           fontSize: 24.sp),
                     ),
-                    ScanWorkstationBarcode(
-                      deptid: widget.deptid,
-                      pwsid: widget.pwsid,
-                      onCardDataReceived: (scannedBarcode) {
-                        setState(() {
-                          workstationBarcode = scannedBarcode;
-                        });
-                      },
-                    )
+                    // ScanWorkstationBarcode(
+                    //   deptid: widget.deptid,
+                    //   pwsid: widget.pwsid,
+                    //   onCardDataReceived: (scannedBarcode) {
+                    //     setState(() {
+                    //       workstationBarcode = scannedBarcode;
+                    //     });
+                    //   },
+                    // )
                   ],
                 ),
                 backgroundColor: Color.fromARGB(255, 45, 54, 104),
@@ -3021,15 +3030,16 @@ SizedBox(width: 50.h),
                                                                                 overallqty != 0) {
                                                                               addFocusListeners();
                                                                             } else if ((seqNo == 1 && overallqty == 0)) {
-                                                                              return;
+                                                                              return null;
                                                                             } else {
                                                                               ShowError.showAlert(context, "No Avilable Quantity");
                                                                             }
                                                                           });
+
                                                                         } else {
                                                                           ShowError.showAlert(
                                                                               context,
-                                                                              "Skipped Previous Process");
+                                                                              "Skipped old Process");
                                                                         }
 
                                                                         setState(
@@ -3084,7 +3094,7 @@ SizedBox(width: 50.h),
                                                         ),
                                                       ],
                                                     ),
-                                                    SizedBox(width: 50.w),
+                                                    SizedBox(width: 40.w),
                                                     Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
@@ -4746,5 +4756,10 @@ SizedBox(width: 50.h),
               ),
             ),
           );
+  }
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(IntProperty('reworkValue', reworkValue));
   }
 }

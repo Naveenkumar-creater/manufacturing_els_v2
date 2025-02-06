@@ -9,8 +9,8 @@ class ProblemStatusRepositoryImpl extends ProblemStatusRepository{
   ProblemStatusRepositoryImpl(this.problemStatusDatasource); 
 
   @override
-  Future<ProblemStatusModel> getProblemStatus(String token) async{
-   ProblemStatusModel result= await problemStatusDatasource.getProblemStatus(token);
+  Future<ProblemStatusModel> getProblemStatus(String token, int orgid) async{
+   ProblemStatusModel result= await problemStatusDatasource.getProblemStatus(token,  orgid);
     return result;
   }
   

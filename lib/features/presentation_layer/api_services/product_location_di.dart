@@ -4,6 +4,7 @@ import 'package:prominous/features/data/datasource/remote/product_location_datas
 import 'package:prominous/features/data/repository/product_location_repo_impl.dart';
 import 'package:prominous/features/domain/entity/product_location_entity.dart';
 import 'package:prominous/features/domain/usecase/product_location_usecase.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,7 +23,9 @@ class ProductLocationService {
         ),
       );
 
-      ProductLocationEntity user = await productLocation.execute( token);
+final orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId ?? 0;
+
+      ProductLocationEntity user = await productLocation.execute( token, orgid);
 
       // Update the provider with the fetched data
       Provider.of<ProductLocationProvider>(context, listen: false).setUser(user);

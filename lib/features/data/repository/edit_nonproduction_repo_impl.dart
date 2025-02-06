@@ -9,8 +9,8 @@ class EditNonproductionRepoImpl extends EditNonproductionRepository {
  EditNonproductionRepoImpl(this.editNonproductionListDatasourceImpl);
 
   @override
-  Future<EditNonProductionLisModel> getEditNonProductionList(String token, int ipdid)async {
-   return editNonproductionListDatasourceImpl.getEditNonProductionList(token, ipdid);
+  Future<EditNonProductionLisModel> getEditNonProductionList(String token, int ipdid, int orgid)async {
+   return editNonproductionListDatasourceImpl.getEditNonProductionList(token, ipdid,  orgid);
   }
   
 }

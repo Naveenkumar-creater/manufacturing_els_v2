@@ -12,6 +12,7 @@ import 'package:prominous/features/presentation_layer/api_services/listofworksta
 import 'package:prominous/features/presentation_layer/mobile_page/mobile_workstation_widget/mob_workstation_entry.dart';
 
 import 'package:prominous/features/presentation_layer/provider/listofworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -220,7 +221,7 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
     int dt;
 
     dt = int.tryParse(attendanceid ?? "") ?? 0;
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = SendAttendencereqModel(
         apiFor: "floor_attendance_v1",
         clientAuthToken: token,
@@ -232,7 +233,8 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
         psid: widget.psid,
         shiftId: Shiftid,
         shiftStatus: shiftStatus,
-        pwsId: pwsId);
+        pwsId: pwsId,
+        orgid: orgid);
 
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
@@ -441,7 +443,7 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = WorkstationChanges(
       clientAutToken: token,
       pwseempid: empPersonid,
@@ -449,6 +451,7 @@ class _EmployeeWorkStationMobileState extends State<EmployeeWorkStationMobile> {
       pwsePwsId: pwsId,
       pwseId: pwesId,
       attid: attId,
+      orgid: orgid
       // flattstatus: attstatus
     );
 

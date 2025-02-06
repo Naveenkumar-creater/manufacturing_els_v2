@@ -6,8 +6,8 @@ class EditProductAvilabilityUsecase {
   EditProductAvilabilityUsecase(this.editProductAvilableQtyRepo);
 
   Future<EditProductAvilabiltyEntity> execute(
- String token,int processid,int paid, String cardno,int reworkflag,int ipdid
+ String token,int processid,int paid, String cardno,int reworkflag,int ipdid, int orgid
   ) async {
-    return editProductAvilableQtyRepo.getEditproductQty(token, processid, paid, cardno, reworkflag, ipdid);
+    return editProductAvilableQtyRepo.getEditproductQty(token, processid, paid, cardno, reworkflag, ipdid,  orgid);
   }
 }

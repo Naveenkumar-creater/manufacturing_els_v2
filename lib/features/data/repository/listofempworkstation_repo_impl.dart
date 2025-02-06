@@ -9,8 +9,8 @@ ListOfEmpWorkstationDatatsource listOfEmpWorkstationDatatsource;
 
   ListofEmpworkstationRepoImpl( this.listOfEmpWorkstationDatatsource);
   @override
-  Future<ListofEmpWorkstationModel>getListofEmpWorkstation( int deptid, int psid, int processid, String token,int pwsId) async{
-  return  await listOfEmpWorkstationDatatsource.getListofEmpWorkstation(deptid, psid, processid, token, pwsId);
+  Future<ListofEmpWorkstationModel>getListofEmpWorkstation( int deptid, int psid, int processid, String token,int pwsId, int orgid) async{
+  return  await listOfEmpWorkstationDatatsource.getListofEmpWorkstation(deptid, psid, processid, token, pwsId,  orgid);
   }
   
 }

@@ -3,5 +3,5 @@ import 'package:prominous/features/domain/entity/rootcause_solution_entity.dart'
 
 abstract class RootcauseSolutionRepository{
 
-  Future<RootcauseSolutionEntity> getListofSolution(int rootcauseid,int deptid, String token);
+  Future<RootcauseSolutionEntity> getListofSolution(int rootcauseid,int deptid, String token,int orgid);
 }

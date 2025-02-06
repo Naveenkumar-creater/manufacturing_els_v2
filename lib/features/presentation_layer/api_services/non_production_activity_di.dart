@@ -5,6 +5,7 @@ import 'package:prominous/features/data/repository/non_production_repo_impl.dart
 import 'package:prominous/features/domain/entity/non_production_activity_entity.dart';
 
 import 'package:prominous/features/domain/usecase/non_production_usecase.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_activity_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -26,8 +27,8 @@ class NonProductionActivityService {
         ),
       );
 
-      NonProductionActivityEntity user = await nonproductionActivity.execute(
-        token,  );
+int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+      NonProductionActivityEntity user = await nonproductionActivity.execute(token,orgid);
 
       // Update the provider with the fetched data
       Provider.of<NonProductionActivityProvider>(context, listen: false).setUser(user);

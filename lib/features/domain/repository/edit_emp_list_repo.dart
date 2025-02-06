@@ -3,7 +3,7 @@ import 'package:prominous/features/domain/entity/listofempworkstation_entity.dar
 
 abstract class EditListofEmpWorkstationRepository{
 
-  Future<EditListofEmpWorkstationEntity> getEditListofEmpWorkstation(int ipdid,String token, int psid);
+  Future<EditListofEmpWorkstationEntity> getEditListofEmpWorkstation(int ipdid,String token, int psid, int orgid);
 
 
 }

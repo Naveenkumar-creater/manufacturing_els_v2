@@ -3,7 +3,7 @@ import 'package:prominous/features/data/core/allocation_client.dart';
 import 'package:prominous/features/data/model/allocation_model.dart';
 
 abstract class AllocationDatasource {
-  Future<AllocationModel> getallocation(int id,int deptid, String token);
+  Future<AllocationModel> getallocation(int id,int deptid, String token, int orgid);
 }
 
 class AllocationDatasourceImpl extends AllocationDatasource {
@@ -11,11 +11,9 @@ class AllocationDatasourceImpl extends AllocationDatasource {
 
   AllocationDatasourceImpl(this.allocationClient);
   @override
-  Future<AllocationModel> getallocation(int id,int deptid,String token) async {
-    final response = await allocationClient.getallocation(id,deptid, token);
-
+  Future<AllocationModel> getallocation(int id,int deptid,String token, int orgid) async {
+    final response = await allocationClient.getallocation(id,deptid, token, orgid);
     final result = AllocationModel.fromJson(response);
-
     return result;
 
     //   ApiRequestDataModel requestbody = ApiRequestDataModel(

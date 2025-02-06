@@ -6,8 +6,8 @@ class EditIncidentListUsecase {
 final EditIncidentListRepository editIncidentListRepository;
 EditIncidentListUsecase(this.editIncidentListRepository);
 
-Future<EditIncidentListEntity> execute (String token,int deptid,int ipdid){
-return  editIncidentListRepository.getListofIncident(token, deptid, ipdid);
+Future<EditIncidentListEntity> execute (String token,int deptid,int ipdid, int orgid){
+return  editIncidentListRepository.getListofIncident(token, deptid, ipdid,  orgid);
 }
 
 }

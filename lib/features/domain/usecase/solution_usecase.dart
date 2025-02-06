@@ -7,8 +7,8 @@ class RootcauseSolutionUsecase {
   final RootcauseSolutionRepository rootcauseSolutionRepository;
   RootcauseSolutionUsecase(this.rootcauseSolutionRepository);
 
-  Future<RootcauseSolutionEntity> execute ( int rootcauseid,int deptid, String token)async {
+  Future<RootcauseSolutionEntity> execute ( int rootcauseid,int deptid, String token, int orgid)async {
     
-    return rootcauseSolutionRepository.getListofSolution(rootcauseid, deptid, token);
+    return rootcauseSolutionRepository.getListofSolution(rootcauseid, deptid, token,  orgid);
   }
 }

@@ -5,6 +5,7 @@ import 'package:prominous/features/data/datasource/remote/edit_incident_list_dat
 import 'package:prominous/features/domain/entity/edit_incident_entity.dart';
 import 'package:prominous/features/domain/usecase/edit_incident_list_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_incident_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,8 +28,9 @@ class EditIncidentListService {
           EditIncidentListDatasourceImpl(),
         ),
       );
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
-      EditIncidentListEntity user = await editincidentusecase.execute(token,deptid,ipdid
+      EditIncidentListEntity user = await editincidentusecase.execute(token,deptid,ipdid, orgid
        
       );
 

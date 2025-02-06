@@ -6,10 +6,11 @@ import '../../../constant/request_data_model/api_request_model.dart';
 import 'api_constant.dart';
 
 class EmpDetailsClient {
-  dynamic getEmpDetails(String token) async {
+  dynamic getEmpDetails(String token,int orgid) async {
     ApiRequestDataModel requestData = ApiRequestDataModel(
       clientAuthToken: token,
       apiFor: "emp_details_v1",
+      orgid: orgid
     );
 
     const timeoutDuration = Duration(seconds: 10);

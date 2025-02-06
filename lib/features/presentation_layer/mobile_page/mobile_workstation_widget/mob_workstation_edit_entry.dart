@@ -31,6 +31,7 @@ import 'package:prominous/features/presentation_layer/provider/edit_product_avil
 import 'package:prominous/features/presentation_layer/provider/employee_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
@@ -237,7 +238,7 @@ Future<void> updateproduction(int? processid) async {
       final fromtime = empproduction?.ipdFromTime;
       final totime = empproduction?.ipdToTime;
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-      
+            int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
       WorkStationEntryReqModel editworkStationEntryReq = WorkStationEntryReqModel(
         apiFor: "edit_entry_server_v1",
         clientAuthToken: token,
@@ -280,7 +281,8 @@ targetqty: double.tryParse(targetQtyController.text),
         listOfEmployeesForWorkStation: [],
         listOfWorkstationIncident: [],
         nonProductionList: [],
-        pwsid: widget.pwsId
+        pwsid: widget.pwsId,
+        orgid: orgid
       );
 
 for (int index = 0; index < EmpWorkstation!.length; index++) {
@@ -749,6 +751,7 @@ void clearTextFields() {
            
     if (workstationProblem != null) {
       for (int i = 0; i < workstationProblem.length; i++) {
+              int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
          ListOfWorkStationIncident data =
                                           ListOfWorkStationIncident(
                                               fromtime: workstationProblem[i].fromTime,
@@ -773,7 +776,8 @@ void clearTextFields() {
                                                   workstationProblem[i].incrcmRootcauseBrief,
                                                   ipdId:workstationProblem[i].ipdincipdid,
                                                   ipdIncId: workstationProblem[i].ipdincid,
-                                                  assetId:workstationProblem[i].incmAssetId  );
+                                                  assetId:workstationProblem[i].incmAssetId,
+                                                  orgid: orgid  );
        Provider.of<ListProblemStoringProvider>(
                                                     context,
                                                     listen: false)
@@ -798,12 +802,14 @@ void clearTextFields() {
 
     if (editNonProduction != null) {
       for (int i = 0; i < editNonProduction.length; i++) {
+              int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
          NonProductionEntryModel data = NonProductionEntryModel(
                                                   notes: editNonProduction[i].inpaNotes,
                                                   npamFromTime: editNonProduction[i].inpaFromTime,
                                                   npamId: editNonProduction[i].inpaNpamId,
                                                   npamToTime: editNonProduction[i].inpaToTime,
-                                                  npamName: editNonProduction[i].npamName);
+                                                  npamName: editNonProduction[i].npamName,
+                                                  orgid: orgid);
 
        Provider.of<NonProductionStoredListProvider>(
                                                     context,
@@ -814,6 +820,7 @@ void clearTextFields() {
   }
 
     void _EmpOpenandCloseShiftPop(BuildContext context, String attid, String attstatus,int shiftstatus) {
+    int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -855,7 +862,7 @@ void clearTextFields() {
                                     widget.psid ?? 0,
                                     shiftstatus,
                                     attid,
-                                    int.tryParse(attstatus) ?? 0);
+                                    int.tryParse(attstatus) ?? 0, orgid);
 
                                 await _fetchARecentActivity();
                                 await employeeApiService.employeeList(
@@ -1102,7 +1109,7 @@ Future<void> _problemEntrywidget(
 
     if (editIncidentList != null) {
       for (int i = 0; i < editIncidentList.length; i++) {
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
         ListOfWorkStationIncident data = ListOfWorkStationIncident(
           problemId: editIncidentList[i].incidentId,
             problemName: editIncidentList[i].incmName,
@@ -1118,6 +1125,7 @@ Future<void> _problemEntrywidget(
           solutionId: editIncidentList[i].solId,
           ipdId: editIncidentList[i].ipdincIpdId,
           ipdIncId: editIncidentList[i].ipdincId,
+          orgid: orgid
 
          
         );

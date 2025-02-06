@@ -7,7 +7,7 @@ import '../../core/api_constant.dart';
 
 abstract class TargetQtyDatasource {
   Future<TargetQtyModel> getTargetQty( int paid,int deptid,int psid,int pwsid,
-    String token);
+    String token, int orgid);
 }
 
 
@@ -18,7 +18,7 @@ class TargetQtyDatasourceImpl extends TargetQtyDatasource {
 
   // RecentActivityDatasourceImpl(this.allocationClient);
   @override
-  Future<TargetQtyModel> getTargetQty ( int paid,int deptid,int psid,int pwsid, String token)async {
+  Future<TargetQtyModel> getTargetQty ( int paid,int deptid,int psid,int pwsid, String token, int orgid)async {
     // final response = await allocationClient.getallocation(id, token);
 
     // final result = AllocationModel.fromJson(response);
@@ -26,7 +26,7 @@ class TargetQtyDatasourceImpl extends TargetQtyDatasource {
     // return result;
 
       ApiRequestDataModel requestbody = ApiRequestDataModel(
-          apiFor: "target_qty_v1", clientAuthToken: token, paId: paid,deptId: deptid,psId:psid,ipdpwsid: pwsid);
+          apiFor: "target_qty_v1", clientAuthToken: token, paId: paid,deptId: deptid,psId:psid,ipdpwsid: pwsid, orgid: orgid);
      final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
     final result = TargetQtyModel.fromJson(response);
       print(result);

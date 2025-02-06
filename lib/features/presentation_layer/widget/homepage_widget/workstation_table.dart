@@ -10,19 +10,17 @@ import 'package:prominous/constant/utilities/customwidgets/custombutton.dart';
 import 'package:prominous/features/data/model/shift_status_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/provider/listofworkstation_provider.dart';
-import 'package:prominous/features/presentation_layer/widget/workstation_entry_widget/emp_close_shift_widget.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
+
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/constant/request_data_model/send_attendence_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/employee_di.dart';
 import 'package:prominous/features/presentation_layer/provider/shift_status_provider.dart';
-import 'package:toggle_switch/toggle_switch.dart';
-import '../../../../constant/request_data_model/api_request_model.dart';
 
 import '../../../../constant/utilities/exception_handle/show_pop_error.dart';
 import '../../../data/core/api_constant.dart';
-import '../../api_services/process_di.dart';
 import '../../provider/employee_provider.dart';
 import '../workstation_entry_widget/workstation_entry.dart';
 import 'employe_allocation_popup.dart';
@@ -214,11 +212,10 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
     String token = pref.getString("client_token") ?? "";
     DateTime now = DateTime.now();
     //DateTime today = DateTime(now.year, now.month, now.day);;
-
     int dt;
 
     dt = int.tryParse(attendanceid ?? "") ?? 0;
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = SendAttendencereqModel(
         apiFor: "floor_attendance_v1",
         clientAuthToken: token,
@@ -230,7 +227,10 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
         psid: widget.psid,
         shiftId: Shiftid,
         shiftStatus: shiftStatus,
-        pwsId: pwsId);
+        pwsId: pwsId,
+        orgid: orgid,
+
+        );
 
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
@@ -289,7 +289,7 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
 
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = WorkstationChanges(
       clientAutToken: token,
       pwseempid: empPersonid,
@@ -297,6 +297,7 @@ class _EmployeeWorkStationState extends State<EmployeeWorkStation> {
       pwsePwsId: pwsId,
       pwseId: pwesId,
       attid: attId,
+      orgid: orgid
       // flattstatus: attstatus
     );
 
@@ -1143,7 +1144,7 @@ void _workstationPopup({
                                                 true)
                                             ? null
                                             : () async {
-                                                await sendAttendance(
+                                                 await sendAttendance(
                                                     1,
                                                     employee?.attendanceid ??
                                                         "",
@@ -1293,41 +1294,37 @@ void _workstationPopup({
                               //   ),
                               // ),
 
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 2.h, horizontal: 2.w),
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  width: 100.w,
-                                  child: ElevatedButton(
-                                    child: Text(
-                                      "Reassign",
-                                      style: TextStyle(fontSize: 12.w),
-                                    ),
-                                    onPressed: initialindex == 0
-                                        ? null
-                                        : () {
-                                            setState(() {
-                                              showEmployeeAllocationPopup(
-                                                attId: employee.attendanceid,
-                                                deptid: widget.deptid ?? 0,
-                                                empPersonid:
-                                                    employee.empPersonid,
-                                                mfgpeId: employee.mfgpempid,
-
-                                                processId: employee.processId,
-
-                                                // widget?.shiftid ??0,
-                                              );
-                                              employeeApiService.employeeList(
-                                                  context: context,
-                                                  processid:
-                                                      employee.processId ?? 0,
-                                                  deptid: widget.deptid ?? 1,
-                                                  psid: widget.psid ?? 0);
-                                            });
-                                          },
+                              Container(
+                                alignment: Alignment.center,
+                                width: 110.w,
+                                child: ElevatedButton(
+                                  child: Text(
+                                    "Reassign",
+                                    style: TextStyle(fontSize: 12.w),
                                   ),
+                                  onPressed: initialindex == 0
+                                      ? null
+                                      : () {
+                                          setState(() {
+                                            showEmployeeAllocationPopup(
+                                              attId: employee.attendanceid,
+                                              deptid: widget.deptid ?? 0,
+                                              empPersonid:
+                                                  employee.empPersonid,
+                                              mfgpeId: employee.mfgpempid,
+                              
+                                              processId: employee.processId,
+                              
+                                              // widget?.shiftid ??0,
+                                            );
+                                            employeeApiService.employeeList(
+                                                context: context,
+                                                processid:
+                                                    employee.processId ?? 0,
+                                                deptid: widget.deptid ?? 1,
+                                                psid: widget.psid ?? 0);
+                                          });
+                                        },
                                 ),
                               ),
                            

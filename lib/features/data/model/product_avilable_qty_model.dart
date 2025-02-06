@@ -31,7 +31,7 @@ class ProductQtyModel extends ProductQtyEntity{
     factory ProductQtyModel.fromJson(Map<String, dynamic> json){ 
         return ProductQtyModel(
        imfgpProcessSeq: json["imfgp_process_seq"],
-            ipcwGoodQtyAvl: json["ipcw_good_qty_avl"],
+       ipcwGoodQtyAvl: json["ipcw_good_qty_avl"],
         );
     }
 

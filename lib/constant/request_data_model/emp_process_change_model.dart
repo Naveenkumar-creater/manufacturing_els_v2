@@ -7,6 +7,7 @@ class EmpProcessChange {
         required this.mfgpePersonId,
         required this.pwsePwsId,
         required this.flAttId,
+        required this.orgid
     });
 
     final String? clientAutToken;
@@ -16,6 +17,7 @@ class EmpProcessChange {
     final int? mfgpePersonId;
     final int? pwsePwsId;
     final int? flAttId;
+    final int ? orgid;
 
     Map<String, dynamic> toJson() => {
         "client_aut_token": clientAutToken,
@@ -25,6 +27,7 @@ class EmpProcessChange {
         "mfgpe_person_id": mfgpePersonId,
         "pwse_pws_id": pwsePwsId,
         "fl_att_id": flAttId,
+        "org_id": orgid
     };
 
 }

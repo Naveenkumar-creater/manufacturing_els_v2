@@ -13,6 +13,7 @@ class UpdateProblemModel {
         required this.problemSolvedStatus,
         required this.productionStopage,
         required this.notes,
+        required this.orgid
     });
 
     final String? clientAutToken;
@@ -28,6 +29,7 @@ class UpdateProblemModel {
     final int? problemSolvedStatus;
     final int? productionStopage;
     final String? notes;
+    final int? orgid;
 
     Map<String, dynamic> toJson() => {
         "client_aut_token": clientAutToken,
@@ -43,6 +45,7 @@ class UpdateProblemModel {
         "problem_solved_status": problemSolvedStatus,
         "production_stopage": productionStopage,
         "notes": notes,
+        "org_id":orgid
     };
 
 }

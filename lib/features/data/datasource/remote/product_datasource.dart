@@ -1,13 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-import 'package:prominous/constant/request_data_model/api_request_model.dart';
 import 'package:prominous/features/data/model/product_model.dart';
 
-import '../../core/api_constant.dart';
 import '../../core/product_client.dart';
 
 abstract class ProductDatasource {
-  Future<ProductModel> getProductList(int id,int deptid, String token);
+  Future<ProductModel> getProductList(int id,int deptid, String token, int orgid);
 }
 
 class ProductDatasourceImpl implements ProductDatasource {
@@ -16,8 +14,8 @@ class ProductDatasourceImpl implements ProductDatasource {
     this.productClient,
   );
   @override
-  Future<ProductModel> getProductList(int id,int deptid, String token) async {
-    final response = await productClient.getProductList(id,deptid, token);
+  Future<ProductModel> getProductList(int id,int deptid, String token, int orgid) async {
+    final response = await productClient.getProductList(id,deptid, token, orgid);
 
     final result = ProductModel.fromJson(response);
 

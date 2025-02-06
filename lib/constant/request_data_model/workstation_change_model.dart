@@ -6,6 +6,7 @@ class WorkstationChanges {
         required this.pwsePwsId,
         required this.pwseId,
         required this.attid,
+        required this.orgid
         // required this.flattstatus
     });
 
@@ -15,6 +16,7 @@ class WorkstationChanges {
     final int? pwsePwsId;
     final int? pwseId;
     final int? attid;
+    final int? orgid;
     // final int? flattstatus;
 
     Map<String, dynamic> toJson() => {
@@ -24,6 +26,7 @@ class WorkstationChanges {
         "pwse_pws_id": pwsePwsId,
         "pwse_id": pwseId,
         "fl_att_id":attid,
+        "org_id":orgid
         // "fl_att_status":flattstatus
     };
 

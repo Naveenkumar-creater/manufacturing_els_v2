@@ -8,7 +8,7 @@ class AssetBarcodeUsecase{
   final AssetBarcodeRepository assetBarcodeRepository;
   AssetBarcodeUsecase(this.assetBarcodeRepository);
 
-  Future<ScanAssetBarcodeEntity>execute(int pwsid,int assetId, String token) async{
-return assetBarcodeRepository.getAssetBarcode(pwsid, assetId, token);
+  Future<ScanAssetBarcodeEntity>execute(int pwsid,int assetId, String token, int orgid) async{
+return assetBarcodeRepository.getAssetBarcode(pwsid, assetId, token,  orgid);
   }
 }

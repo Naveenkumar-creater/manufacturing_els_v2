@@ -41,6 +41,7 @@ import 'package:prominous/features/presentation_layer/mobile_page/mobile_emp_pro
 import 'package:prominous/features/presentation_layer/mobile_page/mobile_recentHistoryBottomSheet.dart';
 import 'package:prominous/features/presentation_layer/provider/list_problem_storing_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_location_provider.dart';
@@ -282,7 +283,7 @@ class _EmpProductionEntryPageState
 
       final currentDateTime =
           '$currentYear-${currentMonth.toString().padLeft(2, '0')}-$currentDay $currentHour:${currentMinute.toString()}:${currentSecond.toString()}';
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
       //String toDate = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       WorkStationEntryReqModel workStationEntryReq = WorkStationEntryReqModel(
           apiFor: "update_production_v1",
@@ -310,6 +311,7 @@ class _EmpProductionEntryPageState
           ipdpsid: widget.psid,
           ppid: ppId ?? 0,
           shiftid: Shiftid,
+          orgid: orgid,
           ipdareaid: locationid ?? 0,
           listOfEmployeesForWorkStation: [],
           pwsid: widget.pwsid,
@@ -444,6 +446,7 @@ class _EmpProductionEntryPageState
   }
 
   void _closeShiftPop(BuildContext context, String attid, String attstatus) {
+    int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -488,7 +491,7 @@ class _EmpProductionEntryPageState
                                     widget.psid ?? 0,
                                     2,
                                     attid,
-                                    int.tryParse(attstatus) ?? 0);
+                                    int.tryParse(attstatus) ?? 0, orgid);
 
                                 await _fetchARecentActivity();
                                 await employeeApiService.employeeList(
@@ -546,6 +549,7 @@ class _EmpProductionEntryPageState
   }
 
   void _EmpOpenShiftPop(BuildContext context, String attid, String attstatus) {
+    int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -590,7 +594,7 @@ class _EmpProductionEntryPageState
                                     widget.psid ?? 0,
                                     1,
                                     attid,
-                                    int.tryParse(attstatus) ?? 0);
+                                    int.tryParse(attstatus) ?? 0, orgid);
                                 _fetchARecentActivity();
                                 await employeeApiService.employeeList(
                                     context: context,
@@ -785,12 +789,14 @@ class _EmpProductionEntryPageState
   Future<void> workstationClose({int? processid, int? psid, int? pwsid}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
+          int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = WorkstationCloseShiftModel(
         apiFor: "workstation_close_shift_v1",
         clientAutToken: token,
         mpmId: processid,
         psId: psid,
-        pwsId: pwsid);
+        pwsId: pwsid,
+        orgid: orgid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -1779,6 +1785,7 @@ class _EmpProductionEntryPageState
 
     if (workstationProblem != null) {
       for (int i = 0; i < workstationProblem.length; i++) {
+              int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
         ListOfWorkStationIncident data = ListOfWorkStationIncident(
             fromtime: workstationProblem[i].fromTime,
             endtime: workstationProblem[i].endTime,
@@ -1796,7 +1803,9 @@ class _EmpProductionEntryPageState
             rootCausename: workstationProblem[i].incrcmRootcauseBrief,
             ipdId: workstationProblem[i].ipdincipdid,
             ipdIncId: workstationProblem[i].ipdincid,
-            assetId: workstationProblem[i].incmAssetId);
+            assetId: workstationProblem[i].incmAssetId,
+            orgid: orgid
+            );
         Provider.of<ListProblemStoringProvider>(context, listen: false)
             .addIncidentList(data);
       }

@@ -6,7 +6,7 @@ class ShiftStatusUsecase {
 
   ShiftStatusUsecase(this.shiftStatusRepository);
 
-  Future<ShiftStatusEntity> execute(int deptid,int processid, String token) {
-    return shiftStatusRepository.getShiftStatus(deptid,processid, token);
+  Future<ShiftStatusEntity> execute(int deptid,int processid, String token, int orgid) {
+    return shiftStatusRepository.getShiftStatus(deptid,processid, token,  orgid);
   }
 }

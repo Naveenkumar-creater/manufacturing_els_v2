@@ -6,7 +6,7 @@ class AllocationUsecases {
 
   AllocationUsecases(this.allocationRepository);
 
-  Future<AllocationEntity> execute(int id, int deptid,String token) {
-    return allocationRepository.getallocation(id,deptid, token);
+  Future<AllocationEntity> execute(int id, int deptid,String token, int orgid) {
+    return allocationRepository.getallocation(id,deptid, token,  orgid);
   }
 }

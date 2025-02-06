@@ -9,8 +9,8 @@ class ListofEmpworkstationUsecase {
 
   ListofEmpworkstationUsecase(this.listofEmpWorkstationRepository);
 
-Future<ListofEmpWorkstationEntity> execute (int deptid,int psid, int processid, String token,int pwsId){
-  return listofEmpWorkstationRepository.getListofEmpWorkstation(deptid, psid, processid, token, pwsId);
+Future<ListofEmpWorkstationEntity> execute (int deptid,int psid, int processid, String token,int pwsId, int orgid){
+  return listofEmpWorkstationRepository.getListofEmpWorkstation(deptid, psid, processid, token, pwsId,  orgid);
 
 ;}
 }

@@ -5,8 +5,8 @@ class TargetQtyUsecase {
   final TargetQtyRepository targetQtyRepository;
   TargetQtyUsecase(this.targetQtyRepository);
 
-  Future<TargetQtyEntity> execute ( int paid,int deptid,int psid,int pwsid, String token) {
+  Future<TargetQtyEntity> execute ( int paid,int deptid,int psid,int pwsid, String token, int orgid) {
     
-    return targetQtyRepository.getTargetQty(paid, deptid, psid, pwsid, token);
+    return targetQtyRepository.getTargetQty(paid, deptid, psid, pwsid, token,  orgid);
   }
 }

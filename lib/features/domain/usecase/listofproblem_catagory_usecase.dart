@@ -8,9 +8,9 @@ class ListofproblemCategoryUsecase  {
   final ListofproblemCategoryRepository listofproblemCategoryRepository;
   ListofproblemCategoryUsecase( this.listofproblemCategoryRepository);
 
-  Future<ListOfProblemCategoryEntity> execute (String token, int deptid, int incidentId) {
+  Future<ListOfProblemCategoryEntity> execute (String token, int deptid, int incidentId, int orgid) {
 
-   return  listofproblemCategoryRepository.getListofProblemCategory(token, deptid, incidentId);
+   return  listofproblemCategoryRepository.getListofProblemCategory(token, deptid, incidentId,  orgid);
   }
   
 } 

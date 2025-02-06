@@ -6,6 +6,7 @@ import 'package:prominous/features/data/repository/listofrootcause_repo_impl.dar
 import 'package:prominous/features/domain/entity/listof_rootcause_entity.dart';
 import 'package:prominous/features/domain/usecase/listofrootcause_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/listofrootcause_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,8 +26,9 @@ class ListofRootCauseService{
        final listofusecase = ListofRootCauseUsecase(
         ListofRootcauseRepoImpl(ListofRootCauseDatasourceImpl(),)
        );
+       int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
-       ListOfRootCauseEntity user=await listofusecase.execute(token, deptid, incidentid);
+       ListOfRootCauseEntity user=await listofusecase.execute(token, deptid, incidentid, orgid);
 
         Provider.of<ListofRootcauseProvider>(context, listen: false).setUser(user);
       

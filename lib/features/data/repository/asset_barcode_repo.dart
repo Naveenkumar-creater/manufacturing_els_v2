@@ -9,8 +9,8 @@ class AssetBarcodeRepositoryImpl extends AssetBarcodeRepository{
   AssetBarcodeRepositoryImpl(this.assetBarcodeDatasource); 
 
   @override
-  Future<ScanAssetBarcodeModel> getAssetBarcode(int pwsid,int assetId, String token) async{
-   ScanAssetBarcodeModel result= await assetBarcodeDatasource.getAssetBarcode(pwsid, assetId, token);
+  Future<ScanAssetBarcodeModel> getAssetBarcode(int pwsid,int assetId, String token, int orgid) async{
+   ScanAssetBarcodeModel result= await assetBarcodeDatasource.getAssetBarcode(pwsid, assetId, token,  orgid);
     return result;
   }
   

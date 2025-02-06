@@ -8,6 +8,7 @@ import 'package:prominous/features/domain/entity/listofempworkstation_entity.dar
 import 'package:prominous/features/domain/entity/listofworkstation_entity.dart';
 import 'package:prominous/features/domain/usecase/listofempworkstation_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/listofempworkstation_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -32,13 +33,14 @@ class ListofEmpworkstationService {
           ListOfEmpWorkstationDatatsourceImpl(),
         ),
       );
+int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
       ListofEmpWorkstationEntity user = await empworkstation.execute(
         deptid,
         psid,
         processid,
         token,
-        pwsId
+        pwsId, orgid
       );
 
       // Update the provider with the fetched data

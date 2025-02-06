@@ -9,6 +9,7 @@ import 'package:prominous/features/presentation_layer/api_services/actual_qty_di
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -311,12 +312,14 @@ print(employeeResponse);
         .user
         ?.shiftStatusdetailEntity
         ?.psId;
+              int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
     final requestBody = CloseShift(
         apiFor: "close_shift",
         clientAuthToken: token,
         psid: psId,
-        ShiftStatus: 2);
+        ShiftStatus: 2,
+        orgid: orgid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -360,14 +363,16 @@ print(employeeResponse);
     
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = ShiftStatusreqModel(
         apiFor: "update_shift_status",
         clientAuthToken: token,
         deptId: widget.deptid,
         processId: widget.processid,
         psid: 0,
-        shiftgroupId: widget.shiftgroupid);
+        shiftgroupId: widget.shiftgroupid,
+        orgid: orgid
+        );
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -511,6 +516,7 @@ print(employeeResponse);
                         await attendanceCountService.getAttCount(
                                         context: context,
                                         id: widget.processid ?? 0, deptid:widget.deptid ?? 1 , psid: widget.psid ?? 0);
+                                        
                                          await planQtyService.getPlanQty(context: context, id: widget.processid ??0, psid: widget.psid ??0 );
         await actualQtyService.getActualQty(context: context, id: widget.processid??0,psid: widget.psid ??0);
       

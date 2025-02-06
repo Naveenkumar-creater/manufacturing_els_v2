@@ -25,9 +25,9 @@ class ProminousLoginPage extends StatelessWidget {
             Column(mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(64),
+                padding: const EdgeInsets.all(50),
                 child: SizedBox(
-                          height: 140,
+                          height: 120,
                           child: Image.asset('assets/images/Prominous-logo-white.png'),),
               ),
             ],
@@ -37,10 +37,10 @@ class ProminousLoginPage extends StatelessWidget {
               padding: const EdgeInsets.only(right:128),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
+                  color: const Color.fromARGB(60, 250, 250, 250),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                width: 350,
+                width: 400,
                 height: 400,
                 alignment: Alignment.center,
                 child: const Login(),

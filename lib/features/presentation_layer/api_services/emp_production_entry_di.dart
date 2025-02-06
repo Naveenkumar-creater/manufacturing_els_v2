@@ -1,15 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:prominous/features/domain/repository/emp_production_entry_repo.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:prominous/features/data/core/employee_client.dart';
 import 'package:prominous/features/data/datasource/remote/emp_production_entry_datasourcel.dart';
 import 'package:prominous/features/data/repository/emp_production_entry_repo_impl.dart';
 import 'package:prominous/features/domain/entity/emp_production_entity.dart';
 
 import '../../../constant/utilities/exception_handle/show_pop_error.dart';
 import '../../data/core/emp_production_entry_client.dart';
-import '../../data/repository/allocation_repo_impl.dart';
 import '../../domain/usecase/emp_production_entry_usecases.dart';
 import '../provider/emp_production_entry_provider.dart';
 
@@ -42,8 +41,9 @@ class EmpProductionEntryService {
           EmpProductionEntryRepoImpl(empData);
       EmpProductionEntryUsecases empUseCase =
           EmpProductionEntryUsecases(allocationRepository);
+int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
-      EmpProductionEntity user = await empUseCase.execute(pwsId,deptid,psid, token);
+      EmpProductionEntity user = await empUseCase.execute(pwsId,deptid,psid, token, orgid);
 
       Provider.of<EmpProductionEntryProvider>(context, listen: false)
           .setUser(user);

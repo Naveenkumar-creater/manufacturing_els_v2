@@ -6,7 +6,12 @@ class EmpCloseShift{
   final int ?attShiftStatus;
   final int? psid;
   final int? attendenceStatus;
-  EmpCloseShift( {required this.attendenceStatus, required this.psid, required this.clientAuthToken, required this.apiFor, required this.attid, required this.attShiftStatus});
+  final int ? orgid;
+  EmpCloseShift( {
+    
+    required this.attendenceStatus,
+    required this.orgid, 
+     required this.psid, required this.clientAuthToken, required this.apiFor, required this.attid, required this.attShiftStatus});
 
   
   Map<String, dynamic> toJson() => {
@@ -15,7 +20,8 @@ class EmpCloseShift{
       "fl_att_id":attid,
       "fl_att_shift_status":attShiftStatus,
       "fl_ps_id":psid,
-      "fl_att_status":attendenceStatus
+      "fl_att_status":attendenceStatus,
+      "org_id":orgid
   };
 
 }

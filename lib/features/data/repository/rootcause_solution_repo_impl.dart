@@ -12,9 +12,9 @@ class RootcauseSolutionRepositoryImpl implements RootcauseSolutionRepository {
     this.rootcauseSolutionDatasource,
   );
   @override
-  Future<RootcauseSolutionModel> getListofSolution(int rootcauseid,int deptid, String token) async{
+  Future<RootcauseSolutionModel> getListofSolution(int rootcauseid,int deptid, String token, int orgid) async{
  RootcauseSolutionModel result =
-        await rootcauseSolutionDatasource.getListofSolution( rootcauseid,deptid, token);
+        await rootcauseSolutionDatasource.getListofSolution( rootcauseid,deptid, token,  orgid);
     return result;
   }
 

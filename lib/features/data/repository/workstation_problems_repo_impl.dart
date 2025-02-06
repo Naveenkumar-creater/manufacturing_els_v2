@@ -8,8 +8,8 @@ class WorkstationProblemsRepositoryImpl extends WorkstationProblemRepository{
   WorkstationProblemsRepositoryImpl(this.workstationProblemDatasource);
 
   @override
-  Future<WorkstationProblemsModel> getResolveProblemList(int pwsid, String token) async{
-  WorkstationProblemsModel result= await  workstationProblemDatasource.getWorkstationProblemsList(pwsid,token);
+  Future<WorkstationProblemsModel> getResolveProblemList(int pwsid, String token, int orgid) async{
+  WorkstationProblemsModel result= await  workstationProblemDatasource.getWorkstationProblemsList(pwsid,token, orgid);
     return result;
   }
 

@@ -7,7 +7,7 @@ class NonProductionUsecase {
 
   Future<NonProductionActivityEntity> execute(
     String token,
-  ) async {
-    return nonProductionRepository.getNonProductionActivity(token);
+    int orgid ) async {
+    return nonProductionRepository.getNonProductionActivity(token,  orgid);
   }
 }

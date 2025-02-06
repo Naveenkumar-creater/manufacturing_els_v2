@@ -8,11 +8,12 @@ import 'api_constant.dart';
 class ProcessClient {
   dynamic getProcessList(
     String token,
-    int deptid
+    int deptid,
+    int orgid
 
   ) async {
     ApiRequestDataModel requestData =
-        ApiRequestDataModel(clientAuthToken: token, apiFor: "list_of_process_v1",deptId: deptid);
+        ApiRequestDataModel(clientAuthToken: token, apiFor: "list_of_process_v1",deptId: deptid,orgid: orgid);
 
     const timeoutDuration = Duration(seconds: 10);
     try {

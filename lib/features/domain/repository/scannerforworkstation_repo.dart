@@ -3,5 +3,5 @@ import 'package:prominous/features/domain/entity/scannerforworkstation_entity.da
 
 abstract class ScannerforworkstationRepository{
   
-    Future<ScannerforworkstationEntity> getWorkstationBarcode(int deptid,int pwsId, String token, String pwsbarcode);
+    Future<ScannerforworkstationEntity> getWorkstationBarcode(int deptid,int pwsId, String token, String pwsbarcode, int orgid);
 }

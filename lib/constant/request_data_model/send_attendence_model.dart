@@ -7,8 +7,11 @@
       required this.processId,
       required this.attId,
       required  this.attStatus,
-      required this.empid, required this.shiftStatus, required this.shiftId,
-      required this.pwsId
+      required this.empid, 
+      required this.shiftStatus,
+      required this.shiftId,
+      required this.pwsId,
+      required this.orgid
       // required this.shiftDate,
 
     });
@@ -23,6 +26,7 @@
   final int?shiftStatus;
   final int?shiftId;
   final int?pwsId;
+  final int? orgid;
   // final String?shiftDate;
 
 
@@ -37,7 +41,8 @@
       'fl_att_emp_id':empid,
       "fl_att_shift_status":shiftStatus,
       "fl_att_shift_id":shiftId,
-      "fl_att_pws_id":pwsId
+      "fl_att_pws_id":pwsId,
+      "org_id":orgid
       // 'ps_shift_date':shiftDate  
     };
 

@@ -6,6 +6,7 @@ import 'package:prominous/features/data/repository/edit_emp_list_repo_impl.dart'
 import 'package:prominous/features/domain/entity/edit_emp_list_entity.dart';
 import 'package:prominous/features/domain/usecase/edit_emp_list_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_emp_list_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,7 +26,8 @@ class EditEmpListApiservice{
     )
       );
 
-      EditListofEmpWorkstationEntity editListofEmployee =await editListofEmpusecase.execute(ipdid, token, psid);
+int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+      EditListofEmpWorkstationEntity editListofEmployee =await editListofEmpusecase.execute(ipdid, token, psid,orgid);
 
       Provider.of<EditEmpListProvider>(context,listen: false).setUser(editListofEmployee);
     } catch (e) {

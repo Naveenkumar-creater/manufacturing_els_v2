@@ -8,7 +8,7 @@ class EmpDetailsUsecase {
   final EmpDetailsRepository empDetailsRepository;
   EmpDetailsUsecase(this.empDetailsRepository);
 
-  Future<EmpDetailsEntity> execute(String token) async {
-    return empDetailsRepository.getEmpDetails(token);
+  Future<EmpDetailsEntity> execute(String token, int orgid) async {
+    return empDetailsRepository.getEmpDetails(token,  orgid);
   }
 }

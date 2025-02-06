@@ -58,6 +58,7 @@ class ApiRequestDataModel {
  String?Cardno;
  int?reworkflag;
  int?ipdId;
+ int? orgid;
 
 
     
@@ -123,14 +124,12 @@ class ApiRequestDataModel {
        this.problemStatus,
        this.Cardno,
        this.reworkflag,
-       this.ipdId
+       this.ipdId,
+       this.orgid
       });
 
   Map<String, dynamic> toJson() {
     return {
-          
-
-    
       'card_no':cardNo,
       'client_aut_token': clientAuthToken,
       'api_for': apiFor,
@@ -190,7 +189,8 @@ class ApiRequestDataModel {
       "problem_status":problemStatus,
       "card_no":Cardno,
       "rework_flag":reworkflag,
-    "ipd_Id":ipdId
+    "ipd_Id":ipdId,
+    "org_id":orgid
 
     };
   }

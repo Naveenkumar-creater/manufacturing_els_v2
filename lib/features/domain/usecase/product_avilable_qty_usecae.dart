@@ -6,8 +6,8 @@ class ProductAvilableQtyUsecae {
   ProductAvilableQtyUsecae(this.productAvilableQtyRepo);
 
   Future<ProductAvilableQtyEntity> execute(
- String token,int processid,int paid, String cardno,int reworkflag
+ String token,int processid,int paid, String cardno,int reworkflag, int orgid
   ) async {
-    return productAvilableQtyRepo.getproductQty ( token, processid, paid,  cardno, reworkflag);
+    return productAvilableQtyRepo.getproductQty ( token, processid, paid,  cardno, reworkflag,  orgid);
   }
 }

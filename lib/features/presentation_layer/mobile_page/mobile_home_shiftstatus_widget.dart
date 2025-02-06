@@ -9,6 +9,7 @@ import 'package:prominous/features/presentation_layer/api_services/actual_qty_di
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/plan_qty_di.dart';
 import 'package:prominous/features/presentation_layer/provider/attendance_count_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -277,12 +278,13 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
         .user
         ?.shiftStatusdetailEntity
         ?.psId;
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = CloseShift(
         apiFor: "close_shift",
         clientAuthToken: token,
         psid: psId,
-        ShiftStatus: 2);
+        ShiftStatus: 2,
+        orgid: orgid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 
     print(requestBodyjson);
@@ -325,13 +327,14 @@ class _ProcessQtyWidgetState extends State<MobileShitStatusWidget> {
   Future<void> openShift() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = ShiftStatusreqModel(
         apiFor: "update_shift_status",
         clientAuthToken: token,
         deptId: widget.deptid,
         processId: widget.processid,
         psid: 0,
+        orgid: orgid,
         shiftgroupId: widget.shiftgroupid);
     final requestBodyjson = jsonEncode(requestBody.toJson());
 

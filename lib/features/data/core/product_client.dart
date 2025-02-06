@@ -7,9 +7,9 @@ import '../../../constant/request_data_model/api_request_model.dart';
 import 'api_constant.dart';
 
 class ProductClient {
-  dynamic getProductList(int id,int deptid, String token) async {
+  dynamic getProductList(int id,int deptid, String token,int orgid) async {
     ApiRequestDataModel requestData = ApiRequestDataModel(
-        clientAuthToken: token, apiFor: "list_of_product_v1", processId: id,deptId: deptid);
+        clientAuthToken: token, apiFor: "list_of_product_v1", processId: id,deptId: deptid, orgid: orgid);
 
     const timeoutDuration = Duration(seconds: 10);
     try {

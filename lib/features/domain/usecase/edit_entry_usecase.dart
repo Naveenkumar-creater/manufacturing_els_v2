@@ -5,7 +5,7 @@ class EditEntryUsecase{
   final EditEntryRepository  editEntryRepository;
   EditEntryUsecase(this.editEntryRepository);
 
-  Future<EditEntryEntity> execute (int ipdId, int pwsId,int psid, int deptid,String token){
-    return editEntryRepository.getEditEntry(ipdId, pwsId, psid, deptid, token);
+  Future<EditEntryEntity> execute (int ipdId, int pwsId,int psid, int deptid,String token, int orgid){
+    return editEntryRepository.getEditEntry(ipdId, pwsId, psid, deptid, token,  orgid);
   }
 }

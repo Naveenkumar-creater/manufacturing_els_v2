@@ -7,13 +7,14 @@ import '../../../constant/request_data_model/api_request_model.dart';
 import 'api_constant.dart';
 
 class EmpProductionEntryClient {
-  dynamic getempproduction(int pwsId,int deptid,int psid, String token) async {
+  dynamic getempproduction(int pwsId,int deptid,int psid, String token,int orgid) async {
     ApiRequestDataModel requestData = ApiRequestDataModel(
         clientAuthToken: token,
         apiFor: "production_entry_for_workstation_v1",
     pwsid: pwsId,
         psId: psid,
-        deptId: deptid
+        deptId: deptid,
+        orgid: orgid
         );
 
     const timeoutDuration = Duration(seconds: 10);

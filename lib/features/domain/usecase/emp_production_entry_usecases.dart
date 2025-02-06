@@ -6,10 +6,10 @@ class EmpProductionEntryUsecases {
 
   EmpProductionEntryUsecases(this.empProductionRepository);
 
-  Future<EmpProductionEntity> execute(int pwsid,int deptid,int psid, String token
+  Future<EmpProductionEntity> execute(int pwsid,int deptid,int psid, String token, int orgid
       //int goodQuantities, int rejectedQuantities, int reworkQuantities
       ) {
-    return empProductionRepository.getempproduction(pwsid,deptid,psid, token
+    return empProductionRepository.getempproduction(pwsid,deptid,psid, token,  orgid
         //,goodQuantities, rejectedQuantities, reworkQuantities
         );
   }

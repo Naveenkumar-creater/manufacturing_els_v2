@@ -7,8 +7,9 @@ class CardNoUsecase {
 
   Future<CardNoEntity> execute(
     String token,
-    int cardNo
+    int cardNo,
+ int orgid
   ) async {
-    return cardNoRepository.getCardNo(token,cardNo);
+    return cardNoRepository.getCardNo(token,cardNo,  orgid);
   }
 }

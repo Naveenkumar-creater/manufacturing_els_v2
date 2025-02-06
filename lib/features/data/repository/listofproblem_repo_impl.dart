@@ -7,8 +7,8 @@ class ListofproblemRepoImpl extends ListofproblemRepository {
  ListofproblemRepoImpl(this.listofProblemDatasourceImpl);
 
   @override
-  Future<ListOfProblemEntity> getListofProblem(String token, int deptid, int processid,int assetId) async{
-   return await listofProblemDatasourceImpl.getListofProblem(token, deptid, processid,assetId);
+  Future<ListOfProblemEntity> getListofProblem(String token, int deptid, int processid,int assetId, int orgid) async{
+   return await listofProblemDatasourceImpl.getListofProblem(token, deptid, processid,assetId,  orgid);
   }
   
 }

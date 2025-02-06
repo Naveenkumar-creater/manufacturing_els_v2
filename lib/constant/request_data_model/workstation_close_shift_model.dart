@@ -5,6 +5,7 @@ class WorkstationCloseShiftModel {
         required this.mpmId,
         required this.psId,
         required this.pwsId,
+        required this.orgid
     });
 
     final String? clientAutToken;
@@ -12,16 +13,17 @@ class WorkstationCloseShiftModel {
     final int? mpmId;
     final int? psId;
     final int? pwsId;
+    final int?orgid;
 
-    factory WorkstationCloseShiftModel.fromJson(Map<String, dynamic> json){ 
-        return WorkstationCloseShiftModel(
-            clientAutToken: json["client_aut_token"],
-            apiFor: json["api_for"],
-            mpmId: json["mpm_id"],
-            psId: json["ps_id"],
-            pwsId: json["pws_id"],
-        );
-    }
+    // factory WorkstationCloseShiftModel.fromJson(Map<String, dynamic> json){ 
+    //     return WorkstationCloseShiftModel(
+    //         clientAutToken: json["client_aut_token"],
+    //         apiFor: json["api_for"],
+    //         mpmId: json["mpm_id"],
+    //         psId: json["ps_id"],
+    //         pwsId: json["pws_id"],
+    //     );
+    // }
 
     Map<String, dynamic> toJson() => {
         "client_aut_token": clientAutToken,
@@ -29,6 +31,7 @@ class WorkstationCloseShiftModel {
         "mpm_id": mpmId,
         "ps_id": psId,
         "pws_id": pwsId,
+        "org_id":orgid
     };
 
 }

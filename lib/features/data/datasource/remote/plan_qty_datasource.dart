@@ -7,7 +7,7 @@ import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class PlanQtyDatasource {
-  Future<PlanQuantityModel> getPlanQty(int id,int psid, String token);
+  Future<PlanQuantityModel> getPlanQty(int id,int psid, String token, int orgid);
 }
 
 class PlanQtyDatasourceImpl extends PlanQtyDatasource {
@@ -17,10 +17,10 @@ class PlanQtyDatasourceImpl extends PlanQtyDatasource {
   
   
   @override
-  Future<PlanQuantityModel> getPlanQty(int id,int psid, String token) async{
+  Future<PlanQuantityModel> getPlanQty(int id,int psid, String token, int orgid) async{
     
    ApiRequestDataModel requestbody = ApiRequestDataModel(
-          apiFor: "planned_qty_v1", processId: id,psId: psid, clientAuthToken: token );
+          apiFor: "planned_qty_v1", processId: id,psId: psid, clientAuthToken: token,orgid: orgid );
      final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
     final result = PlanQuantityModel.fromJson(response);
       print(result);

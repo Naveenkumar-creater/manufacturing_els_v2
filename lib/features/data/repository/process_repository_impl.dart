@@ -11,9 +11,10 @@ class ProcessRepositoryImpl implements ProcessRepository {
   @override
   Future<ProcessEntity> getProcessList(
     String token,
-    int deptid
+    int deptid,
+    int orgid
   ) async {
-    final result = await processDatasource.getProcessList(token,deptid);
+    final result = await processDatasource.getProcessList(token,deptid,  orgid);
     return result;
   }
 }

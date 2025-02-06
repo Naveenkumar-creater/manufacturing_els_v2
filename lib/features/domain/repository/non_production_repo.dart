@@ -2,5 +2,5 @@ import 'package:prominous/features/domain/entity/non_production_activity_entity.
 
 abstract class NonProductionRepository {
 
-  Future<NonProductionActivityEntity> getNonProductionActivity (String token);
+  Future<NonProductionActivityEntity> getNonProductionActivity (String token, int orgid);
 }

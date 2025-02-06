@@ -6,7 +6,7 @@ import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class ActualQtyDatasource {
-  Future<ActualQuantityModel> getActualQty(int id,int psid, String token);
+  Future<ActualQuantityModel> getActualQty(int id,int psid, String token, int orgid);
 }
 
 class ActualQtyDatasourceImpl extends ActualQtyDatasource {
@@ -16,13 +16,13 @@ class ActualQtyDatasourceImpl extends ActualQtyDatasource {
   
   
   @override
-  Future<ActualQuantityModel> getActualQty(int id,int psid, String token) async{
+  Future<ActualQuantityModel> getActualQty(int id,int psid, String token,int orgid) async{
     
    ApiRequestDataModel requestbody = ApiRequestDataModel(
-          apiFor: "actual_qty_v1", processId: id,psId: psid, clientAuthToken: token );
+          apiFor: "actual_qty_v1", processId: id,psId: psid, clientAuthToken: token, orgid: orgid );
      final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
     final result = ActualQuantityModel.fromJson(response);
-      print(result);
+    print(result);
       return result;
   }
 }

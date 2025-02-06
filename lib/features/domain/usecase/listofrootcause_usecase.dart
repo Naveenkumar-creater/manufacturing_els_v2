@@ -7,8 +7,8 @@ class ListofRootCauseUsecase {
 
   ListofRootCauseUsecase(this.listofRootCauseRepository);
 
-  Future<ListOfRootCauseEntity> execute(String token , int deptid, int incidentid){
-    return listofRootCauseRepository.getListofRootcause(token, deptid, incidentid);
+  Future<ListOfRootCauseEntity> execute(String token , int deptid, int incidentid, int orgid){
+    return listofRootCauseRepository.getListofRootcause(token, deptid, incidentid,  orgid);
 
   }
 }

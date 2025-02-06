@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/domain/entity/product_entity.dart';
@@ -20,8 +21,10 @@ class ProductApiService {
       ProductDatasource empData = ProductDatasourceImpl(employeeClient);
       ProductRepository allocationRepository = ProductRepositoryImpl(empData);
       ProductUsecase empUseCase = ProductUsecase(allocationRepository);
+ 
+final orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId ?? 0;
 
-      ProductEntity user = await empUseCase.execute(id,deptId, token);
+      ProductEntity user = await empUseCase.execute(id,deptId, token, orgid);
 
       Provider.of<ProductProvider>(context, listen: false).setUser(user);
 

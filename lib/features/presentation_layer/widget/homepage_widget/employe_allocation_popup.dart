@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:prominous/constant/request_data_model/emp_process_change_model.dart';
 import 'package:prominous/features/presentation_layer/api_services/attendace_count_di.dart';
 import 'package:prominous/features/presentation_layer/api_services/listofworkstation_di.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/presentation_layer/api_services/allocatio_di.dart';
@@ -81,7 +82,7 @@ bool isTapped = false;
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
     DateTime now = DateTime.now();
-
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = EmpProcessChange(
         apiFor: "change_process_v1",
         clientAutToken: token,
@@ -89,7 +90,9 @@ bool isTapped = false;
         mfgpeId: widget.mfgpeid,
         mfgpeMpmId: selectedProcessId,
         mfgpePersonId: widget.empId,
-        pwsePwsId: 0);
+        pwsePwsId: 0,
+        orgid: orgid
+        );
 
     // final requestBody = ApiRequestDataModel(
     //     apiFor: "change_process",

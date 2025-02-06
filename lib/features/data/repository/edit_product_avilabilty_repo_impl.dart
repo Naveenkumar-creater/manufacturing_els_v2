@@ -8,8 +8,8 @@ class EditProductAvilabiltyRepoImpl extends EditProductAvilableQtyRepo{
   EditProductAvilabiltyRepoImpl(this.editProductAvilabilityDatasource); 
 
   @override
-  Future<EditProductAvilableQtyModel> getEditproductQty (String token,int processid,int paid, String cardno,int reworkflag,int ipdid) async{
-   EditProductAvilableQtyModel result= await editProductAvilabilityDatasource.getEditproductQty(token, processid, paid, cardno, reworkflag, ipdid);
+  Future<EditProductAvilableQtyModel> getEditproductQty (String token,int processid,int paid, String cardno,int reworkflag,int ipdid, int orgid) async{
+   EditProductAvilableQtyModel result= await editProductAvilabilityDatasource.getEditproductQty(token, processid, paid, cardno, reworkflag, ipdid, orgid);
     return result;
   }
   

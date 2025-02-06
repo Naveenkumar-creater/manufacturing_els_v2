@@ -5,8 +5,9 @@ class ActivityUsecase{
   final ActivityRepository activityRepository;
   ActivityUsecase(this.activityRepository);
 
-  Future<ActivityEntity>execute(int id,int deptid, String token,int pwsId)async{
-    return activityRepository.getActivity(id, deptid, token, pwsId);
+  Future<ActivityEntity>execute(int id,int deptid, String token,int pwsId,int orgid)async{
+    
+    return activityRepository.getActivity(id, deptid, token, pwsId, orgid);
   }
 
 }

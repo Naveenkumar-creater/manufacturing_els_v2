@@ -6,6 +6,7 @@ import 'package:prominous/features/data/repository/workstation_problems_repo_imp
 
 import 'package:prominous/features/domain/entity/workstation_problem_entity.dart';
 import 'package:prominous/features/domain/usecase/workstation_problem_usecase.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -29,10 +30,13 @@ class WorkstationProblemService {
         ),
       );
 
+
+final orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId ?? 0;
+
    WorkstationProblemsEntity    workstationProblem = await problems.execute(
        pwsid,
         token,
- 
+        orgid
       );
 
       // Update the provider with the fetched data

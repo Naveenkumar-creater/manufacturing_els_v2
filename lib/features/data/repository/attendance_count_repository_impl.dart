@@ -10,9 +10,9 @@ class AttendanceCountRepositoryImpl extends AttendanceCountRepository {
   AttendanceCountRepositoryImpl(this.attendanceCountDataSOurce);
 
   @override
-  Future<AttendanceCountModel> getAttCount(int id,int deptid,int psid, String token) async {
+  Future<AttendanceCountModel> getAttCount(int id,int deptid,int psid, String token, int orgid) async {
     AttendanceCountModel result =
-        await attendanceCountDataSOurce.getAttCount( id, deptid, psid, token);
+        await attendanceCountDataSOurce.getAttCount( id, deptid, psid, token,  orgid);
     return result;
   }
 }

@@ -35,7 +35,6 @@ import 'package:prominous/features/presentation_layer/provider/login_provider.da
 import 'package:prominous/features/presentation_layer/provider/problem_status_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/rootcause_solution_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/shift_status_provider.dart';
-import 'package:prominous/features/presentation_layer/provider/workstation_problem_provider.dart';
 import 'package:prominous/features/presentation_layer/widget/timing_widget/update_time.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -426,6 +425,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
       int? subincidentId}) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     String token = pref.getString("client_token") ?? "";
+          int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
     final requestBody = UpdateProblemModel(
         apiFor: "update_problem_v1",
         clientAutToken: token,
@@ -439,7 +439,9 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
         productionStopage: productionstopage,
         rootcauseId: rootcauseid,
         solutionId: solutionid,
-        subincidentId: subincidentId);
+        subincidentId: subincidentId,
+        orgid: orgid
+        );
     final requestBodyjson = jsonEncode(requestBody);
 
     print(requestBodyjson);
@@ -884,193 +886,185 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                             ),
                           ],
                         ),
-                        Container(
-                          width: screenSize.width < 572 ? 270.w : 365.w,
-                          height: screenSize.height < 572 ? 35.h : 40.h,
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 1, color: Colors.grey),
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                              value: rootCauseDropdown,
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 5.w, vertical: 5.h)),
-                              hint: Text(
-                                "Select",
-                                style: TextStyle(
-                                  fontSize:
-                                      screenSize.width < 572 ? 12.sp : 16.sp,
-                                ),
-                              ),
-                              isExpanded: true,
-                              onChanged: (String? newvalue) async {
-                                if (newvalue != null) {
-                                  setState(() {
-                                    rootCauseDropdown = newvalue;
-                                  });
+                 Container(
+  width: screenSize.width < 572 ? 270.w : 365.w,
+  height: screenSize.height < 572 ? 35.h : 40.h,
+  decoration: BoxDecoration(
+    border: Border.all(width: 1, color: Colors.grey),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  child: DropdownButtonFormField<String>(
+    value: rootCauseDropdown,
+    decoration: InputDecoration(
+      border: InputBorder.none,
+      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+    ),
+    hint: Text(
+      "Select",
+      style: TextStyle(
+        fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+      ),
+    ),
+    isExpanded: true,
+    onChanged: (String? newvalue) async {
+      if (newvalue != null) {
+        setState(() {
+          rootCauseDropdown = newvalue;
+              solutionDropdown = null;
+              listofrootcausesolution=[];
 
-                                  final rootcause = listofrootcause?.firstWhere(
-                                      (listofrootcause) =>
-                                          listofrootcause
-                                              .incrcmrootcausebrief ==
-                                          newvalue,
-                                      orElse: () => ListOfRootcause(
-                                            incrcmid: 0,
-                                            incrcmincmid: 0,
-                                            incrcmmpmid: 0,
-                                            incrcmrootcausebrief: "",
-                                            increcmrootcausedetails: "",
-                                          ));
+        });
 
-                                  if (rootcause?.incrcmrootcausebrief != null &&
-                                      rootcause?.incrcmid != null) {
-                                    rootCauseid = rootcause?.incrcmid;
+        final rootcause = listofrootcause?.firstWhere(
+          (item) => item.incrcmrootcausebrief == newvalue,
+          orElse: () => ListOfRootcause(
+            incrcmid: 0,
+            incrcmincmid: 0,
+            incrcmmpmid: 0,
+            incrcmrootcausebrief: "",
+            increcmrootcausedetails: "",
+          ),
+        );
 
-                                    await rootcauseSolutionService
-                                        .getListofSolution(
-                                      context: context,
-                                      deptid: deptid ?? 1057,
-                                      rootcauseid: rootCauseid ?? 0,
-                                    );
+        if (rootcause?.incrcmrootcausebrief != null && rootcause?.incrcmid != null) {
+          rootCauseid = rootcause?.incrcmid;
 
-                                    final listofsolution =
-                                        Provider.of<RootcauseSolutionProvider>(
-                                      context,
-                                      listen: false,
-                                    ).user?.solutionEntity;
+          await rootcauseSolutionService.getListofSolution(
+            context: context,
+            deptid: deptid ?? 1057,
+            rootcauseid: rootCauseid ?? 0,
+          );
 
-                                    setState(() {
-                                      listofrootcausesolution = listofsolution;
-                                    });
-                                  }
-                                } else {
-                                  rootCauseDropdown = null;
-                                  rootCauseid = null;
-                                }
-                              },
-                              items: listofrootcause
-                                  ?.map((listofrootcause) {
-                                    return DropdownMenuItem<String>(
-                                      onTap: () {
-                                        setState(() {
-                                          selectrootcausename = listofrootcause
-                                              .incrcmrootcausebrief;
-                                        });
-                                      },
-                                      value:
-                                          listofrootcause.incrcmrootcausebrief,
-                                      child: Text(
-                                        listofrootcause.incrcmrootcausebrief ??
-                                            "",
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          fontFamily: "lexend",
-                                          fontSize: screenSize.width < 572
-                                              ? 12.sp
-                                              : 16.sp,
-                                        ),
-                                      ),
-                                    );
-                                  })
-                                  .toSet()
-                                  .toList()),
-                        ),
-                        SizedBox(
-                          height: 10.h,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Solution',
-                                style: TextStyle(
-                                    fontFamily: "lexend",
-                                    fontSize:
-                                        screenSize.width < 572 ? 12.sp : 16.sp,
-                                    color: Colors.black54)),
-                            SizedBox(
-                              width: 8,
-                            ),
-                            Text(
-                              ' *',
-                              style: TextStyle(
-                                fontFamily: "lexend",
-                                fontSize: 16.sp,
-                                color: Colors.red,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: screenSize.width < 572 ? 270.w : 365.w,
-                          height: screenSize.height < 572 ? 35.h : 40.h,
-                          decoration: BoxDecoration(
-                            border: Border.all(width: 1, color: Colors.grey),
-                            borderRadius: BorderRadius.all(Radius.circular(5)),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                              value: solutionDropdown,
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: 5.w, vertical: 5.h)),
-                              hint: Text(
-                                "Select",
-                                style: TextStyle(
-                                  fontSize:
-                                      screenSize.width < 572 ? 12.sp : 16.sp,
-                                ),
-                              ),
-                              isExpanded: true,
-                              onChanged: (String? newvalue) {
-                                if (newvalue != null) {
-                                  setState(() {
-                                    solutionDropdown = newvalue;
-                                  });
+          final listofsolution = Provider.of<RootcauseSolutionProvider>(
+            context,
+            listen: false,
+          ).user?.solutionEntity;
 
-                                  final solution =
-                                      listofrootcausesolution?.firstWhere(
-                                    (listofrootcausesolution) =>
-                                        listofrootcausesolution.solDesc ==
-                                        newvalue,
-                                  );
+          setState(() {
+            listofrootcausesolution = listofsolution;
+          });
+        }
+      } else {
+        rootCauseDropdown = null;
+        rootCauseid = null;
+      }
+    },
+    items: listofrootcause
+        ?.map((listofrootcause) {
+          return DropdownMenuItem<String>(
+            onTap: () {
+              setState(() {
+                selectrootcausename = listofrootcause.incrcmrootcausebrief;
+              });
+            },
+            value: listofrootcause.incrcmrootcausebrief, // Ensure it's unique
+            child: Text(
+              listofrootcause.incrcmrootcausebrief ?? "",
+              style: TextStyle(
+                color: Colors.black87,
+                fontFamily: "lexend",
+                fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+              ),
+            ),
+          );
+        })
+        .toSet() // Ensures uniqueness
+        .toList(),
+  ),
+),
 
-                                  if (solution?.solDesc != null &&
-                                      solution?.solId != null) {
-                                    solutionid = solution?.solId;
-                                  }
-                                } else {
-                                  solutionDropdown = null;
-                                  solutionid = null;
-                                }
-                              },
-                              items: listofrootcausesolution
-                                  ?.map((listofrootcausesolution) {
-                                    return DropdownMenuItem<String>(
-                                      onTap: () {
-                                        setState(() {
-                                          selectSolution =
-                                              listofrootcausesolution.solDesc;
-                                        });
-                                      },
-                                      value: listofrootcausesolution.solDesc,
-                                      child: Text(
-                                        listofrootcausesolution.solDesc ?? "",
-                                        style: TextStyle(
-                                          color: Colors.black87,
-                                          fontFamily: "lexend",
-                                          fontSize: screenSize.width < 572
-                                              ? 12.sp
-                                              : 16.sp,
-                                        ),
-                                      ),
-                                    );
-                                  })
-                                  .toSet()
-                                  .toList()),
-                        ),
+SizedBox(
+  height: 10.h,
+),
+
+Row(
+  mainAxisAlignment: MainAxisAlignment.start,
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    Text(
+      'Solution',
+      style: TextStyle(
+        fontFamily: "lexend",
+        fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+        color: Colors.black54,
+      ),
+    ),
+    SizedBox(
+      width: 8,
+    ),
+    Text(
+      ' *',
+      style: TextStyle(
+        fontFamily: "lexend",
+        fontSize: 16.sp,
+        color: Colors.red,
+      ),
+    ),
+  ],
+),
+
+Container(
+  width: screenSize.width < 572 ? 270.w : 365.w,
+  height: screenSize.height < 572 ? 35.h : 40.h,
+  decoration: BoxDecoration(
+    border: Border.all(width: 1, color: Colors.grey),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
+  ),
+  child: DropdownButtonFormField<String>(
+    value: solutionDropdown,
+    decoration: InputDecoration(
+      border: InputBorder.none,
+      contentPadding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
+    ),
+    hint: Text(
+      "Select",
+      style: TextStyle(
+        fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+      ),
+    ),
+    isExpanded: true,
+    onChanged: (String? newvalue) {
+      if (newvalue != null) {
+        setState(() {
+          solutionDropdown = newvalue;
+        });
+
+        final solution = listofrootcausesolution?.firstWhere(
+          (item) => item.solDesc == newvalue,
+        );
+        
+        if (solution?.solDesc != null && solution?.solId != null) {
+          solutionid = solution?.solId;
+        }
+      } else {
+        solutionDropdown = null;
+        solutionid = null;
+      }
+    },
+    items: listofrootcausesolution
+        ?.map((listofrootcausesolution) {
+          return DropdownMenuItem<String>(
+            onTap: () {
+              setState(() {
+                selectSolution = listofrootcausesolution.solDesc;
+              });
+            },
+            value: listofrootcausesolution.solDesc, // Ensure it's unique
+            child: Text(
+              listofrootcausesolution.solDesc ?? "",
+              style: TextStyle(
+                color: Colors.black87,
+                fontFamily: "lexend",
+                fontSize: screenSize.width < 572 ? 12.sp : 16.sp,
+              ),
+            ),
+          );
+        })
+        .toSet() // Ensures uniqueness
+        .toList(),
+  ),
+),
+
                         SizedBox(
                           height: 10,
                         ),
@@ -1344,6 +1338,7 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                             selectrootcausename != null
                                         ? () {
                                             setState(() {
+                                                    int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
                                               ListOfWorkStationIncident data =
                                                   ListOfWorkStationIncident(
                                                       fromtime: fromTime,
@@ -1373,7 +1368,10 @@ class _ProblemEntryPopupState extends State<ProblemEntryPopup> {
                                                           selectrootcausename,
                                                       ipdId: 0,
                                                       ipdIncId: 0,
-                                                      assetId: widget.assetid);
+                                                      assetId: widget.assetid,
+
+                                                      orgid: orgid
+                                                      );
 
                                               // final data = {
                                               //   "problemname":

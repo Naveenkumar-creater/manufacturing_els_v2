@@ -10,7 +10,7 @@ class ListofproblemCategoryRepoImpl extends ListofproblemCategoryRepository {
  ListofproblemCategoryRepoImpl(this.listofProblemDatasource);
 
   @override
-  Future<ListOfProbleCategorymModel> getListofProblemCategory(String token, int deptid, int incidentId) async{
-   return await listofProblemDatasource.getListofProblemCategory(token, deptid, incidentId);
+  Future<ListOfProbleCategorymModel> getListofProblemCategory(String token, int deptid, int incidentId, int orgid) async{
+   return await listofProblemDatasource.getListofProblemCategory(token, deptid, incidentId,  orgid);
   }  
 }

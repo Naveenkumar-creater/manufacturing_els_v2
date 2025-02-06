@@ -5,7 +5,7 @@ import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class ActivityDatasource {
-  Future<ActivityModel> getActivity(int id,int deptid, String token,int pwsId);
+  Future<ActivityModel> getActivity(int id,int deptid, String token,int pwsId, int orgid);
 }
 
 
@@ -17,9 +17,9 @@ class ActivityDatasourceImpl extends ActivityDatasource {
   
   
   @override
-  Future<ActivityModel> getActivity(int id,int deptid, String token,int pwsId) async{
+  Future<ActivityModel> getActivity(int id,int deptid, String token,int pwsId,int orgid) async{
    ApiRequestDataModel requestbody = ApiRequestDataModel(
-          apiFor: "process_activity_v1", clientAuthToken: token, processId: id,deptId: deptid,pwsid:pwsId);
+          apiFor: "process_activity_v1", clientAuthToken: token, processId: id,deptId: deptid,pwsid:pwsId, orgid: orgid);
      
      final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
     final result = ActivityModel.fromJson(response);

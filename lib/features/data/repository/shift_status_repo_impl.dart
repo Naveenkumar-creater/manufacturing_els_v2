@@ -11,9 +11,9 @@ ShiftStatusRepositoryImpl(
 
 
   @override
-  Future<ShiftStatusModel> getShiftStatus(int deptid,int processid, String token) async{
+  Future<ShiftStatusModel> getShiftStatus(int deptid,int processid, String token, int orgid) async{
  ShiftStatusModel modelresult =
-        await shiftStatusDatasource.getShiftStatus(deptid,processid, token);
+        await shiftStatusDatasource.getShiftStatus(deptid,processid, token,  orgid);
     return modelresult;
   }
 }

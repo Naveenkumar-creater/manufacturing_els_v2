@@ -5,6 +5,7 @@ import 'package:prominous/features/data/repository/edit_nonproduction_repo_impl.
 import 'package:prominous/features/domain/entity/edit_nonproduction_lis_entity.dart';
 import 'package:prominous/features/domain/usecase/edit_nonproduction_lis_usecase.dart';
 import 'package:prominous/features/presentation_layer/provider/edit_nonproduction_provider.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,7 +25,8 @@ class EditNonProductionListService {
         ),
       );
 
-      EditNonProductionListEntity user = await editNonproductionusecase.execute(token,ipdid );
+int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+      EditNonProductionListEntity user = await editNonproductionusecase.execute(token,ipdid, orgid);
 
       // Update the provider with the fetched data
       Provider.of<EditNonproductionProvider>(context, listen: false).setNonProduction(user);

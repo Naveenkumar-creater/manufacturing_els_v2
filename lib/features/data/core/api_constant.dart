@@ -8,7 +8,7 @@ import '../../../constant/utilities/exception_handle/network_exception.dart';
 
 class ApiConstant {
   
-  static String baseUrl ="http://192.168.29.14:8080/AtmaIntegrationAPI/wsservice";
+  static String baseUrl ="http://95.217.19.73:8080/AtmaIntegrationAPI/wsservice";
   
   //  static String baseUrl ="http://95.217.19.73:8080/AtmaIntegrationAPI/wsservice";
 
@@ -22,10 +22,6 @@ static Future<dynamic> makeApiRequest({
 }) async {
   final stopwatch = Stopwatch()..start();
   final requestStopwatch = Stopwatch();
-
-
-  
-
   try {
     print("API request started");
 

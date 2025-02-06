@@ -7,8 +7,8 @@ class EditEntryRepoImpl implements  EditEntryRepository{
   final EditEntryDatasource editEntryDatasource;
   EditEntryRepoImpl(this.editEntryDatasource);
   @override
-  Future<EditEntryEntity> getEditEntry(int ipdId, int pwsId,int psid, int deptid,String token) {
-  final result= editEntryDatasource.getEditEntry(ipdId, pwsId, psid, deptid, token);
+  Future<EditEntryEntity> getEditEntry(int ipdId, int pwsId,int psid, int deptid,String token, int orgid) {
+  final result= editEntryDatasource.getEditEntry(ipdId, pwsId, psid, deptid, token,  orgid);
   return result;
   }
   

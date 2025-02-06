@@ -4,6 +4,7 @@ import 'package:prominous/features/data/repository/problem_status_impl.dart';
 import 'package:prominous/features/domain/entity/problem_status_entity.dart';
 
 import 'package:prominous/features/domain/usecase/problem_usecase.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 
 import 'package:prominous/features/presentation_layer/provider/problem_status_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,9 +24,10 @@ class ProblemStatusService {
           ProblemStatusDatasourceImpl(),
         ),
       );
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
       ProblemStatusEntity user = await problemstatus.execute(
-        token);
+        token, orgid);
 
       // Update the provider with the fetched data
       Provider.of<ProblemStatusProvider>(context, listen: false).setUser(user);

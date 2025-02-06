@@ -4,6 +4,7 @@ import 'package:prominous/features/data/datasource/remote/product_avilable_qty_d
 import 'package:prominous/features/data/repository/product_avilable_qty_repo.dart';
 import 'package:prominous/features/domain/entity/product_avilable_qty_entity.dart';
 import 'package:prominous/features/domain/usecase/product_avilable_qty_usecae.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/product_avilable_qty_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +28,11 @@ class ProductAvilableQtyService {
         ),
       );
 
-      ProductAvilableQtyEntity user = await productQty.execute( token, processid, paid,  cardno, reworkflag);
+      
+final orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId ?? 0;
+
+
+      ProductAvilableQtyEntity user = await productQty.execute( token, processid, paid,  cardno, reworkflag, orgid);
 
       // Update the provider with the fetched data
       Provider.of<ProductAvilableQtyProvider>(context, listen: false).setUser(user);

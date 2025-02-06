@@ -96,14 +96,14 @@ class LoginPageMobile extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                  children: [
                    Padding(
-                     padding:  EdgeInsets.only(top: 100.h,left: 20.w),
+                     padding:  EdgeInsets.only(top: 60.h,left: 20.w),
                      child: SizedBox(
                       height: 80.h,
                       child: Image.asset('assets/images/Prominous-logo-white.png')),
                    ),
                  ],
                ),
-                  SizedBox(height: 50.h,),  
+                  SizedBox(height: 100.h,),  
             Container(
               decoration: BoxDecoration(
                 color: Color.fromARGB(98, 225, 229, 255),
@@ -114,8 +114,7 @@ class LoginPageMobile extends StatelessWidget {
               child: MobileLogin(),
                       
             ),
-          ],
-                      ),
+          ],  ),
                     ),
         ]));
   }

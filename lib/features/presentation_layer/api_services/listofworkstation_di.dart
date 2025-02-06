@@ -4,6 +4,7 @@ import 'package:prominous/features/data/datasource/remote/listofworkstation_data
 import 'package:prominous/features/data/repository/listofworkstation_repo_impl.dart';
 import 'package:prominous/features/domain/entity/listofworkstation_entity.dart';
 import 'package:prominous/features/domain/usecase/listofworkstation_usecase.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -28,11 +29,14 @@ class ListofworkstationService {
         ),
       );
 
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+
       ListOfWorkstationEntity user = await workstation.execute(
         deptid,
         psid,
         processid,
         token,
+        orgid
       );
 
       // Update the provider with the fetched data

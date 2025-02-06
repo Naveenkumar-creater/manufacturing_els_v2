@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/data/core/process_client.dart';
@@ -31,7 +32,9 @@ class EmpDetailsApiService {
           EmpDetailsRepositoryImpl(empData);
       EmpDetailsUsecase empUseCase = EmpDetailsUsecase(allocationRepository);
 
-      EmpDetailsEntity user = await empUseCase.execute(token);
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+
+      EmpDetailsEntity user = await empUseCase.execute(token, orgid);
 
       Provider.of<EmpDetailsProvider>(context, listen: false).setUser(user);
     } catch (e) {

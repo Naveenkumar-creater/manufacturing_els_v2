@@ -10,9 +10,9 @@ class CardNoRepositoryImpl implements CardNoRepository {
   );
   @override
   Future<CardNoModel> getCardNo(
-    String token,int cardNo
+    String token,int cardNo, int orgid
   ) async {
-    final result = await cardNoDatasource.getCardNo(token,cardNo);
+    final result = await cardNoDatasource.getCardNo(token,cardNo,orgid);
     return result;
   }
 }

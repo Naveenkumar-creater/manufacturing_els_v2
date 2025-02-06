@@ -5,9 +5,9 @@ class EditNonproductionListUsecase{
 final EditNonproductionRepository editNonproductionRepository;
 EditNonproductionListUsecase(this.editNonproductionRepository);
 
-Future<EditNonProductionListEntity> execute(String token, int ipdid)async{
+Future<EditNonProductionListEntity> execute(String token, int ipdid, int orgid)async{
 
-return editNonproductionRepository.getEditNonProductionList(token, ipdid);
+return editNonproductionRepository.getEditNonProductionList(token, ipdid,  orgid);
   
 }
 

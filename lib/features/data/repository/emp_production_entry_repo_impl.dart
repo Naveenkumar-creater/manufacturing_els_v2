@@ -14,9 +14,10 @@ class EmpProductionEntryRepoImpl implements EmpProductionRepository {
     int pwsid,
     int deptid,int psid,
     String token,
+    int orgid
     // int goodQuantities, int rejectedQuantities, int reworkQuantities
   ) {
-    final result = empProductionEntryDatasource.getempproduction(pwsid,deptid,psid,token
+    final result = empProductionEntryDatasource.getempproduction(pwsid,deptid,psid,token,  orgid
         // , goodQuantities, rejectedQuantities, reworkQuantities
         );
     return result;

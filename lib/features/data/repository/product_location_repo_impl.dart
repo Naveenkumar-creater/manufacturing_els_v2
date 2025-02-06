@@ -7,8 +7,8 @@ class ProductLocationRepoImpl extends ProductLocationRepository{
    ProductLocationRepoImpl(this.productLocationDatasource);
 
   @override
-  Future<ProductLocationModel> getAreaList(String token) async{
-    return await productLocationDatasource.getAreaList(token);
+  Future<ProductLocationModel> getAreaList(String token,  int orgid) async{
+    return await productLocationDatasource.getAreaList(token,  orgid);
   }
 
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/constant/utilities/exception_handle/show_pop_error.dart';
@@ -24,8 +25,9 @@ class AllocationService {
           AllocationRepositoryImpl(allocationData);
       AllocationUsecases allocationUseCase =
           AllocationUsecases(allocationRepository);
+          int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
 
-      AllocationEntity user = await allocationUseCase.execute(id, deptid,token);
+      AllocationEntity user = await allocationUseCase.execute(id, deptid,token, orgid);
       // final allocationUseCase = AllocationUsecases(AllocationRepositoryImpl(
       //   AllocationDatasourceImpl(),
       // ));

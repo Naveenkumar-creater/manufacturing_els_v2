@@ -12,6 +12,7 @@ import 'package:prominous/features/domain/entity/listofproblem_catagory_entity.d
 import 'package:prominous/features/presentation_layer/api_services/listofproblem_catagory_di.dart';
 
 import 'package:prominous/features/presentation_layer/api_services/listofrootcause_di.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 
 import 'package:prominous/features/presentation_layer/provider/non_production_activity_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/non_production_stroed_list_provider.dart';
@@ -434,13 +435,15 @@ class _NonProductionActivityPopupState
                                             return DateTime.tryParse(
                                                 dateTimeStr); // Return null if parsing fails
                                           }
+                                                int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
                                           NonProductionEntryModel data =
                                               NonProductionEntryModel(
                                                   notes: reasonController.text,
                                                   npamFromTime: fromTime,
                                                   npamId: npamid,
                                                   npamToTime: lastupdatedTime,
-                                                  npamName: npamname);
+                                                  npamName: npamname,
+                                                  orgid: orgid);
 
 // Convert fromTime and lastupdatedTime to DateTime
                                           DateTime? newFromTime =

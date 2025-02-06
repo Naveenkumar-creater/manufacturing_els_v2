@@ -3,6 +3,7 @@ import 'package:prominous/features/data/datasource/remote/rootcause_solution_dat
 import 'package:prominous/features/data/repository/rootcause_solution_repo_impl.dart';
 import 'package:prominous/features/domain/entity/rootcause_solution_entity.dart';
 import 'package:prominous/features/domain/usecase/solution_usecase.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:prominous/features/presentation_layer/provider/rootcause_solution_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -27,10 +28,14 @@ class RootcauseSolutionService {
         ),
       );
 
+
+final orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId ?? 0;
+
       RootcauseSolutionEntity user = await solution.execute(
        rootcauseid,
         deptid,
         token,
+        orgid
  
       );
 

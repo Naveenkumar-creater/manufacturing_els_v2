@@ -6,7 +6,7 @@ import 'package:prominous/features/data/model/listof_problem_model.dart';
 
 abstract class ListofProblemCategoryDatasource{
 
-Future<ListOfProbleCategorymModel> getListofProblemCategory(String token,int deptid,int incidentId);
+Future<ListOfProbleCategorymModel> getListofProblemCategory(String token,int deptid,int incidentId, int orgid);
  
 }
 
@@ -14,8 +14,8 @@ Future<ListOfProbleCategorymModel> getListofProblemCategory(String token,int dep
 class ListofProblemCategoryDatasourceImpl implements ListofProblemCategoryDatasource{
 
   @override
-  Future<ListOfProbleCategorymModel> getListofProblemCategory(String token, int deptid, int incidentId) async{
-   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_category_v1",clientAuthToken:token,deptId:deptid,incidentid: incidentId);
+  Future<ListOfProbleCategorymModel> getListofProblemCategory(String token, int deptid, int incidentId,int orgid ) async{
+   ApiRequestDataModel requestbody =ApiRequestDataModel(apiFor: "list_of_incident_category_v1",clientAuthToken:token,deptId:deptid,incidentid: incidentId,orgid: orgid );
    final response = await ApiConstant.makeApiRequest(requestBody:requestbody );
   final result= ListOfProbleCategorymModel.fromJson(response);
  return result;

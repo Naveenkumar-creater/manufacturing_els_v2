@@ -7,8 +7,8 @@ class ListofworkstationUsecase {
 
   ListofworkstationUsecase(this.listofWorkstationRepository);
 
-Future<ListOfWorkstationEntity> execute (int deptid,int psid, int processid, String token){
- return listofWorkstationRepository.getListofWorkstation(deptid, psid, processid, token)
+Future<ListOfWorkstationEntity> execute (int deptid,int psid, int processid, String token, int orgid){
+ return listofWorkstationRepository.getListofWorkstation(deptid, psid, processid, token,  orgid)
 ;
 }
 }

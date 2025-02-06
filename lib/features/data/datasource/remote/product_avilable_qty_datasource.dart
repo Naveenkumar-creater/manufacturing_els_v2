@@ -3,17 +3,17 @@ import '../../../../constant/request_data_model/api_request_model.dart';
 import '../../core/api_constant.dart';
 
 abstract class ProductAvilableQtyDatasource {
-  Future<ProductAvilableQtyModel> getproductQty (String token,int processid,int paid, String cardno,int reworkflag);
+  Future<ProductAvilableQtyModel> getproductQty (String token,int processid,int paid, String cardno,int reworkflag, int orgid);
 }
 
 class ProductAvilableQtyDatasourceImpl extends ProductAvilableQtyDatasource {
 
   @override
-  Future<ProductAvilableQtyModel> getproductQty (String token,int processid,int paid, String cardno,int reworkflag) async {
+  Future<ProductAvilableQtyModel> getproductQty (String token,int processid,int paid, String cardno,int reworkflag, int orgid) async {
 
 
       ApiRequestDataModel requestbody = ApiRequestDataModel(
-          apiFor: "item_process_card_wip_v1", clientAuthToken: token,processId:processid ,paId: paid,Cardno:cardno ,reworkflag: reworkflag);
+          apiFor: "item_process_card_wip_v1", clientAuthToken: token,processId:processid ,paId: paid,Cardno:cardno ,reworkflag: reworkflag, orgid: orgid);
      final response = await ApiConstant.makeApiRequest(requestBody: requestbody);
     final result = ProductAvilableQtyModel.fromJson(response);
    

@@ -6,7 +6,7 @@ class AttendanceCountUseCases {
   final AttendanceCountRepository attendanceCountRepository;
 
   AttendanceCountUseCases(this.attendanceCountRepository);
-  Future<AttendanceEntity> execute(int id,int deptid,int psid, String token) async {
-    return await attendanceCountRepository.getAttCount(id, deptid, psid, token);
+  Future<AttendanceEntity> execute(int id,int deptid,int psid, String token, int orgid) async {
+    return await attendanceCountRepository.getAttCount(id, deptid, psid, token,  orgid);
   }
 }

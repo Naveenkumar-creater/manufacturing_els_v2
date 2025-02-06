@@ -13,8 +13,8 @@ class NonProductionRepoImpl extends NonProductionRepository{
   final  NonProductionActivityDatasource nonProductionActivityDatasource;
   NonProductionRepoImpl(this.nonProductionActivityDatasource); 
   @override
-  Future<NonProductionActivityEntity> getNonProductionActivity(String token) async{
-  final  result= await nonProductionActivityDatasource.getNonProductionActivity(token);
+  Future<NonProductionActivityEntity> getNonProductionActivity(String token, int orgid) async{
+  final  result= await nonProductionActivityDatasource.getNonProductionActivity(token,  orgid);
     return result;
   }
 

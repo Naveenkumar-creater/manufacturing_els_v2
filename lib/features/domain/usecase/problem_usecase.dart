@@ -6,8 +6,8 @@ class ProblemStatusUsecase {
   ProblemStatusUsecase(this.problemStatusRepository);
 
   Future<ProblemStatusEntity> execute(
-    String token,
+    String token,int orgid
   ) async {
-    return problemStatusRepository.getProblemStatus(token);
+    return problemStatusRepository.getProblemStatus(token,  orgid);
   }
 }

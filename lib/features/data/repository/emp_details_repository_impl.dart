@@ -12,8 +12,8 @@ class EmpDetailsRepositoryImpl implements EmpDetailsRepository {
     this.empDetailsDatasource,
   );
   @override
-  Future<EmpDetailsEntity> getEmpDetails(String token) async {
-    final result = await empDetailsDatasource.getEmpDetails(token);
+  Future<EmpDetailsEntity> getEmpDetails(String token, int orgid) async {
+    final result = await empDetailsDatasource.getEmpDetails(token, orgid);
     return result;
   }
 }

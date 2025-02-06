@@ -6,19 +6,20 @@ import 'package:prominous/features/data/model/card_no_model.dart';
 
 
 abstract class CardNoDatasource {
-  Future<CardNoModel> getCardNo(String token,int cardNo);
+  Future<CardNoModel> getCardNo(String token,int cardNo,int orgid);
 }
 
 class CardNoDatasourceImpl implements CardNoDatasource {
 
   @override
-  Future<CardNoModel> getCardNo(String token,int cardNo) async {
+  Future<CardNoModel> getCardNo(String token,int cardNo, int orgid) async {
     // ApiRequestDataModel requestbody = ApiRequestDataModel(
     //       apiFor: "scan_card_for_item_v1", clientAuthToken: token, cardNo: cardNo);
    final request={
    "client_aut_token": token,
     "api_for": "scan_card_for_item_v1",
-     "card_no":cardNo
+     "card_no":cardNo,
+     "org_id":orgid
     
 };
     final response = await ApiConstant.scannerApiRequest(requestBody:request);

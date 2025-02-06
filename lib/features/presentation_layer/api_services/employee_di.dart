@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prominous/features/presentation_layer/provider/login_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prominous/features/data/core/employee_client.dart';
@@ -21,7 +22,10 @@ class EmployeeApiService {
       EmployeeRepository allocationRepository = EmployeeRepositoryImpl(empData);
       EmployeeUsecase empUseCase = EmployeeUsecase(allocationRepository);
 
-      EmployeeEntity user = await empUseCase.execute(processid,deptid,psid, token);
+      
+      int? orgid=Provider.of<LoginProvider>(context, listen: false).user?.userLoginEntity?.orgId  ?? 0;
+
+      EmployeeEntity user = await empUseCase.execute(processid,deptid,psid, token, orgid);
 
       // final employeeUseCase = EmployeeUsecase(
       //   EmployeeRepositoryImpl(
